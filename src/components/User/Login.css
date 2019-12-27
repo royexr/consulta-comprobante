@@ -1,0 +1,9 @@
+.container {
+  max-width: 1200px;
+  min-width: 20%;
+}
+.form {
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-template-columns: 1fr;
+}

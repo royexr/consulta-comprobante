@@ -3,8 +3,8 @@ import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 
 // Resources
-import Login from '../Login';
-import CreateUser from '../CreateUser';
+import Login from '../User/Login';
+import CreateUser from '../User/CreateUser';
 import FormVoucherInquiry from '../FormVoucherInquiry';
 
 const Routes = () => (

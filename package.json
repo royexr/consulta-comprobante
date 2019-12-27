@@ -7,6 +7,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "classnames": "^2.2.6",
+    "jsonwebtoken": "^8.5.1",
     "primeflex": "^1.0.0",
     "primeicons": "^2.0.0",
     "primereact": "^3.3.3",

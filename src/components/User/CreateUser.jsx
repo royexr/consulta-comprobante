@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 
 // Resources
-import { Dropdown } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
+import Form from '../../sharedcomponents/Form';
+import api from '../../utils/api';
 
 const CreateUser = () => {
   const [formState, setFormState] = useState([]);
@@ -32,13 +31,13 @@ const CreateUser = () => {
       {
         label: 'Celular',
         name: 'phone',
-        type: 'number',
+        type: 'tel',
         value: '',
       },
       {
         label: 'Tipo de documento',
         name: 'docType',
-        type: 'dropdown',
+        type: 'select',
         value: '',
         options: [
           {
@@ -54,7 +53,7 @@ const CreateUser = () => {
       {
         label: 'Numero de documento',
         name: 'docNumber',
-        type: 'number',
+        type: 'tel',
         value: '',
       },
     ]);
@@ -75,64 +74,22 @@ const CreateUser = () => {
     setFormState(newFormState);
   };
 
-  const handleSubmit = (e) => {
+  const create = (e) => {
     e.preventDefault();
-    console.log('Submit');
-  };
-
-  const selector = (item, index) => {
-    switch (item.type) {
-      case 'dropdown':
-        return (
-          <span key={index}>
-            <Dropdown
-              ariaLabel={item.name}
-              placeholder="Tipo de documento"
-              name={item.name}
-              value={item.value}
-              onChange={handleChange}
-              options={item.options}
-            />
-          </span>
-        );
-      case 'number':
-        return (
-          <span key={index} className="p-float-label" style={{ margin: '2rem 0' }}>
-            <InputText
-              keyfilter="pint"
-              name={item.name}
-              value={item.value}
-              onChange={handleChange}
-              autoComplete="off"
-            />
-            <label htmlFor={item.name}>{item.label}</label>
-          </span>
-        );
-      default:
-        return (
-          <span key={index} className="p-float-label" style={{ margin: '2rem 0' }}>
-            <InputText
-              name={item.name}
-              value={item.value}
-              type={item.type}
-              onChange={handleChange}
-              autoComplete="off"
-            />
-            <label htmlFor={item.name}>{item.label}</label>
-          </span>
-        );
+    const user = {};
+    for (let i = 0; i < formState.length; i += 1) {
+      const item = formState[i];
+      if (item.name !== undefined && item.value !== undefined && item.name !== 'confirmPassword') {
+        user[item.name] = item.value;
+      }
     }
+    api.User.Create({ user });
   };
 
   return (
-    <form action="POST" onSubmit={handleSubmit}>
-      <div className="p-col-9 p-sm-6 p-md-4 p-lg-3">
-        {formState.map((item) => (
-          selector(item, formState.indexOf(item))
-        ))}
-      </div>
-      <Button type="submit" label="Registrar" />
-    </form>
+    <Form state={formState} onChangeEvent={handleChange}>
+      <button type="button" onClick={create}>Crear cuenta</button>
+    </Form>
   );
 };
 
