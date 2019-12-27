@@ -26,7 +26,7 @@ const FormField = ({
     const FetchSuggestions = async () => {
       if (type === 'autoComplete' && suggestions.length === 0) {
         try {
-          setSuggs(await api.Distincts.GetValues(collectionName, fieldName, arrayFN, codes));
+          setSuggs((await api.Distincts.GetValues(collectionName, fieldName, arrayFN, codes)).data);
         } catch (error) {
           setSuggs([]);
         }

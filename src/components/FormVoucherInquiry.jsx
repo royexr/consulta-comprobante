@@ -1,12 +1,16 @@
 // Dependencies
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import jwt from 'jsonwebtoken';
 
 // Resources
 import Form from '../sharedcomponents/Form';
 import api from '../utils/api';
+import voucherCodes from '../utils/voucherCodes';
 
 const FormVoucherInquiry = ({ method }) => {
+  const history = useHistory();
   const [formState, setFormState] = useState([]);
   const [vouchers, setVouchers] = useState([]);
 
@@ -14,7 +18,7 @@ const FormVoucherInquiry = ({ method }) => {
     let companies = [];
     const FetchCompanies = async () => {
       try {
-        companies = await api.Distincts.GetValues('companies', '_id.Cod_Empresa');
+        companies = (jwt.verify(sessionStorage.getItem('userJWT'), 'pale')).companies;
       } catch (error) {
         companies = [];
       }
@@ -103,7 +107,7 @@ const FormVoucherInquiry = ({ method }) => {
     setFormState(newFormState);
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
 
     if (method === 'POST') {
@@ -126,15 +130,42 @@ const FormVoucherInquiry = ({ method }) => {
           }
         }
       }
-      fetch(`http://localhost:3001/api/invoices/?${query}`)
-        .then((response) => response.json())
-        .then((json) => setVouchers(json.data));
+      setVouchers((await api.Invoice.GetMany(query)).data);
+      // fetch(`http://localhost:3001/api/invoices/?${query}`)
+      //   .then((response) => response.json())
+      //   .then((json) => setVouchers(json.data));
     }
   };
 
+  const signOut = () => {
+    sessionStorage.removeItem('userJWT');
+    history.push('/');
+  };
+
+  const downloadPDF = (voucher) => {
+    const ruc = formState[0].value;
+    const date = (new Date(voucher.FechaEmision)).toLocaleDateString();
+    const splitDate = date.split('/');
+    const formatDate = `${splitDate[2]}/0${splitDate[1]}/0${splitDate[0]}`;
+    const formatData = `${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.pdf`;
+    const url = `https://www.api.consultasruc.com:4000/api/AArchivo/COMPROBANTES/${ruc}/${formatDate}/PDF/${formatData}`;
+    document.getElementById('pdf').src = url;
+  };
+
   return (
-    <div>
+    <>
+      <nav>
+        <button onClick={signOut} name="Salir" type="button">Salir</button>
+      </nav>
       <Form method={method} state={formState} onChangeEvent={onChange} onSubmitEvent={onSubmit} />
+      <div className="modal">
+        <div className="modal-content">
+          <div className="copy">
+            <embed id="pdf" src="" type="application/pdf" width="100%" height="600px" />
+          </div>
+        </div>
+        <div className="overlay" />
+      </div>
       {vouchers.length !== 0 && (
       <table>
         <thead>
@@ -166,16 +197,16 @@ const FormVoucherInquiry = ({ method }) => {
                 <td>{voucher.Cod_Moneda}</td>
                 <td>{voucher.Total}</td>
                 <td>{voucher.Cod_EstadoComprobante}</td>
-                <td><button type="button">PDF</button></td>
-                <td><button type="button">XML</button></td>
-                <td><button type="button">CDR</button></td>
+                <td><button onClick={() => { downloadPDF(voucher); }} name="PDF" type="button">PDF</button></td>
+                <td><button onClick={() => console.log('XML')} name="XML" type="button">XML</button></td>
+                <td><button onClick={() => console.log('CDR')} name="CDR" type="button">CDR</button></td>
               </tr>
             ))
           }
         </tbody>
       </table>
       )}
-    </div>
+    </>
   );
 };
 

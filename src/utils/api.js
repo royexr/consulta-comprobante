@@ -12,8 +12,8 @@ const callApi = async (endpoint, options = {}) => {
 
   const url = BASE_URL + endpoint;
   const rt = await fetch(url, opts)
-    .then((res) => res.ok && res.json())
-    .then((response) => response.data);
+    .then((res) => res.json())
+    .then((response) => response);
   return rt;
 };
 
@@ -25,6 +25,19 @@ const api = {
       const auxcodesQuery = codes !== undefined ? codes.map((code) => `&codes[]=${code}`) : '';
       const codesQuery = auxcodesQuery.constructor === Array ? auxcodesQuery.join('') : '';
       return callApi(initialQuery.concat(arrayFNQuery, codesQuery), { method: 'GET' });
+    },
+  },
+  User: {
+    Create(user) {
+      return callApi('/users', { method: 'POST', body: JSON.stringify(user) });
+    },
+    SignIn(credentials) {
+      return callApi('/users/signin', { method: 'POST', body: JSON.stringify(credentials) });
+    },
+  },
+  Invoice: {
+    GetMany(query) {
+      return callApi(`/invoices/?${query}`, { method: 'GET' });
     },
   },
 };
