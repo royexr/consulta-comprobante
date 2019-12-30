@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken';
 // Resources
 import Form from '../../sharedcomponents/Form';
 import api from '../../utils/api';
-import './Login.css';
 
 const Login = () => {
   const history = useHistory();

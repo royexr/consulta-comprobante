@@ -92,8 +92,6 @@ const FormField = ({
             </span>
           </div>
         );
-      case 'submit':
-        return <button type="submit">{label}</button>;
       default:
         return (
           <div>
