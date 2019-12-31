@@ -224,7 +224,7 @@ const FormVoucherInquiry = ({ method }) => {
     const ws = XLSX.utils.json_to_sheet(formatedVouchers);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'TestSheet');
-    XLSX.writeFile(wb, `Reporte_${date.toLocaleString().replace(/:|\//gi, '-').replace(' ', '_')}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_${date.toLocaleString().replace(/,/gi, '').replace(/:|\//gi, '-').replace(/\s/gi, '_')}.xlsx`);
   };
 
   const dateTemplate = (rowData) => {
