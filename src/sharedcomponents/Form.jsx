@@ -6,17 +6,19 @@ import PropTypes from 'prop-types';
 import FormField from './FormField';
 
 const Form = ({
+  children,
+  className,
   method,
   state,
   onChangeEvent,
   onSubmitEvent,
-  children,
 }) => (
-  <form className="form" method={method} onSubmit={onSubmitEvent}>
+  <form className={className} method={method} onSubmit={onSubmitEvent}>
     {state.map((item) => (
       <FormField
         key={state.indexOf(item)}
         arrayFN={item.arrayFN}
+        className={item.className}
         codes={item.codes}
         collectionName={item.collectionName}
         label={item.label}
@@ -34,20 +36,22 @@ const Form = ({
 );
 
 Form.defaultProps = {
+  children: null,
+  className: '',
   method: 'GET',
   onSubmitEvent: () => {},
-  children: null,
 };
 
 Form.propTypes = {
-  method: PropTypes.string,
-  state: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onChangeEvent: PropTypes.func.isRequired,
-  onSubmitEvent: PropTypes.func,
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.element),
     PropTypes.element,
   ]),
+  className: PropTypes.string,
+  method: PropTypes.string,
+  state: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onChangeEvent: PropTypes.func.isRequired,
+  onSubmitEvent: PropTypes.func,
 };
 
 export default Form;

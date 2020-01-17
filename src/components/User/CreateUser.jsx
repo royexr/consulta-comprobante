@@ -1,12 +1,17 @@
 // Dependencies
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 
 // Resources
+import { Button } from 'primereact/button';
 import Form from '../../sharedcomponents/Form';
 import api from '../../utils/api';
 
 const CreateUser = () => {
   const [formState, setFormState] = useState([]);
+  const [isCreateDisable, setIsCreateDisable] = useState(true);
+  const history = useHistory();
+  // const [isPasswordSame, setIsPasswordSame] = useState(true);
 
   useEffect(() => {
     setFormState([
@@ -60,6 +65,8 @@ const CreateUser = () => {
   }, []);
 
   const handleChange = (e) => {
+    let count = 0;
+    let samePass = false;
     const newFormState = formState.map((item) => {
       const field = item;
       if (field.name !== undefined && field.value !== undefined) {
@@ -67,10 +74,20 @@ const CreateUser = () => {
           field.name = e.target.name;
           field.value = e.target.value;
         }
+
+        if (field.value !== '') {
+          count += 1;
+        }
+
+        if (field.name === 'confirmPassword') {
+          samePass = formState[1].value === formState[2].value;
+        }
       }
       return field;
     });
 
+    setIsCreateDisable(formState.length !== count || !samePass);
+    // setIsPasswordSame(samePass);
     setFormState(newFormState);
   };
 
@@ -86,9 +103,15 @@ const CreateUser = () => {
     api.User.Create({ user });
   };
 
+  const cancel = (e) => {
+    e.preventDefault();
+    history.push('/');
+  };
+
   return (
     <Form state={formState} onChangeEvent={handleChange}>
-      <button type="button" onClick={create}>Crear cuenta</button>
+      <Button label="Crear cuenta" disabled={isCreateDisable} onClick={create} className="button button--blue" />
+      <Button label="Cancelar" onClick={cancel} className="p-button-danger button--red" />
     </Form>
   );
 };

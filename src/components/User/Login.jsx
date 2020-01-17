@@ -4,8 +4,11 @@ import { useHistory } from 'react-router-dom';
 import jwt from 'jsonwebtoken';
 
 // Resources
+import { Button } from 'primereact/button';
 import Form from '../../sharedcomponents/Form';
 import api from '../../utils/api';
+import './Login.css';
+// import authenticationService from '../../services/authentication.service';
 
 const Login = () => {
   const history = useHistory();
@@ -15,12 +18,14 @@ const Login = () => {
   useEffect(() => {
     setLoginState([
       {
-        label: 'Correo',
+        className: 'p-col-10 p-xl-8 p-col-align-center',
+        label: 'Correo electronico',
         name: 'email',
         type: 'email',
         value: '',
       },
       {
+        className: 'p-col-10 p-xl-8 p-col-align-center',
         label: 'Contraseña',
         name: 'password',
         type: 'password',
@@ -79,13 +84,25 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
-      <Form className="form login" state={loginState} onChangeEvent={handleChange}>
-        <button onClick={SignIn} name="Ingresar" type="submit">Ingresar</button>
-        <button onClick={CreateAccount} name="Registrate" type="submit">Registrate</button>
-      </Form>
-      {alertMessage.length !== 0 && <div><strong>{alertMessage}</strong></div>}
-    </div>
+    <>
+      <div className="jumbotron p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-3">
+        <h2 className="login-title">INICIA SESIÓN EN PALE</h2>
+        <Form className="form login p-grid p-dir-col p-nogutter" state={loginState} onChangeEvent={handleChange}>
+          <div className="form-field p-col-6 p-xl-5 p-col-align-center">
+            <Button label="Iniciar sesión" className="button button--blue" onClick={SignIn} />
+          </div>
+          <a className="p-col-align-center" href="/">¿olvidaste tu contraseña?</a>
+        </Form>
+        {alertMessage.length !== 0 && <div><strong>{alertMessage}</strong></div>}
+        <hr />
+        <div className="p-grid p-dir-col">
+          <a className="p-col-align-center" href="/">¿no tienes cuenta?</a>
+          <div className="p-col-6 p-xl-5 p-nogutter p-col-align-center">
+            <Button label="Registrate" className="p-button-secondary button" onClick={CreateAccount} />
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

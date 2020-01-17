@@ -7,8 +7,10 @@ import btoa from 'btoa';
 import XLSX from 'xlsx';
 
 // Resources
-import { Dialog } from 'primereact/dialog';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
+import { Dialog } from 'primereact/dialog';
 import { Column } from 'primereact/column';
 import Form from '../sharedcomponents/Form';
 import api from '../utils/api';
@@ -152,9 +154,6 @@ const FormVoucherInquiry = ({ method }) => {
         setTotalVouchers(Math.round(totalV * 100) / 100);
       }
       setVouchers(vouchersData);
-      // fetch(`http://localhost:3001/api/invoices/?${query}`)
-      //   .then((response) => response.json())
-      //   .then((json) => setVouchers(json.data));
     }
   };
 
@@ -212,7 +211,7 @@ const FormVoucherInquiry = ({ method }) => {
     setPdfSource('');
   };
 
-  const ExportXlsx = () => {
+  const exportXlsx = () => {
     const formatedVouchers = vouchers.map((voucher) => {
       const newVoucher = { ...voucher };
       delete newVoucher._id;
@@ -229,31 +228,39 @@ const FormVoucherInquiry = ({ method }) => {
 
   const dateTemplate = (rowData) => {
     const formatedDate = (new Date(rowData.FechaEmision)).toLocaleDateString();
-    return <p>{formatedDate}</p>;
+    return formatedDate;
   };
 
   const actionTemplate = (rowData) => (
     <>
       <button type="button" onClick={() => { downloadPDF(rowData); }}>PDF</button>
       <button type="button" onClick={() => { downloadXML(rowData); }}>XML</button>
-      {/* <button type="button" onClick={() => { downloadCDR(rowData); }}>CDR</button> */}
     </>
   );
 
   return (
     <>
       <nav>
-        <button onClick={signOut} name="Salir" type="button">Salir</button>
+        <Button className="button button--blue" label="Salir" onClick={signOut} type="button" />
       </nav>
       <Form method={method} state={formState} onChangeEvent={onChange} onSubmitEvent={onSubmit}>
-        <button disabled={isFilterDisable} type="submit">Filtrar</button>
+        <Button className="button button--blue" label="Filtrar" disabled={isFilterDisable} type="submit" />
       </Form>
       <Dialog header="PDF" visible={shouldShowPDF} style={{ width: '70vw' }} modal onHide={hidePDFModal}>
-        {pdfSource !== '' && <embed id="pdf" src={pdfSource} type="application/pdf" width="100%" height="600px" />}
+        {
+          pdfSource !== '' && (
+          <object id="pdf" aria-label="pdf" data={pdfSource} type="application/pdf" width="100%" height="600px">
+            <p>
+              Your web browser does not have a PDF plugin. Instead you can
+              <a href={pdfSource}>click here to download the PDF file.</a>
+            </p>
+          </object>
+          )
+          }
       </Dialog>
       {vouchers.length !== 0 && (
         <>
-          <DataTable value={vouchers} paginator rows={10}>
+          <DataTable responsive value={vouchers} paginator rows={10}>
             <Column body={dateTemplate} header="Fecha de emision" />
             <Column field="Cod_TipoOperacion" header="Tipo de operacion" />
             <Column field="Serie" header="Serie" />
@@ -267,10 +274,12 @@ const FormVoucherInquiry = ({ method }) => {
           </DataTable>
           <div>
             <span>
-              <label htmlFor="TotalVouchers">Total</label>
-              <input type="text" id="TotalVouchers" name="TotalVouchers" disabled value={totalVouchers} />
+              <label>
+                Total
+                <InputText type="text" disabled value={totalVouchers} />
+              </label>
             </span>
-            <button type="button" onClick={ExportXlsx}>Exportar a Excel</button>
+            <Button className="button button--blue" label="Exportar a Excel" onClick={exportXlsx} type="button" />
           </div>
         </>
       )}

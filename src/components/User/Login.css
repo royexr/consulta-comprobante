@@ -1,9 +1,12 @@
-.container {
-  max-width: 1200px;
-  min-width: 20%;
+.jumbotron {
+  background-color: white;
 }
-.form {
-  display: grid;
-  grid-auto-rows: 1fr;
-  grid-template-columns: 1fr;
+
+.form.login {
+  width: 100%;
+}
+
+.login-title {
+  color: #43425D;
+  text-align: center;
 }
