@@ -5,15 +5,15 @@ import jwt from 'jsonwebtoken';
 
 // Resources
 import { Button } from 'primereact/button';
+import { Messages } from 'primereact/messages';
 import Form from '../../sharedcomponents/Form';
 import api from '../../utils/api';
 import './Login.css';
-// import authenticationService from '../../services/authentication.service';
 
 const Login = () => {
+  let messages = new Messages();
   const history = useHistory();
   const [loginState, setLoginState] = useState([]);
-  const [alertMessage, setAlertMessage] = useState('');
 
   useEffect(() => {
     setLoginState([
@@ -49,6 +49,10 @@ const Login = () => {
     setLoginState(newFormState);
   };
 
+  const showMessage = (severity, summary, detail) => {
+    messages.show({ severity, summary, detail });
+  };
+
   const SignIn = async (e) => {
     e.preventDefault();
     const credentials = {};
@@ -65,13 +69,13 @@ const Login = () => {
         history.push('/voucherInquiry');
         break;
       case '02':
-        setAlertMessage('Contraseña incorrecta');
+        showMessage('error', 'Error!', 'Contraseña incorrecta');
         break;
       case '03':
-        setAlertMessage('El usuario esta inhabilitado');
+        showMessage('warn', 'Alerta!', 'El usuario esta inhabilitado');
         break;
       case '04':
-        setAlertMessage('El usuario no existe');
+        showMessage('error', 'Error!', 'El usuario no existe');
         break;
       default:
         break;
@@ -92,8 +96,10 @@ const Login = () => {
             <Button label="Iniciar sesión" className="button button--blue" onClick={SignIn} />
           </div>
           <a className="p-col-align-center" href="/">¿olvidaste tu contraseña?</a>
+          <div className="p-col-10 p-xl-8 p-col-align-center">
+            <Messages ref={(el) => { messages = el; }} />
+          </div>
         </Form>
-        {alertMessage.length !== 0 && <div><strong>{alertMessage}</strong></div>}
         <hr />
         <div className="p-grid p-dir-col">
           <a className="p-col-align-center" href="/">¿no tienes cuenta?</a>
