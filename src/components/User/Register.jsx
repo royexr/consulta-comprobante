@@ -4,42 +4,47 @@ import { useHistory } from 'react-router-dom';
 
 // Resources
 import { Button } from 'primereact/button';
+import PersonalData from './PersonalData';
 import Form from '../../sharedcomponents/Form';
 import api from '../../utils/api';
 
-const CreateUser = () => {
+const Register = () => {
   const [formState, setFormState] = useState([]);
   const [isCreateDisable, setIsCreateDisable] = useState(true);
   const history = useHistory();
-  // const [isPasswordSame, setIsPasswordSame] = useState(true);
 
   useEffect(() => {
     setFormState([
       {
+        className: 'p-col-10 p-xl-8 p-col-align-center',
         label: 'Correo',
         name: 'email',
         type: 'email',
         value: '',
       },
       {
+        className: 'p-col-10 p-xl-8 p-col-align-center',
         label: 'Contraseña',
         name: 'password',
         type: 'password',
         value: '',
       },
       {
+        className: 'p-col-10 p-xl-8 p-col-align-center',
         label: 'Confirmar contraseña',
         name: 'confirmPassword',
         type: 'password',
         value: '',
       },
       {
+        className: 'p-col-10 p-xl-8 p-col-align-center',
         label: 'Celular',
         name: 'phone',
         type: 'tel',
         value: '',
       },
       {
+        className: 'p-col-10 p-xl-8 p-col-align-center',
         label: 'Tipo de documento',
         name: 'docType',
         type: 'select',
@@ -56,6 +61,7 @@ const CreateUser = () => {
         ],
       },
       {
+        className: 'p-col-10 p-xl-8 p-col-align-center',
         label: 'Numero de documento',
         name: 'docNumber',
         type: 'tel',
@@ -87,7 +93,6 @@ const CreateUser = () => {
     });
 
     setIsCreateDisable(formState.length !== count || !samePass);
-    // setIsPasswordSame(samePass);
     setFormState(newFormState);
   };
 
@@ -109,11 +114,32 @@ const CreateUser = () => {
   };
 
   return (
-    <Form state={formState} onChangeEvent={handleChange}>
-      <Button label="Crear cuenta" disabled={isCreateDisable} onClick={create} className="button button--blue" />
-      <Button label="Cancelar" onClick={cancel} className="p-button-danger button--red" />
-    </Form>
+    <>
+      <PersonalData />
+      {/* <div className="jumbotron p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-3">
+        <h2 className="form-title">REGÍSTRATE</h2>
+        <Form className="p-grid p-dir-col p-nogutter" state={formState} onChangeEvent={handleChange}>
+          <div className="p-grid p-justify-center">
+            <div className="p-nogutter p-col-6 p-xl-5">
+              <Button
+                className="button button--blue"
+                label="Registrar"
+                disabled={isCreateDisable}
+                onClick={create}
+              />
+            </div>
+            <div className="p-nogutter p-col-6 p-xl-5">
+              <Button
+                className="p-button-danger button--red"
+                label="Cancelar"
+                onClick={cancel}
+              />
+            </div>
+          </div>
+        </Form>
+      </div> */}
+    </>
   );
 };
 
-export default CreateUser;
+export default Register;

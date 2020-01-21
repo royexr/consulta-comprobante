@@ -4,7 +4,7 @@ import { Switch, Route } from 'react-router-dom';
 
 // Resources
 import Login from '../User/Login';
-import CreateUser from '../User/CreateUser';
+import Register from '../User/Register';
 import FormVoucherInquiry from '../FormVoucherInquiry';
 
 const Routes = () => (
@@ -14,7 +14,7 @@ const Routes = () => (
         <Login />
       </Route>
       <Route exact path="/register">
-        <CreateUser />
+        <Register />
       </Route>
       <Route exact path="/voucherInquiry">
         <FormVoucherInquiry />

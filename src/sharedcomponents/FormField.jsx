@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 
 // Resources
 import { AutoComplete } from 'primereact/autocomplete';
-import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { InputMask } from 'primereact/inputmask';
+import { InputText } from 'primereact/inputtext';
+import { Message } from 'primereact/message';
 import api from '../utils/api';
 import './FormField.css';
 
@@ -14,9 +16,10 @@ const FormField = ({
   className,
   codes,
   collectionName,
-  label,
   fieldName,
   handleChange,
+  label,
+  mask,
   name,
   options,
   suggestions,
@@ -67,6 +70,20 @@ const FormField = ({
             </span>
           </>
         );
+      case 'date':
+        return (
+          <>
+            <span>
+              <InputText
+                aria-label={label}
+                name={name}
+                type={type}
+                value={value}
+                onChange={handleChange}
+              />
+            </span>
+          </>
+        );
       case 'select':
         return (
           <>
@@ -74,6 +91,7 @@ const FormField = ({
               <label htmlFor={name}>
                 {label}
                 <Dropdown
+                  style={{ width: '100%' }}
                   name={name}
                   value={value}
                   options={options}
@@ -81,6 +99,24 @@ const FormField = ({
                   placeholder={label}
                 />
               </label>
+            </span>
+          </>
+        );
+      case 'mask':
+        return (
+          <>
+            <span className="p-float-label">
+              <InputMask
+                autoComplete="off"
+                id={name}
+                mask={mask}
+                name={name}
+                onChange={handleChange}
+                style={{ width: '100%' }}
+                type={type}
+                value={value}
+              />
+              <label htmlFor={name}>{label}</label>
             </span>
           </>
         );
@@ -98,32 +134,18 @@ const FormField = ({
             </span>
           </>
         );
-      case 'date':
-        return (
-          <>
-            <span>
-              <InputText
-                aria-label={label}
-                name={name}
-                type={type}
-                value={value}
-                onChange={handleChange}
-              />
-            </span>
-          </>
-        );
       default:
         return (
           <>
             <span className="p-float-label">
               <InputText
-                style={{ width: '100%' }}
                 autoComplete="off"
                 id={name}
                 name={name}
+                onChange={handleChange}
+                style={{ width: '100%' }}
                 type={type}
                 value={value}
-                onChange={handleChange}
               />
               <label htmlFor={name}>{label}</label>
             </span>
@@ -146,13 +168,14 @@ FormField.defaultProps = {
   className: null,
   codes: undefined,
   collectionName: '',
-  type: 'input',
-  name: 'input',
   fieldName: '',
   label: 'input',
-  value: '',
+  mask: '',
+  name: 'input',
   options: [],
   suggestions: [],
+  type: 'input',
+  value: '',
 };
 
 FormField.propTypes = {
@@ -160,14 +183,15 @@ FormField.propTypes = {
   className: PropTypes.string,
   codes: PropTypes.arrayOf(PropTypes.string),
   collectionName: PropTypes.string,
-  type: PropTypes.string,
-  name: PropTypes.string,
   fieldName: PropTypes.string,
+  handleChange: PropTypes.func.isRequired,
   label: PropTypes.string,
-  value: PropTypes.string,
+  mask: PropTypes.string,
+  name: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.objectOf),
   suggestions: PropTypes.arrayOf(PropTypes.string),
-  handleChange: PropTypes.func.isRequired,
+  type: PropTypes.string,
+  value: PropTypes.string,
 };
 
 export default FormField;

@@ -7,11 +7,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
 button {
   width: 100%;
 }
@@ -24,4 +19,9 @@ button {
 .p-button.button--red{
   background-color: #d51021;
   border-color: #d51021;
+}
+
+.form-title {
+  color: #43425D;
+  text-align: center;
 }

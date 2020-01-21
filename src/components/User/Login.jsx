@@ -19,6 +19,7 @@ const Login = () => {
     setLoginState([
       {
         className: 'p-col-10 p-xl-8 p-col-align-center',
+        isValid: false,
         label: 'Correo electronico',
         name: 'email',
         type: 'email',
@@ -26,6 +27,7 @@ const Login = () => {
       },
       {
         className: 'p-col-10 p-xl-8 p-col-align-center',
+        isValid: false,
         label: 'Contraseña',
         name: 'password',
         type: 'password',
@@ -59,6 +61,9 @@ const Login = () => {
     for (let i = 0; i < loginState.length; i += 1) {
       const item = loginState[i];
       if (item.name !== undefined && item.value !== undefined) {
+        if (item.value === '') {
+          item.isValid = false;
+        }
         credentials[item.name] = item.value;
       }
     }
@@ -90,10 +95,16 @@ const Login = () => {
   return (
     <>
       <div className="jumbotron p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-3">
-        <h2 className="login-title">INICIA SESIÓN EN PALE</h2>
-        <Form className="form login p-grid p-dir-col p-nogutter" state={loginState} onChangeEvent={handleChange}>
+        <h2 className="form-title">INICIA SESIÓN EN PALE</h2>
+        <Form
+          className="form login p-grid p-dir-col p-nogutter"
+          method="POST"
+          onChangeEvent={handleChange}
+          onSubmitEvent={SignIn}
+          state={loginState}
+        >
           <div className="form-field p-col-6 p-xl-5 p-col-align-center">
-            <Button label="Iniciar sesión" className="button button--blue" onClick={SignIn} />
+            <Button label="Iniciar sesión" className="button button--blue" type="submit" />
           </div>
           <a className="p-col-align-center" href="/">¿olvidaste tu contraseña?</a>
           <div className="p-col-10 p-xl-8 p-col-align-center">
@@ -103,7 +114,7 @@ const Login = () => {
         <hr />
         <div className="p-grid p-dir-col">
           <a className="p-col-align-center" href="/">¿no tienes cuenta?</a>
-          <div className="p-col-6 p-xl-5 p-nogutter p-col-align-center">
+          <div className="p-col-6 p-xl-5 p-col-align-center">
             <Button label="Registrate" className="p-button-secondary button" onClick={CreateAccount} />
           </div>
         </div>
