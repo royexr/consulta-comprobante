@@ -1,6 +1,7 @@
 // Dependencies
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 // Resources
 import { AutoComplete } from 'primereact/autocomplete';
@@ -8,18 +9,22 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputMask } from 'primereact/inputmask';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
-import api from '../utils/api';
-import './FormField.css';
+import api from '../../utils/api';
+import styles from './styles.module.css';
 
 const FormField = ({
   arrayFN,
   className,
   codes,
   collectionName,
+  errors,
+  errorMessage,
   fieldName,
   handleChange,
+  keyfilter,
   label,
   mask,
+  maxLength,
   name,
   options,
   suggestions,
@@ -140,7 +145,12 @@ const FormField = ({
             <span className="p-float-label">
               <InputText
                 autoComplete="off"
+                className={classNames({
+                  'p-error': errors,
+                })}
                 id={name}
+                keyfilter={keyfilter && keyfilter}
+                maxLength={maxLength && maxLength}
                 name={name}
                 onChange={handleChange}
                 style={{ width: '100%' }}
@@ -156,8 +166,24 @@ const FormField = ({
 
   return (
     <>
-      <div className={`form-field ${className}`}>
+      <div
+        className={classNames(
+          { [className]: className },
+        )}
+      >
         {selector()}
+        {
+          errors && (
+            <>
+              <hr className={styles['error-hr']} />
+              <Message
+                style={{ width: '100%' }}
+                severity="error"
+                text={errorMessage}
+              />
+            </>
+          )
+        }
       </div>
     </>
   );
@@ -165,12 +191,16 @@ const FormField = ({
 
 FormField.defaultProps = {
   arrayFN: undefined,
-  className: null,
+  className: '',
   codes: undefined,
   collectionName: '',
+  errors: false,
+  errorMessage: '',
   fieldName: '',
+  keyfilter: '',
   label: 'input',
   mask: '',
+  maxLength: '',
   name: 'input',
   options: [],
   suggestions: [],
@@ -183,10 +213,14 @@ FormField.propTypes = {
   className: PropTypes.string,
   codes: PropTypes.arrayOf(PropTypes.string),
   collectionName: PropTypes.string,
+  errors: PropTypes.bool,
+  errorMessage: PropTypes.string,
   fieldName: PropTypes.string,
   handleChange: PropTypes.func.isRequired,
+  keyfilter: PropTypes.string,
   label: PropTypes.string,
   mask: PropTypes.string,
+  maxLength: PropTypes.string,
   name: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.objectOf),
   suggestions: PropTypes.arrayOf(PropTypes.string),

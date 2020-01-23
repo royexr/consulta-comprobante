@@ -7,13 +7,32 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-button {
+/* Margins */
+.m-bottom-15 {
+  margin-bottom: 1.5rem;
+}
+
+/* Text */
+.text--centered {
+  text-align: center;
+}
+
+.text--small {
+  font-size: small;
+}
+
+.form {
   width: 100%;
 }
 
-.p-button.button--blue {
+.p-button.p-component {
   background-color: #0074cc;
-  border-color:  #0074cc;
+  border: 1px solid #0074cc;
+}
+
+.p-button.button {
+  width: 100%;
+  border-radius: 32px;
 }
 
 .p-button.button--red{
@@ -21,7 +40,12 @@ button {
   border-color: #d51021;
 }
 
-.form-title {
+.title {
   color: #43425D;
-  text-align: center;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  color: #43425D;
+  font-size: 1rem;
 }

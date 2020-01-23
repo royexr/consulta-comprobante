@@ -4,11 +4,20 @@ import { useHistory } from 'react-router-dom';
 
 // Resources
 import { Button } from 'primereact/button';
-import PersonalData from './PersonalData';
-import Form from '../../sharedcomponents/Form';
-import api from '../../utils/api';
+import { Steps } from 'primereact/steps';
+import PersonalInfo from './PersonalInfo';
+import Form from '../../../sharedcomponents/Form';
+import api from '../../../utils/api';
+import styles from './styles.module.css';
 
 const Register = () => {
+  const registerSteps = [
+    { label: 'Datos', className: 'text--small' },
+    { label: 'Verificación', className: 'text--small' },
+    { label: 'Seguridad', className: 'text--small' },
+    { label: 'Finalizado', className: 'text--small' },
+  ];
+  const [stepsIndex, setStepsIndex] = useState(0);
   const [formState, setFormState] = useState([]);
   const [isCreateDisable, setIsCreateDisable] = useState(true);
   const history = useHistory();
@@ -115,29 +124,12 @@ const Register = () => {
 
   return (
     <>
-      <PersonalData />
-      {/* <div className="jumbotron p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-3">
-        <h2 className="form-title">REGÍSTRATE</h2>
-        <Form className="p-grid p-dir-col p-nogutter" state={formState} onChangeEvent={handleChange}>
-          <div className="p-grid p-justify-center">
-            <div className="p-nogutter p-col-6 p-xl-5">
-              <Button
-                className="button button--blue"
-                label="Registrar"
-                disabled={isCreateDisable}
-                onClick={create}
-              />
-            </div>
-            <div className="p-nogutter p-col-6 p-xl-5">
-              <Button
-                className="p-button-danger button--red"
-                label="Cancelar"
-                onClick={cancel}
-              />
-            </div>
-          </div>
-        </Form>
-      </div> */}
+      <div className={`${styles.jumbotron} p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4`}>
+        <PersonalInfo />
+      </div>
+      <div className="p-col-12 p-sm-11 p-md-9 p-lg-8 p-xl-6">
+        <Steps activeIndex={stepsIndex} model={registerSteps} />
+      </div>
     </>
   );
 };

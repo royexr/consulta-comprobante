@@ -1,0 +1,14 @@
+.jumbotron {
+  border-radius: .3rem;
+}
+
+.container {
+  padding: 1rem 0;
+  max-width: 1366px;
+  margin: auto;
+}
+
+.heading {
+  display: block;
+  margin-bottom: 2rem;
+}

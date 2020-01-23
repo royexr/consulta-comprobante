@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^7.2.1",
     "btoa": "^1.2.1",
     "classnames": "^2.2.6",
+    "formik": "^2.1.2",
     "jsonwebtoken": "^8.5.1",
     "primeflex": "^1.0.0",
     "primeicons": "^2.0.0",
