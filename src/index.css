@@ -21,8 +21,13 @@ body {
   font-size: small;
 }
 
+/* Forms */
 .form {
   width: 100%;
+}
+.form--heading {
+  display: block;
+  margin-bottom: 2rem;
 }
 
 .p-button.p-component {

@@ -76,7 +76,6 @@ const Login = () => {
             errors,
             touched,
             handleChange,
-            handleBlur,
             handleSubmit,
             isSubmitting,
           /* and other goodies */
@@ -86,7 +85,7 @@ const Login = () => {
                 className="form p-grid p-dir-col p-nogutter"
                 onSubmit={handleSubmit}
               >
-                <hgroup className={`${styles.heading} p-col-11 p-col-align-center`}>
+                <hgroup className="form--heading p-col-11 p-col-align-center">
                   <h1 className="title">Inicia sesión en Pale</h1>
                   <h2 className="subtitle">Ingrese sus datos a continuación</h2>
                 </hgroup>

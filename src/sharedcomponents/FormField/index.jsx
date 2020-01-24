@@ -156,6 +156,7 @@ const FormField = ({
                 style={{ width: '100%' }}
                 type={type}
                 value={value}
+                disabled={handleChange === null && true}
               />
               <label htmlFor={name}>{label}</label>
             </span>
@@ -197,6 +198,7 @@ FormField.defaultProps = {
   errors: false,
   errorMessage: '',
   fieldName: '',
+  handleChange: null,
   keyfilter: '',
   label: 'input',
   mask: '',
@@ -216,7 +218,7 @@ FormField.propTypes = {
   errors: PropTypes.bool,
   errorMessage: PropTypes.string,
   fieldName: PropTypes.string,
-  handleChange: PropTypes.func.isRequired,
+  handleChange: PropTypes.func,
   keyfilter: PropTypes.string,
   label: PropTypes.string,
   mask: PropTypes.string,
