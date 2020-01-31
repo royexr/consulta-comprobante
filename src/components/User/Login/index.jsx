@@ -7,7 +7,9 @@ import { Formik } from 'formik';
 // Resources
 import { Button } from 'primereact/button';
 import { Messages } from 'primereact/messages';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import FormField from '../../../sharedcomponents/FormField';
+import { isValidEmail } from '../../../utils';
 import api from '../../../utils/api';
 import styles from './styles.module.css';
 
@@ -19,9 +21,7 @@ const Login = () => {
     const errors = {};
     if (!values.email) {
       errors.email = 'Campo obligatorio';
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-    ) {
+    } else if (!isValidEmail(values.email)) {
       errors.email = 'Correo electronico invalido';
     }
     if (!values.password) {
@@ -34,10 +34,12 @@ const Login = () => {
     messages.show({ severity, summary, detail });
   };
 
-  const SignIn = (credentials, setSubmitting) => {
-    setTimeout(async () => {
-      const loginR = await api.User.SignIn({ credentials });
-      setSubmitting(false);
+  const SignIn = async (credentials, setSubmitting) => {
+    const loginR = await api.User.SignIn({ credentials });
+    setSubmitting(false);
+    if (loginR instanceof TypeError) {
+      showMessage('error', 'Error!', 'No hay conexion');
+    } else {
       switch (loginR.resCode) {
         case '01':
           sessionStorage.setItem('userJWT', jwt.sign(loginR.data, 'pale'));
@@ -55,7 +57,7 @@ const Login = () => {
         default:
           break;
       }
-    }, 1000);
+    }
   };
 
   const CreateAccount = (e) => {
@@ -75,10 +77,10 @@ const Login = () => {
             values,
             errors,
             touched,
+            handleBlur,
             handleChange,
             handleSubmit,
             isSubmitting,
-          /* and other goodies */
           }) => (
             <>
               <form
@@ -91,8 +93,10 @@ const Login = () => {
                 </hgroup>
                 <FormField
                   className="m-bottom-15 p-col-11 p-col-align-center"
+                  disabled={isSubmitting}
                   errors={errors.email && touched.email}
                   errorMessage={errors.email}
+                  handleBlur={handleBlur}
                   handleChange={handleChange}
                   keyfilter="email"
                   label="Correo electronico"
@@ -102,8 +106,10 @@ const Login = () => {
                 />
                 <FormField
                   className="m-bottom-15 p-col-11 p-col-align-center"
+                  disabled={isSubmitting}
                   errors={errors.password && touched.password}
                   errorMessage={errors.password}
+                  handleBlur={handleBlur}
                   handleChange={handleChange}
                   label="Contraseña"
                   name="password"
@@ -118,21 +124,39 @@ const Login = () => {
                     disabled={isSubmitting}
                   />
                 </div>
-                <a className="m-bottom-15 text--centered p-col-align-center" href="/">¿olvidaste tu contraseña?</a>
+                {
+                  isSubmitting && (
+                    <ProgressSpinner
+                      className="m-bottom-15"
+                      strokeWidth="6"
+                      style={{
+                        width: '2rem',
+                        height: '2rem',
+                      }}
+                    />
+                  )
+                }
+                <a className="m-bottom-15 text--centered p-col-align-center" href="/" style={{ pointerEvents: isSubmitting && 'none' }}>¿olvidaste tu contraseña?</a>
                 <div className="p-col-11 p-col-align-center">
                   <Messages ref={(el) => { messages = el; }} />
+                </div>
+                <hr className="m-bottom-15" style={{ width: '100%' }} />
+                <div className="p-grid p-dir-col">
+                  <small className="text--centered p-col-align-center">¿no tienes cuenta?</small>
+                  <div className="m-bottom-15 p-col-6 p-xl-4 p-col-align-center">
+                    <Button
+                      className="p-button-secondary button"
+                      disabled={isSubmitting}
+                      label="Regístrate"
+                      onClick={CreateAccount}
+                      type="button"
+                    />
+                  </div>
                 </div>
               </form>
             </>
           )}
         </Formik>
-        <hr className="m-bottom-15" />
-        <div className="p-grid p-dir-col">
-          <small className="text--centered p-col-align-center">¿no tienes cuenta?</small>
-          <div className="m-bottom-15 p-col-6 p-xl-4 p-col-align-center">
-            <Button label="Regístrate" className="p-button-secondary button" onClick={CreateAccount} />
-          </div>
-        </div>
       </div>
     </>
   );

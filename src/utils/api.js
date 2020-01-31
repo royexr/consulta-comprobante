@@ -13,11 +13,17 @@ const callApi = async (endpoint, options = {}) => {
   const url = BASE_URL + endpoint;
   const rt = await fetch(url, opts)
     .then((res) => res.json())
-    .then((response) => response);
+    .then((response) => response)
+    .catch((error) => error);
   return rt;
 };
 
 const api = {
+  Company: {
+    ReadById(id) {
+      return callApi(`/companies/${id}`, { method: 'GET' });
+    },
+  },
   Distincts: {
     GetValues(collection, fieldName, arrayFN, codes) {
       const initialQuery = `/${collection}/distinct/?fieldName=${fieldName}`;
@@ -27,6 +33,11 @@ const api = {
       return callApi(initialQuery.concat(arrayFNQuery, codesQuery), { method: 'GET' });
     },
   },
+  Invoice: {
+    GetMany(query) {
+      return callApi(`/invoices/?${query}`, { method: 'GET' });
+    },
+  },
   User: {
     Create(user) {
       return callApi('/users', { method: 'POST', body: JSON.stringify(user) });
@@ -34,10 +45,11 @@ const api = {
     SignIn(credentials) {
       return callApi('/users/signin', { method: 'POST', body: JSON.stringify(credentials) });
     },
-  },
-  Invoice: {
-    GetMany(query) {
-      return callApi(`/invoices/?${query}`, { method: 'GET' });
+    SendMail(object) {
+      return callApi('/users/sendmail', { method: 'POST', body: JSON.stringify(object) });
+    },
+    VerifyEmail(object) {
+      return callApi('/users/verifyEmail', { method: 'POST', body: JSON.stringify(object) });
     },
   },
 };

@@ -17,9 +17,11 @@ const FormField = ({
   className,
   codes,
   collectionName,
+  disabled,
   errors,
   errorMessage,
   fieldName,
+  handleBlur,
   handleChange,
   keyfilter,
   label,
@@ -113,6 +115,9 @@ const FormField = ({
             <span className="p-float-label">
               <InputMask
                 autoComplete="off"
+                className={classNames({
+                  'p-error': errors,
+                })}
                 id={name}
                 mask={mask}
                 name={name}
@@ -152,11 +157,12 @@ const FormField = ({
                 keyfilter={keyfilter && keyfilter}
                 maxLength={maxLength && maxLength}
                 name={name}
+                onBlur={handleBlur}
                 onChange={handleChange}
                 style={{ width: '100%' }}
                 type={type}
                 value={value}
-                disabled={handleChange === null && true}
+                disabled={handleChange === null ? true : disabled}
               />
               <label htmlFor={name}>{label}</label>
             </span>
@@ -195,9 +201,11 @@ FormField.defaultProps = {
   className: '',
   codes: undefined,
   collectionName: '',
+  disabled: false,
   errors: false,
   errorMessage: '',
   fieldName: '',
+  handleBlur: null,
   handleChange: null,
   keyfilter: '',
   label: 'input',
@@ -215,9 +223,11 @@ FormField.propTypes = {
   className: PropTypes.string,
   codes: PropTypes.arrayOf(PropTypes.string),
   collectionName: PropTypes.string,
+  disabled: PropTypes.bool,
   errors: PropTypes.bool,
   errorMessage: PropTypes.string,
   fieldName: PropTypes.string,
+  handleBlur: PropTypes.func,
   handleChange: PropTypes.func,
   keyfilter: PropTypes.string,
   label: PropTypes.string,

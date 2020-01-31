@@ -1,6 +1,5 @@
 // Dependencies
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState } from 'react';
 import objectAssign from 'object-assign';
 
 // Resources
@@ -8,23 +7,24 @@ import { Steps } from 'primereact/steps';
 import PersonalInfo from './PersonalInfo';
 import Verify from './Verify';
 import Aditional from './Aditional';
-import Finished from './Finished';
-import api from '../../../utils/api';
 import styles from './styles.module.css';
 
 const Register = () => {
-  const [data, setData] = useState({});
-  // let data = {
-  //   name: '',
-  //   email: '',
-  //   docNumber: '',
-  //   cellphone: '',
-  // };
+  const [data, setData] = useState({
+    name: '',
+    email: '',
+    docNumber: '',
+    cellphone: '',
+    code: '',
+    businessName: '',
+    businessNumber: '',
+    password: '',
+    confirmPassword: '',
+  });
   const registerSteps = [
     { label: 'Datos', className: 'text--small' },
-    { label: 'Verificación', className: 'text--small' },
     { label: 'Adicionales', className: 'text--small' },
-    { label: 'Finalizado', className: 'text--small' },
+    { label: 'Verificación', className: 'text--small' },
   ];
   const [stepsIndex, setStepsIndex] = useState(0);
 
@@ -38,7 +38,6 @@ const Register = () => {
 
   const saveValues = (values) => {
     setData(objectAssign({}, data, values));
-    console.log(data.constructor);
     nextStep();
   };
 
@@ -47,10 +46,20 @@ const Register = () => {
       case 0:
         return (
           <PersonalInfo
+            data={data}
             saveValues={saveValues}
           />
         );
       case 1:
+        return (
+          <Aditional
+            data={data}
+            previousStep={previousStep}
+            saveValues={saveValues}
+            setData={setData}
+          />
+        );
+      case 2:
         return (
           <Verify
             data={data}
@@ -58,10 +67,6 @@ const Register = () => {
             saveValues={saveValues}
           />
         );
-      case 2:
-        return <Aditional />;
-      case 3:
-        return <Finished />;
       default:
         return null;
     }
@@ -71,9 +76,13 @@ const Register = () => {
       <div className={`${styles.jumbotron} p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4`}>
         {registerFlow()}
       </div>
-      <div className="p-col-12 p-sm-11 p-md-9 p-lg-8 p-xl-6">
-        <Steps activeIndex={stepsIndex} model={registerSteps} />
-      </div>
+      {
+        stepsIndex < 3 && (
+          <div className="p-col-12 p-sm-11 p-md-9 p-lg-8 p-xl-6">
+            <Steps className="steps--register" activeIndex={stepsIndex} model={registerSteps} />
+          </div>
+        )
+      }
     </>
   );
 };

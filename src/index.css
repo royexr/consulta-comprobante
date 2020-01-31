@@ -7,28 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Margins */
-.m-bottom-15 {
-  margin-bottom: 1.5rem;
-}
-
-/* Text */
-.text--centered {
-  text-align: center;
-}
-
-.text--small {
-  font-size: small;
-}
-
-/* Forms */
-.form {
-  width: 100%;
-}
-.form--heading {
-  display: block;
-  margin-bottom: 2rem;
-}
+/* Buttons */
 
 .p-button.p-component {
   background-color: #0074cc;
@@ -45,12 +24,52 @@ body {
   border-color: #d51021;
 }
 
+/* Forms */
+.form {
+  width: 100%;
+}
+.form--heading {
+  display: block;
+  margin-bottom: 2rem;
+}
+
+/* Heading */
+
 .title {
   color: #43425D;
   font-size: 1.75rem;
 }
 
+/* Inputs */
+.input--hidden {
+  display: none;
+}
+
 .subtitle {
   color: #43425D;
   font-size: 1rem;
+}
+/* Labels */
+input.p-error ~ label {
+  color: #a80000;;
+}
+
+/* Margins */
+.m-bottom-15 {
+  margin-bottom: 1.5rem;
+}
+
+/* Steps */
+.steps--register > ul {
+  display: flex;
+  justify-content: center;
+}
+
+/* Text */
+.text--centered {
+  text-align: center;
+}
+
+.text--small {
+  font-size: small;
 }
