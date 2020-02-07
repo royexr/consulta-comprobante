@@ -11,10 +11,14 @@ import FormField from '../../../../sharedcomponents/FormField';
 import api from '../../../../utils/api';
 import Timer from '../../../../sharedcomponents/Timer';
 
-const Verify = ({ data, previousStep, saveValues }) => {
+const Verify = ({ data, previousStep, register }) => {
   let messages = new Messages();
   const [wasSended, setWasSended] = useState(false);
-  const [expirationDate, setExpirationDate] = useState();
+  const [expirationDate, setExpirationDate] = useState(new Date(Date.now()));
+
+  const showMessage = (severity, summary, detail) => {
+    messages.show({ severity, summary, detail });
+  };
 
   const fieldsValidation = (values) => {
     const errors = {};
@@ -31,11 +35,13 @@ const Verify = ({ data, previousStep, saveValues }) => {
     }, 1000 * 60 * 5);
     const email = { email: values.email };
     const res = await api.User.SendMail(email);
-    setExpirationDate(new Date(res.data.expirationDate));
-  };
-
-  const showMessage = (severity, summary, detail) => {
-    messages.show({ severity, summary, detail });
+    if (res instanceof TypeError) {
+      showMessage('error', 'Error!', 'No hay conexion');
+    } else if (res.message === '01' || res.message === '02') {
+      setExpirationDate(new Date(res.data.expirationDate));
+    } else {
+      showMessage('error', 'Error!', 'no se pudo enviar el correo');
+    }
   };
 
   const verifyCode = async (values) => {
@@ -45,7 +51,7 @@ const Verify = ({ data, previousStep, saveValues }) => {
     if (res instanceof TypeError) {
       showMessage('error', 'Error!', 'No hay conexion');
     } else if (res.message === '01') {
-      saveValues(values);
+      register(aux);
     } else {
       showMessage('error', 'Error!', 'Código incorrecto');
     }
@@ -66,7 +72,7 @@ const Verify = ({ data, previousStep, saveValues }) => {
           handleSubmit,
         }) => (
           <form className="form p-grid p-dir-col p-nogutter" onSubmit={handleSubmit}>
-            <hgroup className="form--heading">
+            <hgroup className="heading">
               <h1 className="title">Verificación de correo</h1>
             </hgroup>
             <div className="m-bottom-15 p-col-11 p-col-align-center">
@@ -101,6 +107,7 @@ const Verify = ({ data, previousStep, saveValues }) => {
             }
             <FormField
               className="m-bottom-15 p-col-11 p-col-align-center"
+              disabled={!wasSended}
               errors={errors.code && touched.code}
               errorMessage={errors.code}
               handleChange={handleChange}
@@ -145,7 +152,7 @@ Verify.propTypes = {
     email: PropTypes.string.isRequired,
   }).isRequired,
   previousStep: PropTypes.func.isRequired,
-  saveValues: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired,
 };
 
 export default Verify;

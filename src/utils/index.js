@@ -1,6 +1,3 @@
-const { isEmptyObject, isValidEmail } = require('./validations');
+import { isEmptyObject, isValidEmail } from './validations';
 
-module.exports = {
-  isEmptyObject,
-  isValidEmail,
-};
+export { isEmptyObject, isValidEmail };

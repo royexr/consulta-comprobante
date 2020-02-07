@@ -1,4 +1,15 @@
 /**
+ * Verify if an object is empty
+ * @param {Object} object Object to verify
+ */
+function isEmptyObject(object) {
+  if (Object.keys(object).length === 0 && object.constructor === Object) {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Validate if a string have the right structure of a email address
  * @param {String} string Email to validate\
  * @return {Boolean}
@@ -10,15 +21,4 @@ function isValidEmail(string) {
   return true;
 }
 
-/**
- * Verify if an object is empty
- * @param {Object} object Object to verify
- */
-function isEmptyObject(object) {
-  if (Object.keys(object).length === 0 && object.constructor === Object) {
-    return true;
-  }
-  return false;
-}
-
-module.exports = { isValidEmail, isEmptyObject };
+export { isValidEmail, isEmptyObject };

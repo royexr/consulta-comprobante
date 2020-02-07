@@ -52,7 +52,7 @@ const PersonalInfo = ({ data, saveValues }) => {
             className="form p-grid p-dir-col p-nogutter"
             onSubmit={handleSubmit}
           >
-            <hgroup className="form--heading p-col-11 p-col-align-center">
+            <hgroup className="heading p-col-11 p-col-align-center">
               <h1 className="title">Datos Personales</h1>
             </hgroup>
             <FormField

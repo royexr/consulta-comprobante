@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import objectAssign from 'object-assign';
 
 // Resources
@@ -19,7 +18,7 @@ const Aditional = ({
   saveValues,
   setData,
 }) => {
-  let messages;
+  const [messages, setMessages] = useState(new Messages());
   const [loading, setLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(data.businessName !== '');
   const [touchedBN, setTouchedBN] = useState(false);
@@ -48,22 +47,27 @@ const Aditional = ({
       showMessage('error', 'Error!', 'Número de RUC invalido');
     } else {
       const res = await api.Company.ReadById(values.businessNumber);
-      switch (res.message) {
-        case '01':
-          setData(objectAssign(
-            {},
-            data,
-            {
-              businessNumber: values.businessNumber,
-              businessName: res.data.RazonSocial,
-            },
-          ));
-          showMessage('success', 'Bien!', 'Encontramos tu empresa en nuestros registros');
-          setIsVerified(true);
-          break;
-        default:
-          showMessage('error', 'Error!', 'La empresa no esta registrada en Pale');
-          break;
+      if (res.message === '01') {
+        showMessage('success', 'Muy bien!');
+        setData(objectAssign(
+          {},
+          data,
+          {
+            businessNumber: values.businessNumber,
+            businessName: res.data.RazonSocial,
+          },
+        ));
+        setIsVerified(true);
+      } else {
+        showMessage('error', 'Error!', 'La Empresa no esta registrada en Pale');
+        setData(objectAssign(
+          {},
+          data,
+          {
+            businessNumber: '',
+            businessName: '',
+          },
+        ));
       }
     }
     setLoading(false);
@@ -86,16 +90,12 @@ const Aditional = ({
         handleBlur,
         handleChange,
         handleSubmit,
-        isSubmitting,
       }) => (
         <form
           className="form p-grid p-dir-col p-nogutter"
           onSubmit={handleSubmit}
         >
-          <div className="m-bottom-15 p-col-11 p-col-align-center">
-            <Messages ref={(el) => { messages = el; }} />
-          </div>
-          <hgroup className="form--heading">
+          <hgroup className="heading">
             <h1 className="title">Datos adicionales</h1>
           </hgroup>
           <div className="m-bottom-15 p-col-11 p-col-align-center">
@@ -122,7 +122,7 @@ const Aditional = ({
                   icon="pi pi-search"
                   className="p-button-warning"
                   onClick={() => verifyBN(values)}
-                  tooltip="Haga click para buscar el RUC"
+                  tooltip="Haga click para buscar la empresa"
                   tooltipOptions={{ position: 'top' }}
                   type="button"
                 />
@@ -132,14 +132,15 @@ const Aditional = ({
           </div>
           {
             loading && (
-              <ProgressSpinner
-                className="m-bottom-15"
-                strokeWidth="6"
-                style={{
-                  width: '2rem',
-                  height: '2rem',
-                }}
-              />
+              <div className="m-bottom-15 p-col-align-center">
+                <ProgressSpinner
+                  strokeWidth="6"
+                  style={{
+                    width: '2rem',
+                    height: '2rem',
+                  }}
+                />
+              </div>
             )
           }
           <FormField
@@ -151,7 +152,7 @@ const Aditional = ({
           />
           <FormField
             className="m-bottom-15 p-col-11 p-col-align-center"
-            disabled={isSubmitting}
+            disabled={loading}
             errors={errors.password && touched.password}
             errorMessage={errors.password}
             handleBlur={handleBlur}
@@ -163,7 +164,7 @@ const Aditional = ({
           />
           <FormField
             className="m-bottom-15 p-col-11 p-col-align-center"
-            disabled={isSubmitting}
+            disabled={loading}
             errors={errors.confirmPassword && touched.confirmPassword}
             errorMessage={errors.confirmPassword}
             handleBlur={handleBlur}
@@ -174,10 +175,14 @@ const Aditional = ({
             value={values.confirmPassword}
           />
           <div className="m-bottom-15 p-col-11 p-col-align-center">
+            <Messages ref={(el) => { setMessages(el); }} />
+          </div>
+          <div className="m-bottom-15 p-col-11 p-col-align-center">
             <div className="p-grid p-justify-between">
               <div className="p-col-6 p-xl-5">
                 <Button
                   className="button p-button-danger"
+                  disabled={loading}
                   label="Atras"
                   onClick={previousStep}
                   type="button"
@@ -186,7 +191,7 @@ const Aditional = ({
               <div className="p-col-6 p-xl-5">
                 <Button
                   className="button"
-                  disabled={!isVerified}
+                  disabled={!isVerified || loading}
                   label="Siguiente"
                   type="submit"
                 />

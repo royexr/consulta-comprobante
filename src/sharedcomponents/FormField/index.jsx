@@ -8,6 +8,7 @@ import { AutoComplete } from 'primereact/autocomplete';
 import { Dropdown } from 'primereact/dropdown';
 import { InputMask } from 'primereact/inputmask';
 import { InputText } from 'primereact/inputtext';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
 import api from '../../utils/api';
 import styles from './styles.module.css';
@@ -66,6 +67,10 @@ const FormField = ({
               <label htmlFor={name}>
                 {label}
                 <AutoComplete
+                  className={classNames({
+                    'p-error': errors,
+                  })}
+                  disabled={disabled}
                   placeholder={label}
                   name={name}
                   value={value}
@@ -82,6 +87,9 @@ const FormField = ({
           <>
             <span>
               <InputText
+                className={classNames({
+                  'p-error': errors,
+                })}
                 aria-label={label}
                 name={name}
                 type={type}
@@ -98,6 +106,10 @@ const FormField = ({
               <label htmlFor={name}>
                 {label}
                 <Dropdown
+                  className={classNames({
+                    'p-error': errors,
+                  })}
+                  disabled={disabled}
                   style={{ width: '100%' }}
                   name={name}
                   value={value}
@@ -118,6 +130,7 @@ const FormField = ({
                 className={classNames({
                   'p-error': errors,
                 })}
+                disabled={disabled}
                 id={name}
                 mask={mask}
                 name={name}
@@ -135,10 +148,13 @@ const FormField = ({
           <>
             <span>
               <label htmlFor={name}>{label}</label>
-              <textarea
-                rows={3}
+              <InputTextarea
+                className={classNames({
+                  'p-error': errors,
+                })}
                 name={name}
                 onChange={handleChange}
+                rows={3}
                 value={value}
               />
             </span>
@@ -153,6 +169,7 @@ const FormField = ({
                 className={classNames({
                   'p-error': errors,
                 })}
+                disabled={handleChange === null ? true : disabled}
                 id={name}
                 keyfilter={keyfilter && keyfilter}
                 maxLength={maxLength && maxLength}
@@ -162,7 +179,6 @@ const FormField = ({
                 style={{ width: '100%' }}
                 type={type}
                 value={value}
-                disabled={handleChange === null ? true : disabled}
               />
               <label htmlFor={name}>{label}</label>
             </span>

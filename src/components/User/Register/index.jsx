@@ -1,5 +1,6 @@
 // Dependencies
 import React, { useState } from 'react';
+import CryptoJS from 'crypto-js';
 import objectAssign from 'object-assign';
 
 // Resources
@@ -7,6 +8,8 @@ import { Steps } from 'primereact/steps';
 import PersonalInfo from './PersonalInfo';
 import Verify from './Verify';
 import Aditional from './Aditional';
+import Finished from './Finished';
+import api from '../../../utils/api';
 import styles from './styles.module.css';
 
 const Register = () => {
@@ -27,6 +30,7 @@ const Register = () => {
     { label: 'Verificación', className: 'text--small' },
   ];
   const [stepsIndex, setStepsIndex] = useState(0);
+  const [wasRegistered, setWasRegistered] = useState(false);
 
   const nextStep = () => {
     setStepsIndex(stepsIndex + 1);
@@ -39,6 +43,19 @@ const Register = () => {
   const saveValues = (values) => {
     setData(objectAssign({}, data, values));
     nextStep();
+  };
+
+  const register = async (values) => {
+    const userInfo = { ...values };
+    userInfo.password = CryptoJS.AES.encrypt(userInfo.password, userInfo.email).toString();
+    const res = await api.User.Create(userInfo);
+    if (res.message === '01') {
+      setWasRegistered(true);
+      nextStep();
+    } else {
+      setWasRegistered(false);
+      nextStep();
+    }
   };
 
   const registerFlow = () => {
@@ -64,11 +81,11 @@ const Register = () => {
           <Verify
             data={data}
             previousStep={previousStep}
-            saveValues={saveValues}
+            register={register}
           />
         );
       default:
-        return null;
+        return <Finished success={wasRegistered} />;
     }
   };
   return (

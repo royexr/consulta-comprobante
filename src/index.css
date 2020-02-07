@@ -28,16 +28,25 @@ body {
 .form {
   width: 100%;
 }
-.form--heading {
+
+/* Heading */
+.heading {
   display: block;
   margin-bottom: 2rem;
 }
 
-/* Heading */
-
 .title {
   color: #43425D;
   font-size: 1.75rem;
+}
+
+.title--centered {
+  text-align: center;
+}
+
+.subtitle {
+  color: #43425D;
+  font-size: 1rem;
 }
 
 /* Inputs */
@@ -45,10 +54,7 @@ body {
   display: none;
 }
 
-.subtitle {
-  color: #43425D;
-  font-size: 1rem;
-}
+
 /* Labels */
 input.p-error ~ label {
   color: #a80000;;

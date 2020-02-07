@@ -26,12 +26,13 @@ const Timer = ({ expirationDate }) => {
     if (distance >= 0) {
       if (!isNaN(minutes) && !isNaN(seconds)) {
         return (
-          <hgroup className="m-bottom-15 p-col-11 p-col-align-center">
+          <hgroup className="m-bottom-15 p-col-align-center">
             <h2 className="subtitle">{`${minutes}m ${seconds}s`}</h2>
           </hgroup>
         );
       }
     }
+    return <></>;
   };
 
   return (

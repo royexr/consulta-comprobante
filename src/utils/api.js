@@ -42,6 +42,12 @@ const api = {
     Create(user) {
       return callApi('/users', { method: 'POST', body: JSON.stringify(user) });
     },
+    GetById(userId) {
+      return callApi(`/users/${userId}`, { method: 'GET' });
+    },
+    GetCompanies(userId) {
+      return callApi(`/users/getCompanies/${userId}`, { method: 'GET' });
+    },
     SignIn(credentials) {
       return callApi('/users/signin', { method: 'POST', body: JSON.stringify(credentials) });
     },

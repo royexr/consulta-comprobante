@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
 // Resources
-import Routes from '../Routes';
+import Routes from '../../routes';
 
 const App = () => (
   <>
