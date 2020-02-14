@@ -10,18 +10,13 @@ import { InputMask } from 'primereact/inputmask';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
-import api from '../../utils/api';
 import styles from './styles.module.css';
 
 const FormField = ({
-  arrayFN,
   className,
-  codes,
-  collectionName,
   disabled,
   errors,
   errorMessage,
-  fieldName,
   handleBlur,
   handleChange,
   keyfilter,
@@ -34,26 +29,11 @@ const FormField = ({
   type,
   value,
 }) => {
-  const [suggs, setSuggs] = useState([]);
   const [filteredSuggs, setFilteredSuggs] = useState([]);
 
-  useEffect(() => {
-    const FetchSuggestions = async () => {
-      if (type === 'autoComplete' && suggestions.length === 0) {
-        try {
-          setSuggs((await api.Distincts.GetValues(collectionName, fieldName, arrayFN, codes)).data);
-        } catch (error) {
-          setSuggs([]);
-        }
-      }
-    };
-    FetchSuggestions();
-  }, [arrayFN, codes, collectionName, type, fieldName, suggestions]);
-
   const suggestBrands = async (event) => {
-    const results = suggestions.length === 0
-      ? suggs.filter((brand) => brand.toLowerCase().startsWith(event.query.toLowerCase()))
-      : suggestions.filter((brand) => brand.toLowerCase().startsWith(event.query.toLowerCase()));
+    const results = suggestions.filter((brand) => brand.toLowerCase()
+      .includes(event.query.toLowerCase()));
 
     setFilteredSuggs(results);
   };
@@ -67,14 +47,18 @@ const FormField = ({
               <label htmlFor={name}>
                 {label}
                 <AutoComplete
-                  className={classNames({
-                    'p-error': errors,
-                  })}
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
                   disabled={disabled}
                   placeholder={label}
                   name={name}
                   value={value}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   suggestions={filteredSuggs}
                   completeMethod={suggestBrands}
                 />
@@ -87,14 +71,20 @@ const FormField = ({
           <>
             <span>
               <InputText
-                className={classNames({
-                  'p-error': errors,
-                })}
                 aria-label={label}
+                className={classNames(
+                  'form__field',
+                  {
+                    'p-error': errors,
+                  },
+                )}
+                disabled={disabled}
+                id={name}
                 name={name}
+                onBlur={handleBlur}
+                onChange={handleChange}
                 type={type}
                 value={value}
-                onChange={handleChange}
               />
             </span>
           </>
@@ -106,11 +96,13 @@ const FormField = ({
               <label htmlFor={name}>
                 {label}
                 <Dropdown
-                  className={classNames({
-                    'p-error': errors,
-                  })}
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
                   disabled={disabled}
-                  style={{ width: '100%' }}
                   name={name}
                   value={value}
                   options={options}
@@ -127,15 +119,18 @@ const FormField = ({
             <span className="p-float-label">
               <InputMask
                 autoComplete="off"
-                className={classNames({
-                  'p-error': errors,
-                })}
+                className={classNames(
+                  'form__field',
+                  {
+                    'p-error': errors,
+                  },
+                )}
                 disabled={disabled}
                 id={name}
                 mask={mask}
                 name={name}
+                onBlur={handleBlur}
                 onChange={handleChange}
-                style={{ width: '100%' }}
                 type={type}
                 value={value}
               />
@@ -149,9 +144,12 @@ const FormField = ({
             <span>
               <label htmlFor={name}>{label}</label>
               <InputTextarea
-                className={classNames({
-                  'p-error': errors,
-                })}
+                className={classNames(
+                  'form__field',
+                  {
+                    'p-error': errors,
+                  },
+                )}
                 name={name}
                 onChange={handleChange}
                 rows={3}
@@ -166,9 +164,12 @@ const FormField = ({
             <span className="p-float-label">
               <InputText
                 autoComplete="off"
-                className={classNames({
-                  'p-error': errors,
-                })}
+                className={classNames(
+                  'form__field',
+                  {
+                    'p-error': errors,
+                  },
+                )}
                 disabled={handleChange === null ? true : disabled}
                 id={name}
                 keyfilter={keyfilter && keyfilter}
@@ -176,7 +177,6 @@ const FormField = ({
                 name={name}
                 onBlur={handleBlur}
                 onChange={handleChange}
-                style={{ width: '100%' }}
                 type={type}
                 value={value}
               />
@@ -200,7 +200,7 @@ const FormField = ({
             <>
               <hr className={styles['error-hr']} />
               <Message
-                style={{ width: '100%' }}
+                className="form__field"
                 severity="error"
                 text={errorMessage}
               />

@@ -1,4 +1,4 @@
-const BASE_URL = 'http://127.0.0.1:3001/api';
+const BASE_URL = 'http://192.168.1.8:3001/api';
 
 const callApi = async (endpoint, options = {}) => {
   const opts = options;
@@ -24,18 +24,15 @@ const api = {
       return callApi(`/companies/${id}`, { method: 'GET' });
     },
   },
-  Distincts: {
-    GetValues(collection, fieldName, arrayFN, codes) {
-      const initialQuery = `/${collection}/distinct/?fieldName=${fieldName}`;
-      const arrayFNQuery = arrayFN !== undefined ? `&arrayFN=${arrayFN}` : '';
-      const auxcodesQuery = codes !== undefined ? codes.map((code) => `&codes[]=${code}`) : '';
-      const codesQuery = auxcodesQuery.constructor === Array ? auxcodesQuery.join('') : '';
-      return callApi(initialQuery.concat(arrayFNQuery, codesQuery), { method: 'GET' });
+  Voucher: {
+    GetEntities(idData, code) {
+      return callApi(`/vouchers/getEntities/?idData=${idData}&code=${code}`, { method: 'GET' });
     },
-  },
-  Invoice: {
-    GetMany(query) {
-      return callApi(`/invoices/?${query}`, { method: 'GET' });
+    ReadMany(query) {
+      return callApi(`/vouchers/?${query}`, { method: 'GET' });
+    },
+    ReadReport(id) {
+      return callApi(`/vouchers/getReport/${id}`, { method: 'GET' });
     },
   },
   User: {
@@ -56,6 +53,11 @@ const api = {
     },
     VerifyEmail(object) {
       return callApi('/users/verifyEmail', { method: 'POST', body: JSON.stringify(object) });
+    },
+  },
+  VoucherTypes: {
+    GetAll() {
+      return callApi('/voucherTypes', { method: 'GET' });
     },
   },
 };

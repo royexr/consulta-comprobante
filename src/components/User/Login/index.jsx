@@ -98,7 +98,7 @@ const Login = () => {
                           <h2 className="subtitle">Ingrese sus datos a continuación</h2>
                         </hgroup>
                         <FormField
-                          className="m-bottom-15 p-col-11 p-col-align-center"
+                          className="mb-15 p-col-11 p-col-align-center"
                           disabled={isSubmitting}
                           errors={errors.email && touched.email}
                           errorMessage={errors.email}
@@ -111,7 +111,7 @@ const Login = () => {
                           value={values.email}
                         />
                         <FormField
-                          className="m-bottom-15 p-col-11 p-col-align-center"
+                          className="mb-15 p-col-11 p-col-align-center"
                           disabled={isSubmitting}
                           errors={errors.password && touched.password}
                           errorMessage={errors.password}
@@ -122,7 +122,7 @@ const Login = () => {
                           type="password"
                           value={values.password}
                         />
-                        <div className="m-bottom-15 p-col-6 p-xl-4 p-col-align-center">
+                        <div className="mb-15 p-col-6 p-xl-4 p-col-align-center">
                           <Button
                             label="Iniciar sesión"
                             className="button"
@@ -132,7 +132,7 @@ const Login = () => {
                         </div>
                         {
                           isSubmitting && (
-                            <div className="m-bottom-15 p-col-align-center">
+                            <div className="mb-15 p-col-align-center">
                               <ProgressSpinner
                                 strokeWidth="6"
                                 style={{
@@ -143,14 +143,14 @@ const Login = () => {
                             </div>
                           )
                         }
-                        <a className="m-bottom-15 text--centered p-col-align-center" href="/" style={{ pointerEvents: isSubmitting && 'none' }}>¿olvidaste tu contraseña?</a>
+                        <a className="mb-15 text--centered p-col-align-center" href="/" style={{ pointerEvents: isSubmitting && 'none' }}>¿olvidaste tu contraseña?</a>
                         <div className="p-col-11 p-col-align-center">
                           <Messages ref={(el) => { setMessages(el); }} />
                         </div>
-                        <hr className="m-bottom-15" style={{ width: '100%' }} />
+                        <hr className="mb-15" style={{ width: '100%' }} />
                         <div className="p-grid p-dir-col">
                           <small className="text--centered p-col-align-center">¿no tienes cuenta?</small>
-                          <div className="m-bottom-15 p-col-6 p-xl-4 p-col-align-center">
+                          <div className="mb-15 p-col-6 p-xl-4 p-col-align-center">
                             <Button
                               className="p-button-secondary button"
                               disabled={isSubmitting}

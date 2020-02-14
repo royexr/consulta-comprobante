@@ -144,7 +144,7 @@ const FormVoucherInquiry = ({ method }) => {
           }
         }
       }
-      const vouchersData = (await api.Invoice.GetMany(query)).data;
+      const vouchersData = (await api.Voucher.GetMany(query)).data;
       if (vouchersData.length !== 0) {
         let totalV = 0;
         for (let i = 0; i < vouchersData.length; i += 1) {

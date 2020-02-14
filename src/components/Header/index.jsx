@@ -1,40 +1,61 @@
 // Dependencies
-import React, { useState } from 'react';
-import jwt from 'jsonwebtoken';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // Resources
-import FormField from '../../sharedcomponents/FormField';
-import api from '../../utils/api';
+import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
+import { useHistory } from 'react-router-dom';
 
-const Header = () => {
-  const token = sessionStorage.getItem('userJWT');
-  const isLoggedIn = token !== null;
-  const user = isLoggedIn && jwt.verify(token, process.env.REACT_APP_JWT_SECRET);
-  const [companies, setCompanies] = useState([]);
+const Header = ({
+  companies,
+  currentCompany,
+  changeCompany,
+  signOut,
+}) => {
+  const history = useHistory();
 
-  const FetchCompanies = async () => {
-    try {
-      setCompanies(isLoggedIn && await api.User.GetCompanies(user._id.email));
-    } catch (error) {
-      setCompanies([]);
-    }
+  const handleChange = (e) => {
+    changeCompany(e.value);
   };
 
-  useState
+  const handleSignOut = () => {
+    signOut();
+    sessionStorage.removeItem('userJWT');
+    history.push('/');
+  };
 
   return (
-    <header className="header">
-      <nav className="header__navbar">
-        {
-          isLoggedIn && (
-            <FormField
-              className="m-bottom-15 p-col-11 p-col-align-center"
-            />
-          )
-        }
+    <header className="header p-col-12">
+      <nav className="header__navbar p-grid p-nogutter p-justify-between">
+        <div className="p-col-2" />
+        <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4 p-col-align-center">
+          <Dropdown
+            disabled={companies.length < 2}
+            name="company"
+            onChange={handleChange}
+            options={companies}
+            value={currentCompany}
+          />
+        </div>
+        <div className="p-md-4 p-lg-2 p-xl-1">
+          <Button
+            className="button"
+            icon="pi pi-sign-out"
+            label="Salir"
+            onClick={handleSignOut}
+            type="button"
+          />
+        </div>
       </nav>
     </header>
-  )
+  );
+};
+
+Header.propTypes = {
+  companies: PropTypes.arrayOf(PropTypes.object).isRequired,
+  currentCompany: PropTypes.string.isRequired,
+  changeCompany: PropTypes.func.isRequired,
 };
 
 export default Header;

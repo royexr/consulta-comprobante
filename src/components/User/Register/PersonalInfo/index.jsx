@@ -56,7 +56,7 @@ const PersonalInfo = ({ data, saveValues }) => {
               <h1 className="title">Datos Personales</h1>
             </hgroup>
             <FormField
-              className="m-bottom-15 p-col-11 p-col-align-center"
+              className="mb-15 p-col-11 p-col-align-center"
               errors={errors.name && touched.name}
               errorMessage={errors.name}
               handleBlur={handleBlur}
@@ -67,7 +67,7 @@ const PersonalInfo = ({ data, saveValues }) => {
               value={values.name}
             />
             <FormField
-              className="m-bottom-15 p-col-11 p-col-align-center"
+              className="mb-15 p-col-11 p-col-align-center"
               errors={errors.email && touched.email}
               errorMessage={errors.email}
               handleBlur={handleBlur}
@@ -79,7 +79,7 @@ const PersonalInfo = ({ data, saveValues }) => {
               value={values.email}
             />
             <FormField
-              className="m-bottom-15 p-col-11 p-col-align-center"
+              className="mb-15 p-col-11 p-col-align-center"
               errors={errors.docNumber && touched.docNumber}
               errorMessage={errors.docNumber}
               handleBlur={handleBlur}
@@ -92,7 +92,7 @@ const PersonalInfo = ({ data, saveValues }) => {
               value={values.docNumber}
             />
             <FormField
-              className="m-bottom-15 p-col-11 p-col-align-center"
+              className="mb-15 p-col-11 p-col-align-center"
               errors={errors.cellphone && touched.cellphone}
               errorMessage={errors.cellphone}
               handleBlur={handleBlur}
@@ -104,7 +104,7 @@ const PersonalInfo = ({ data, saveValues }) => {
               type="text"
               value={values.cellphone}
             />
-            <div className="m-bottom-15 p-col-11 p-col-align-center">
+            <div className="mb-15 p-col-11 p-col-align-center">
               <div className="p-grid p-justify-end">
                 <div className="p-col-6 p-xl-5">
                   <Button

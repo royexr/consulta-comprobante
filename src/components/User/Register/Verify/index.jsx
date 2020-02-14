@@ -75,7 +75,7 @@ const Verify = ({ data, previousStep, register }) => {
             <hgroup className="heading">
               <h1 className="title">Verificación de correo</h1>
             </hgroup>
-            <div className="m-bottom-15 p-col-11 p-col-align-center">
+            <div className="mb-15 p-col-11 p-col-align-center">
               <span className="p-float-label">
                 <input className="p-filled input--hidden" />
                 <div className="p-inputgroup">
@@ -106,7 +106,7 @@ const Verify = ({ data, previousStep, register }) => {
               )
             }
             <FormField
-              className="m-bottom-15 p-col-11 p-col-align-center"
+              className="mb-15 p-col-11 p-col-align-center"
               disabled={!wasSended}
               errors={errors.code && touched.code}
               errorMessage={errors.code}
@@ -117,10 +117,10 @@ const Verify = ({ data, previousStep, register }) => {
               type="mask"
               value={values.code}
             />
-            <div className="m-bottom-15 p-col-11 p-col-align-center">
+            <div className="mb-15 p-col-11 p-col-align-center">
               <Messages ref={(el) => { messages = el; }} />
             </div>
-            <div className="m-bottom-15 p-col-11 p-col-align-center">
+            <div className="mb-15 p-col-11 p-col-align-center">
               <div className="p-grid p-justify-between">
                 <div className="p-col-6 p-xl-5">
                   <Button

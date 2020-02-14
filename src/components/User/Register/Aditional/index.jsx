@@ -98,7 +98,7 @@ const Aditional = ({
           <hgroup className="heading">
             <h1 className="title">Datos adicionales</h1>
           </hgroup>
-          <div className="m-bottom-15 p-col-11 p-col-align-center">
+          <div className="mb-15 p-col-11 p-col-align-center">
             <span className="p-float-label">
               <input className={`input--hidden${values.businessNumber !== '' || touchedBN ? ' p-filled' : ''}`} />
               <div className="p-inputgroup">
@@ -132,7 +132,7 @@ const Aditional = ({
           </div>
           {
             loading && (
-              <div className="m-bottom-15 p-col-align-center">
+              <div className="mb-15 p-col-align-center">
                 <ProgressSpinner
                   strokeWidth="6"
                   style={{
@@ -144,14 +144,14 @@ const Aditional = ({
             )
           }
           <FormField
-            className="m-bottom-15 p-col-11 p-col-align-center"
+            className="mb-15 p-col-11 p-col-align-center"
             label="Razón Social"
             name="businessName"
             type="text"
             value={data.businessName}
           />
           <FormField
-            className="m-bottom-15 p-col-11 p-col-align-center"
+            className="mb-15 p-col-11 p-col-align-center"
             disabled={loading}
             errors={errors.password && touched.password}
             errorMessage={errors.password}
@@ -163,7 +163,7 @@ const Aditional = ({
             value={values.password}
           />
           <FormField
-            className="m-bottom-15 p-col-11 p-col-align-center"
+            className="mb-15 p-col-11 p-col-align-center"
             disabled={loading}
             errors={errors.confirmPassword && touched.confirmPassword}
             errorMessage={errors.confirmPassword}
@@ -174,10 +174,10 @@ const Aditional = ({
             type="password"
             value={values.confirmPassword}
           />
-          <div className="m-bottom-15 p-col-11 p-col-align-center">
+          <div className="mb-15 p-col-11 p-col-align-center">
             <Messages ref={(el) => { setMessages(el); }} />
           </div>
-          <div className="m-bottom-15 p-col-11 p-col-align-center">
+          <div className="mb-15 p-col-11 p-col-align-center">
             <div className="p-grid p-justify-between">
               <div className="p-col-6 p-xl-5">
                 <Button
