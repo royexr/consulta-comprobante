@@ -1,9 +1,9 @@
 // Dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 const Timer = ({ expirationDate }) => {
-  let timerID;
+  const refTimer = useRef();
   const [date, setDate] = useState(new Date(Date.now));
 
   const tick = () => {
@@ -11,10 +11,10 @@ const Timer = ({ expirationDate }) => {
   };
 
   useEffect(() => {
-    timerID = setInterval(() => tick(), 1000);
+    refTimer.current = setInterval(() => tick(), 1000);
 
-    return function cleanup() {
-      clearInterval(timerID);
+    return () => {
+      clearInterval(refTimer.current);
     };
   });
 

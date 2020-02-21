@@ -14,7 +14,7 @@ import { Dialog } from 'primereact/dialog';
 import { Column } from 'primereact/column';
 import Form from '../sharedcomponents/Form';
 import api from '../utils/api';
-import voucherCodes from '../utils/voucherCodes';
+import { voucherCodes } from '../utils/Objects';
 
 const FormVoucherInquiry = ({ method }) => {
   const history = useHistory();

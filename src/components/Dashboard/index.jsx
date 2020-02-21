@@ -13,26 +13,26 @@ const Dashboard = ({ currentCompany }) => {
   const [salesT, setSalesT] = useState([]);
   const [purchasesT, setPurchasesT] = useState([]);
 
-  const fetchData = async () => {
-    const report = (await api.Voucher.ReadReport(currentCompany)).data;
-    const sales = []; const purchases = [];
-    for (let i = 0; i < report.length; i += 1) {
-      const e = report[i];
-      sales.push(e.sales);
-      purchases.push(e.purchases);
+  const fetchData = async (cc) => {
+    if (cc !== undefined && cc.length > 0) {
+      const report = (await api.Voucher.ReadReport(cc)).data;
+      const sales = []; const purchases = [];
+      for (let i = 0; i < report.length; i += 1) {
+        const e = report[i];
+        sales.push(e.sales);
+        purchases.push(e.purchases);
+      }
+      const rLabels = report.map((item) => (
+        `${months[item._id.month - 1]} - ${item._id.year}`
+      ));
+      setLabels(rLabels.reverse());
+      setSalesT(sales.reverse());
+      setPurchasesT(purchases.reverse());
     }
-    const rLabels = report.map((item) => (
-      `${months[item._id.month - 1]} - ${item._id.year}`
-    ));
-    setLabels(rLabels.reverse());
-    setSalesT(sales.reverse());
-    setPurchasesT(purchases.reverse());
   };
 
   useEffect(() => {
-    if (currentCompany !== undefined && currentCompany.length > 0) {
-      fetchData();
-    }
+    fetchData(currentCompany);
   }, [currentCompany]);
 
   const lineStylesData = {
@@ -69,7 +69,7 @@ const Dashboard = ({ currentCompany }) => {
                 <Link to="/purchases">Compras</Link>
               </div>
               <div className="mb-15 p-col-6 p-col-align-center">
-                <Link to="/invoices">Ventas</Link>
+                <Link to="/sales">Ventas</Link>
               </div>
               <div className="mb-15 p-col-6 p-col-align-center">
                 <Link to="/configuration">Configuración</Link>

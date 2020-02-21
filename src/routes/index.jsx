@@ -1,18 +1,59 @@
 // Dependencies
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 // Resources
 import AuthContext from '../contexts/Auth';
-import Configuration from '../components/Dashboard/Configuration';
 import Dashboard from '../components/Dashboard';
-import Invoices from '../components/Dashboard/Invoices';
-import Login from '../components/User/Login';
-import NotFound from '../components/NotFound';
+import Configuration from '../components/Dashboard/Configuration';
+import Sales from '../components/Dashboard/Sales';
 import Purchases from '../components/Dashboard/Purchases';
+import Login from '../components/User/Login';
 import Register from '../components/User/Register';
-import styles from './styles.module.css';
+import RequestResetPassword from '../components/User/RequestReset';
+import ResetPassword from '../components/User/Reset';
+import NotFound from '../components/NotFound';
 import Header from '../components/Header';
+import styles from './styles.module.css';
+
+const LoginRoute = ({
+  isAuth,
+  exact,
+  path,
+  render,
+}) => {
+  if (isAuth) {
+    return <Redirect to="/dashboard" />;
+  }
+  return <Route exact={exact} path={path} render={render} />;
+};
+
+LoginRoute.propTypes = {
+  isAuth: PropTypes.bool.isRequired,
+  exact: PropTypes.bool.isRequired,
+  path: PropTypes.string.isRequired,
+  render: PropTypes.func.isRequired,
+};
+
+const CustomRoute = ({
+  isAuth,
+  exact,
+  path,
+  render,
+}) => {
+  if (isAuth) {
+    return <Route exact={exact} path={path} render={render} />;
+  }
+  return <Redirect to="/" />;
+};
+
+CustomRoute.propTypes = {
+  isAuth: PropTypes.bool.isRequired,
+  exact: PropTypes.bool.isRequired,
+  path: PropTypes.string.isRequired,
+  render: PropTypes.func.isRequired,
+};
 
 const Routes = () => (
   <AuthContext.Consumer>
@@ -22,6 +63,7 @@ const Routes = () => (
         companies,
         currentCompany,
         changeCompany,
+        signIn,
         signOut,
       }) => (
         <div className={`${styles.container} p-grid p-dir-col p-align-center p-justify-center`}>
@@ -36,18 +78,14 @@ const Routes = () => (
             )
           }
           <Switch>
-            <Route exact path="/" component={Login} />
+            <LoginRoute isAuth={isAuth} exact path="/" render={() => (<Login signIn={signIn} />)} />
             <Route exact path="/register" component={Register} />
-            {
-              isAuth ? (
-                <>
-                  <Route exact path="/dashboard" render={() => (<Dashboard currentCompany={currentCompany} />)} />
-                  <Route exact path="/invoices" render={() => (<Invoices currentCompany={currentCompany} />)} />
-                  <Route exact path="/purchases" component={Purchases} />
-                  <Route exact path="/configuration" component={Configuration} />
-                </>
-              ) : <NotFound />
-            }
+            <Route exact path="/request-reset" component={RequestResetPassword} />
+            <Route exact path="/reset" component={ResetPassword} />
+            <CustomRoute isAuth={isAuth} exact path="/dashboard" render={() => (<Dashboard currentCompany={currentCompany} />)} />
+            <CustomRoute isAuth={isAuth} exact path="/sales" render={() => (<Sales currentCompany={currentCompany} />)} />
+            <CustomRoute isAuth={isAuth} exact path="/purchases" render={() => (<Purchases currentCompany={currentCompany} />)} />
+            <CustomRoute isAuth={isAuth} exact path="/configuration" render={() => (<Configuration />)} />
             <Route path="*" component={NotFound} />
           </Switch>
         </div>

@@ -56,6 +56,7 @@ Header.propTypes = {
   companies: PropTypes.arrayOf(PropTypes.object).isRequired,
   currentCompany: PropTypes.string.isRequired,
   changeCompany: PropTypes.func.isRequired,
+  signOut: PropTypes.func.isRequired,
 };
 
 export default Header;

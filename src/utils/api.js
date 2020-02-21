@@ -25,8 +25,8 @@ const api = {
     },
   },
   Voucher: {
-    GetEntities(idData, code) {
-      return callApi(`/vouchers/getEntities/?idData=${idData}&code=${code}`, { method: 'GET' });
+    GetEntities(companyCode, bookCode) {
+      return callApi(`/vouchers/getEntities/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET' });
     },
     ReadMany(query) {
       return callApi(`/vouchers/?${query}`, { method: 'GET' });
@@ -50,6 +50,12 @@ const api = {
     },
     SendMail(object) {
       return callApi('/users/sendmail', { method: 'POST', body: JSON.stringify(object) });
+    },
+    RequestReset(object) {
+      return callApi('/users/requestResetPassword', { method: 'POST', body: JSON.stringify(object) });
+    },
+    ResetPassword(object, query) {
+      return callApi(`/users/resetPassword${query}`, { method: 'POST', body: JSON.stringify(object) });
     },
     VerifyEmail(object) {
       return callApi('/users/verifyEmail', { method: 'POST', body: JSON.stringify(object) });

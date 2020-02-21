@@ -37,6 +37,16 @@ body {
   width: 100%;
 }
 
+.form__field-label {
+  color: #898989;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1;
+  margin-top: 0;
+  margin-bottom: .2rem;
+  pointer-events: none;
+}
+
 /* Heading */
 .heading {
   display: block;

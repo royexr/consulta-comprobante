@@ -8,58 +8,80 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
+import { Messages } from 'primereact/messages';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import api from '../../../utils/api';
 import FormField from '../../../sharedcomponents/FormField';
-import voucherCodes from '../../../utils/voucherCodes';
+import { voucherCodes } from '../../../utils/Objects';
+import { exportInvoices } from '../../../utils';
 
-const Invoices = ({ currentCompany }) => {
+const Sales = ({ currentCompany }) => {
+  // Concept: Fields data
   const [entities, setEntities] = useState([]);
-  const [isShowingPDF, setShowingPDF] = useState(false);
-  const [pdfSource, setPdfSource] = useState('');
+  const [voucherTypes, setVoucherTypes] = useState([]);
+
+  const fetchEntities = async (cc) => {
+    if (cc !== undefined && cc.length > 0) {
+      const { data } = await api.Voucher.GetEntities(cc, '14');
+      setEntities(data.entities);
+    }
+  };
+
+  const fetchVoucherTypes = async (cc) => {
+    if (cc !== undefined && cc.length > 0) {
+      const { data } = await api.VoucherTypes.GetAll();
+      const formatted = data.map((vt) => ({
+        value: vt.Cod_TipoComprobante,
+        label: vt.Nom_TipoComprobante,
+      }));
+      setVoucherTypes(formatted);
+    }
+  };
+
+  useEffect(() => {
+    fetchEntities(currentCompany);
+    fetchVoucherTypes(currentCompany);
+  }, [currentCompany]);
+
+  // Concept: Alert messages
+  const [messages, setMessages] = useState(new Messages());
+
+  const showMessage = (severity, summary, detail) => {
+    messages.show({ severity, summary, detail });
+  };
+
+  // Concept: Formik functions
   const [quantity, setQuantity] = useState(0);
   const [total, setTotal] = useState(0);
   const [vouchers, setVouchers] = useState([]);
-  const [voucherTypes, setVoucherTypes] = useState([]);
-
-  const fetchEntities = async () => {
-    const { data } = await api.Voucher.GetEntities('_id.Cod_Empresa', currentCompany);
-    setEntities(data.entities);
-  };
-
-  const fetchVoucherTypes = async () => {
-    const { data } = await api.VoucherTypes.GetAll();
-    const formatted = data.map((vt) => ({
-      value: vt.Cod_TipoComprobante,
-      label: vt.Nom_TipoComprobante,
-    }));
-    setVoucherTypes(formatted);
-  };
 
   const fieldsValidation = (values) => {
     const errors = {};
     if (!values.voucherType) {
       errors.voucherType = 'Campo obligatorio';
     }
-    if (!values.docCliente) {
-      errors.docCliente = 'Campo obligatorio';
+    if (!values.clientDoc) {
+      errors.clientDoc = 'Campo obligatorio';
     }
     if (!values.startDate) {
       errors.startDate = 'Campo obligatorio';
     }
     if (!values.endDate) {
       errors.endDate = 'Campo obligatorio';
+    } else if (new Date(values.endDate).getTime() <= new Date(values.startDate).getTime()) {
+      errors.endDate = 'La fecha final debe ser superior a la fecha inicial';
     }
     return errors;
   };
 
-  const onSubmit = async (values, setSubmitting) => {
+  const onSubmit = async (values, actions) => {
     const aux = { ...values };
 
-    let query = `dateName=FechaEmision&codeCompany=${currentCompany}&`;
+    let query = `bookCode=14&codeCompany=${currentCompany}&`;
     const vKeys = Object.keys(aux);
     for (let i = 0; i < vKeys.length; i += 1) {
       const key = vKeys[i];
-      if (key === 'docCliente') {
+      if (key === 'clientDoc') {
         const array = aux[key].split(' - ');
         query = query.concat(`${key}=${array[0]}`);
       } else {
@@ -68,7 +90,9 @@ const Invoices = ({ currentCompany }) => {
       query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
     }
     const vouchersR = await api.Voucher.ReadMany(query);
-    if (vouchersR.message === '01') {
+    if (vouchersR instanceof TypeError) {
+      showMessage('error', 'Error!', 'No hay conexion');
+    } else if (vouchersR.message === '01') {
       const { data } = vouchersR;
       if (data.length !== 0) {
         let totalV = 0;
@@ -78,18 +102,19 @@ const Invoices = ({ currentCompany }) => {
         }
         setTotal(Math.round(totalV * 100) / 100);
         setQuantity(data.length);
+        setVouchers(data);
+      } else {
+        showMessage('warn', 'Alerta!', 'No se han encontrado comprobantes');
       }
-      setVouchers(data);
+    } else {
+      showMessage('error', 'Error!', 'Se ah producido un error');
     }
-    setSubmitting(false);
+    actions.setSubmitting(false);
   };
 
-  useEffect(() => {
-    if (currentCompany !== undefined && currentCompany.length > 0) {
-      fetchEntities();
-      fetchVoucherTypes();
-    }
-  }, [currentCompany]);
+  // Concept: Datatable functions
+  const [isShowingPDF, setShowingPDF] = useState(false);
+  const [pdfSource, setPdfSource] = useState('');
 
   const downloadPDF = (voucher) => {
     let url = '';
@@ -120,34 +145,27 @@ const Invoices = ({ currentCompany }) => {
     window.location.href = url;
   };
 
-  const hidePDFModal = () => {
-    setShowingPDF(false);
-    setPdfSource('');
-  };
-
-
-  const actionTemplate = (rowData) => {
-    return (
-      <>
-        <Button
-          className="p-button-danger"
-          icon="pi pi-file-pdf"
-          style={{ marginRight: '0.5rem' }}
-          tooltip="Descargar PDF"
-          type="button"
-          onClick={() => { downloadPDF(rowData); }}
-        />
-        <Button
-          className="p-button-success"
-          icon="pi pi-file-o"
-          style={{ marginRight: '0.5rem' }}
-          tooltip="Descargar XML"
-          type="button"
-          onClick={() => { downloadXML(rowData); }}
-        />
-      </>
-    );
-  };
+  // Concept: Datatable templates
+  const actionTemplate = (rowData) => (
+    <>
+      <Button
+        className="p-button-danger"
+        icon="pi pi-file-pdf"
+        style={{ marginRight: '0.5rem' }}
+        tooltip="Descargar PDF"
+        type="button"
+        onClick={() => { downloadPDF(rowData); }}
+      />
+      <Button
+        className="p-button-success"
+        icon="pi pi-file-o"
+        style={{ marginRight: '0.5rem' }}
+        tooltip="Descargar XML"
+        type="button"
+        onClick={() => { downloadXML(rowData); }}
+      />
+    </>
+  );
 
   const dateTemplate = (rowData) => {
     const formattedDate = (new Date(rowData.FechaEmision)).toLocaleDateString();
@@ -175,19 +193,25 @@ const Invoices = ({ currentCompany }) => {
     </div>
   );
 
+  // Concept: Dialog functions
+  const hidePDFModal = () => {
+    setShowingPDF(false);
+    setPdfSource('');
+  };
+
   return (
     <>
       <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4">
         <Formik
           initialValues={{
             voucherType: '',
-            docCliente: '',
+            clientDoc: '',
             startDate: '',
             endDate: '',
           }}
           validate={(values) => fieldsValidation(values)}
-          onSubmit={(values, { setSubmitting }) => {
-            onSubmit(values, setSubmitting);
+          onSubmit={(values, actions) => {
+            onSubmit(values, actions);
           }}
         >
           {
@@ -223,15 +247,15 @@ const Invoices = ({ currentCompany }) => {
                   <FormField
                     className="mb-15 p-col-11 p-col-align-center"
                     disabled={isSubmitting}
-                    errors={errors.docCliente && touched.docCliente}
-                    errorMessage={errors.docCliente}
+                    errors={errors.clientDoc && touched.clientDoc}
+                    errorMessage={errors.clientDoc}
                     handleBlur={handleBlur}
                     handleChange={handleChange}
                     label="Entidad"
-                    name="docCliente"
+                    name="clientDoc"
                     suggestions={entities}
                     type="autoComplete"
-                    value={values.docCliente}
+                    value={values.clientDoc}
                   />
                   <FormField
                     className="mb-15 p-col-11 p-col-align-center"
@@ -252,7 +276,7 @@ const Invoices = ({ currentCompany }) => {
                     errorMessage={errors.endDate}
                     handleBlur={handleBlur}
                     handleChange={handleChange}
-                    label="Fecha inicial"
+                    label="Fecha final"
                     name="endDate"
                     type="date"
                     value={values.endDate}
@@ -264,6 +288,22 @@ const Invoices = ({ currentCompany }) => {
                       disabled={isSubmitting}
                       type="submit"
                     />
+                  </div>
+                  {
+                    isSubmitting && (
+                      <div className="mb-15 p-col-align-center">
+                        <ProgressSpinner
+                          strokeWidth="6"
+                          style={{
+                            width: '2rem',
+                            height: '2rem',
+                          }}
+                        />
+                      </div>
+                    )
+                  }
+                  <div className="p-col-11 p-col-align-center">
+                    <Messages ref={(el) => { setMessages(el); }} />
                   </div>
                 </form>
               </>
@@ -296,45 +336,48 @@ const Invoices = ({ currentCompany }) => {
           )
         }
       </Dialog>
-      {vouchers.length !== 0 && (
-        <>
-          <DataTable
-            className="p-col-11"
-            header={dtHeader()}
-            footer={dtFooter()}
-            paginator
-            responsive
-            rows={5}
-            value={vouchers}
-            rowsPerPageOptions={[5, 20, 50]}
-          >
-            <Column body={dateTemplate} header="Fecha de emisión" />
-            <Column field="Cod_TipoOperacion" header="Tipo de operacion" />
-            <Column field="Serie" header="Serie" />
-            <Column field="Numero" header="Numero" />
-            <Column field="Doc_Cliente" header="Documento del cliente" />
-            <Column field="Nom_Cliente" header="Nombre del cliente" />
-            <Column field="Cod_Moneda" header="Codigo de moneda" />
-            <Column field="Total" header="Total" />
-            <Column field="Cod_EstadoComprobante" header="Estado de comprobante" />
-            <Column body={actionTemplate} />
-          </DataTable>
-          <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4">
-            <Button
-              className="button button--blue"
-              icon="pi pi-file-excel"
-              label="Exportar a Excel"
-              type="button"
-            />
-          </div>
-        </>
-      )}
+      {
+        vouchers.length !== 0 && (
+          <>
+            <DataTable
+              className="p-col-11"
+              header={dtHeader()}
+              footer={dtFooter()}
+              paginator
+              responsive
+              rows={5}
+              value={vouchers}
+              rowsPerPageOptions={[5, 20, 50]}
+            >
+              <Column body={dateTemplate} header="Fecha de emisión" />
+              <Column field="Cod_TipoOperacion" header="Tipo de operacion" />
+              <Column field="Serie" header="Serie" />
+              <Column field="Numero" header="Numero" />
+              <Column field="Doc_Cliente" header="Documento del cliente" />
+              <Column field="Nom_Cliente" header="Nombre del cliente" />
+              <Column field="Cod_Moneda" header="Codigo de moneda" />
+              <Column field="Total" header="Total" />
+              <Column field="Cod_EstadoComprobante" header="Estado de comprobante" />
+              <Column body={actionTemplate} />
+            </DataTable>
+            <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4">
+              <Button
+                className="button button--blue"
+                icon="pi pi-file-excel"
+                label="Exportar a Excel"
+                onClick={() => exportInvoices(currentCompany, vouchers)}
+                type="button"
+              />
+            </div>
+          </>
+        )
+      }
     </>
   );
 };
 
-Invoices.propTypes = {
+Sales.propTypes = {
   currentCompany: PropTypes.string.isRequired,
 };
 
-export default Invoices;
+export default Sales;

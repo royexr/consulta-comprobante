@@ -1,5 +1,5 @@
 // Dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -43,9 +43,9 @@ const FormField = ({
       case 'autoComplete':
         return (
           <>
-            <span>
-              <label htmlFor={name}>
-                {label}
+            <label htmlFor={name}>
+              <p className="form__field-label">{label}</p>
+              <span>
                 <AutoComplete
                   className={classNames(
                     'form__field',
@@ -62,31 +62,34 @@ const FormField = ({
                   suggestions={filteredSuggs}
                   completeMethod={suggestBrands}
                 />
-              </label>
-            </span>
+              </span>
+            </label>
           </>
         );
       case 'date':
         return (
           <>
-            <span>
-              <InputText
-                aria-label={label}
-                className={classNames(
-                  'form__field',
-                  {
-                    'p-error': errors,
-                  },
-                )}
-                disabled={disabled}
-                id={name}
-                name={name}
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type={type}
-                value={value}
-              />
-            </span>
+            <label htmlFor={name}>
+              <p className="form__field-label">{label}</p>
+              <span>
+                <InputText
+                  aria-label={label}
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  disabled={disabled}
+                  id={name}
+                  name={name}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type={type}
+                  value={value}
+                />
+              </span>
+            </label>
           </>
         );
       case 'select':
@@ -94,7 +97,9 @@ const FormField = ({
           <>
             <span>
               <label htmlFor={name}>
-                {label}
+                <p className="form__field-label">
+                  {label}
+                </p>
                 <Dropdown
                   className={classNames(
                     'form__field',
@@ -103,6 +108,7 @@ const FormField = ({
                     },
                   )}
                   disabled={disabled}
+                  id={name}
                   name={name}
                   value={value}
                   options={options}
@@ -213,14 +219,10 @@ const FormField = ({
 };
 
 FormField.defaultProps = {
-  arrayFN: undefined,
   className: '',
-  codes: undefined,
-  collectionName: '',
   disabled: false,
   errors: false,
   errorMessage: '',
-  fieldName: '',
   handleBlur: null,
   handleChange: null,
   keyfilter: '',
@@ -235,14 +237,10 @@ FormField.defaultProps = {
 };
 
 FormField.propTypes = {
-  arrayFN: PropTypes.string,
   className: PropTypes.string,
-  codes: PropTypes.arrayOf(PropTypes.string),
-  collectionName: PropTypes.string,
   disabled: PropTypes.bool,
   errors: PropTypes.bool,
   errorMessage: PropTypes.string,
-  fieldName: PropTypes.string,
   handleBlur: PropTypes.func,
   handleChange: PropTypes.func,
   keyfilter: PropTypes.string,

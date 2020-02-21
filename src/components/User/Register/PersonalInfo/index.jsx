@@ -1,14 +1,21 @@
 // Dependencies
-import React from 'react';
+import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 
 // Resources
 import { Button } from 'primereact/button';
+import { Messages } from 'primereact/messages';
 import FormField from '../../../../sharedcomponents/FormField';
 import { isValidEmail } from '../../../../utils';
+import api from '../../../../utils/api';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const PersonalInfo = ({ data, saveValues }) => {
+  const history = useHistory();
+  const [messages, setMessages] = useState(new Messages());
+
   const fieldsValidation = (values) => {
     const errors = {};
     if (!values.name) {
@@ -33,11 +40,31 @@ const PersonalInfo = ({ data, saveValues }) => {
     return errors;
   };
 
+  const leave = () => {
+    history.push('/');
+  };
+
+  const showMessage = (severity, summary, detail) => {
+    messages.show({ severity, summary, detail });
+  };
+
+  const verifyEmail = async (values, actions) => {
+    const response = await api.User.GetById(values.email);
+    if (response instanceof TypeError) {
+      showMessage('error', 'Error!', 'No hay conexion');
+    } else if (response.message === '02') {
+      saveValues(values);
+    } else {
+      showMessage('error', 'Error!', 'Ese correo ya esta registrado');
+    }
+    actions.setSubmitting(false);
+  };
+
   return (
     <Formik
       initialValues={data}
       validate={(values) => fieldsValidation(values)}
-      onSubmit={(values) => saveValues(values)}
+      onSubmit={(values, actions) => { verifyEmail(values, actions); }}
     >
       {({
         values,
@@ -46,6 +73,7 @@ const PersonalInfo = ({ data, saveValues }) => {
         handleBlur,
         handleChange,
         handleSubmit,
+        isSubmitting,
       }) => (
         <>
           <form
@@ -57,6 +85,7 @@ const PersonalInfo = ({ data, saveValues }) => {
             </hgroup>
             <FormField
               className="mb-15 p-col-11 p-col-align-center"
+              disabled={isSubmitting}
               errors={errors.name && touched.name}
               errorMessage={errors.name}
               handleBlur={handleBlur}
@@ -68,6 +97,7 @@ const PersonalInfo = ({ data, saveValues }) => {
             />
             <FormField
               className="mb-15 p-col-11 p-col-align-center"
+              disabled={isSubmitting}
               errors={errors.email && touched.email}
               errorMessage={errors.email}
               handleBlur={handleBlur}
@@ -80,6 +110,7 @@ const PersonalInfo = ({ data, saveValues }) => {
             />
             <FormField
               className="mb-15 p-col-11 p-col-align-center"
+              disabled={isSubmitting}
               errors={errors.docNumber && touched.docNumber}
               errorMessage={errors.docNumber}
               handleBlur={handleBlur}
@@ -93,6 +124,7 @@ const PersonalInfo = ({ data, saveValues }) => {
             />
             <FormField
               className="mb-15 p-col-11 p-col-align-center"
+              disabled={isSubmitting}
               errors={errors.cellphone && touched.cellphone}
               errorMessage={errors.cellphone}
               handleBlur={handleBlur}
@@ -104,8 +136,32 @@ const PersonalInfo = ({ data, saveValues }) => {
               type="text"
               value={values.cellphone}
             />
+            {
+              isSubmitting && (
+                <div className="mb-15 p-col-align-center">
+                  <ProgressSpinner
+                    strokeWidth="6"
+                    style={{
+                      width: '2rem',
+                      height: '2rem',
+                    }}
+                  />
+                </div>
+              )
+            }
             <div className="mb-15 p-col-11 p-col-align-center">
-              <div className="p-grid p-justify-end">
+              <Messages ref={(el) => { setMessages(el); }} />
+            </div>
+            <div className="mb-15 p-col-11 p-col-align-center">
+              <div className="p-grid p-justify-between">
+                <div className="p-col-6 p-xl-5">
+                  <Button
+                    className="button p-button-danger"
+                    label="Atras"
+                    onClick={leave}
+                    type="button"
+                  />
+                </div>
                 <div className="p-col-6 p-xl-5">
                   <Button
                     label="Siguiente"

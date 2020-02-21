@@ -33,7 +33,6 @@ const Aditional = ({
     } else if (values.password !== values.confirmPassword) {
       errors.confirmPassword = 'Las contraseñas no son iguales';
     }
-
     return errors;
   };
 
