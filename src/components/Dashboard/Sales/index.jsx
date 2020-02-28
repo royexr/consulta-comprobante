@@ -11,6 +11,7 @@ import { Dialog } from 'primereact/dialog';
 import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import api from '../../../utils/api';
+import config from '../../../config';
 import FormField from '../../../sharedcomponents/FormField';
 import { voucherCodes } from '../../../utils/Objects';
 import { exportInvoices } from '../../../utils';
@@ -105,9 +106,11 @@ const Sales = ({ currentCompany }) => {
         setVouchers(data);
       } else {
         showMessage('warn', 'Alerta!', 'No se han encontrado comprobantes');
+        setVouchers([]);
       }
     } else {
       showMessage('error', 'Error!', 'Se ah producido un error');
+      setVouchers([]);
     }
     actions.setSubmitting(false);
   };
@@ -125,7 +128,7 @@ const Sales = ({ currentCompany }) => {
     const date = fullDate.getDate().toString().length === 2 ? fullDate.getDate().toString() : `0${fullDate.getDate().toString()}`;
     const formatDate = `${year}/${month}/${date}`;
     const formatData = `${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.pdf`;
-    url = `https://www.api.consultasruc.com:4000/api/AArchivo/COMPROBANTES/${ruc}/${formatDate}/PDF/${formatData}`;
+    url = `${config.ftpApi}/AArchivo/COMPROBANTES/${ruc}/${formatDate}/PDF/${formatData}`;
     setShowingPDF(true);
     setPdfSource(url);
   };
@@ -140,32 +143,73 @@ const Sales = ({ currentCompany }) => {
     const formatDate = `${year}/${month}/${date}`;
     const urln = `${ruc}/${formatDate}/XML/${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.zip`;
     const codificado = btoa(urln);
-    let url = 'https://www.api.consultasruc.com:4000/api/AArchivo/url/';
+    let url = `${config.ftpApi}/AArchivo/url/`;
     url += codificado;
     window.location.href = url;
   };
+
+  const downloadCDR = (voucher) => {
+    const ruc = currentCompany;
+    const fullDate = new Date(voucher.FechaEmision);
+    const year = fullDate.getFullYear();
+    const month = (fullDate.getMonth() + 1).toString().length === 2 ? (fullDate.getMonth() + 1).toString() : `0${(fullDate.getMonth() + 1).toString()}`;
+    const date = fullDate.getDate().toString().length === 2 ? fullDate.getDate().toString() : `0${fullDate.getDate().toString()}`;
+
+    const formatDate = `${year}/${month}/${date}`;
+    const urln = `${ruc}/${formatDate}/CDR/R-${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.zip`;
+    const codificado = btoa(urln);
+    let url = `${config.ftpApi}/AArchivo/url/`;
+    url += codificado;
+    window.location.href = url;
+  };
+
 
   // Concept: Datatable templates
   const actionTemplate = (rowData) => (
     <>
       <Button
         className="p-button-danger"
-        icon="pi pi-file-pdf"
-        style={{ marginRight: '0.5rem' }}
+        label="PDF"
+        onClick={() => { downloadPDF(rowData); }}
+        style={{
+          fontSize: '10px',
+          marginRight: '0.3rem',
+        }}
         tooltip="Descargar PDF"
         type="button"
-        onClick={() => { downloadPDF(rowData); }}
       />
       <Button
         className="p-button-success"
-        icon="pi pi-file-o"
-        style={{ marginRight: '0.5rem' }}
+        label="XML"
+        onClick={() => { downloadXML(rowData); }}
+        style={{
+          fontSize: '10px',
+          marginRight: '0.3rem',
+        }}
         tooltip="Descargar XML"
         type="button"
-        onClick={() => { downloadXML(rowData); }}
+      />
+      <Button
+        className="p-button-primary"
+        label="CDR"
+        onClick={() => { downloadCDR(rowData); }}
+        style={{
+          fontSize: '10px',
+        }}
+        tooltip="Descargar CDR"
+        type="button"
       />
     </>
   );
+
+  const currencyTemplate = (rowData) => {
+    switch (rowData.Cod_Moneda) {
+      case 'PEN':
+        return 'S/';
+      default:
+        return '$';
+    }
+  };
 
   const dateTemplate = (rowData) => {
     const formattedDate = (new Date(rowData.FechaEmision)).toLocaleDateString();
@@ -177,19 +221,15 @@ const Sales = ({ currentCompany }) => {
   );
 
   const dtFooter = () => (
-    <div className="p-grid p-justify-between">
-      <p>
-        <span className="px-10">
-          Total:
-          {total}
-        </span>
-      </p>
-      <p>
-        <span className="px-10">
-          Cantidad:
-          {quantity}
-        </span>
-      </p>
+    <div className="p-grid p-dir-col p-justify-between">
+      <span className="px-10">
+        Total:
+        {total}
+      </span>
+      <span className="px-10">
+        Cantidad:
+        {quantity}
+      </span>
     </div>
   );
 
@@ -201,7 +241,7 @@ const Sales = ({ currentCompany }) => {
 
   return (
     <>
-      <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4">
+      <div className="p-col-11">
         <Formik
           initialValues={{
             voucherType: '',
@@ -226,14 +266,14 @@ const Sales = ({ currentCompany }) => {
             }) => (
               <>
                 <form
-                  className="form p-grid p-dir-col p-nogutter"
+                  className="form form--filter p-grid p-justify-center"
                   onSubmit={handleSubmit}
                 >
                   <hgroup className="heading p-col-11 p-col-align-center">
                     <h1 className="title">VENTAS</h1>
                   </hgroup>
                   <FormField
-                    className="mb-15 p-col-11 p-col-align-center"
+                    className="p-col-11 p-sm-6 p-md-6 p-lg-3 p-col-align-center"
                     disabled={isSubmitting}
                     errors={errors.voucherType && touched.voucherType}
                     errorMessage={errors.voucherType}
@@ -245,7 +285,7 @@ const Sales = ({ currentCompany }) => {
                     value={values.voucherType}
                   />
                   <FormField
-                    className="mb-15 p-col-11 p-col-align-center"
+                    className="p-col-11 p-sm-6 p-md-6 p-lg-3 p-col-align-center"
                     disabled={isSubmitting}
                     errors={errors.clientDoc && touched.clientDoc}
                     errorMessage={errors.clientDoc}
@@ -258,7 +298,7 @@ const Sales = ({ currentCompany }) => {
                     value={values.clientDoc}
                   />
                   <FormField
-                    className="mb-15 p-col-11 p-col-align-center"
+                    className="p-col-11 p-sm-6 p-md-4 p-lg-2 p-col-align-center"
                     disabled={isSubmitting}
                     errors={errors.startDate && touched.startDate}
                     errorMessage={errors.startDate}
@@ -270,7 +310,7 @@ const Sales = ({ currentCompany }) => {
                     value={values.startDate}
                   />
                   <FormField
-                    className="mb-15 p-col-11 p-col-align-center"
+                    className="p-col-11 p-sm-6 p-md-4 p-lg-2 p-col-align-center"
                     disabled={isSubmitting}
                     errors={errors.endDate && touched.endDate}
                     errorMessage={errors.endDate}
@@ -281,7 +321,8 @@ const Sales = ({ currentCompany }) => {
                     type="date"
                     value={values.endDate}
                   />
-                  <div className="mb-15 p-col-11 p-col-align-center">
+                  <div className="p-col-11 p-md-4 p-lg-2 p-col-align-center">
+                    <p />
                     <Button
                       className="button button--blue"
                       label="Filtrar"
@@ -302,7 +343,7 @@ const Sales = ({ currentCompany }) => {
                       </div>
                     )
                   }
-                  <div className="p-col-11 p-col-align-center">
+                  <div className="p-col-12 p-col-align-center">
                     <Messages ref={(el) => { setMessages(el); }} />
                   </div>
                 </form>
@@ -340,25 +381,28 @@ const Sales = ({ currentCompany }) => {
         vouchers.length !== 0 && (
           <>
             <DataTable
+              alwaysShowPaginator={false}
               className="p-col-11"
+              columnResizeMode="fit"
               header={dtHeader()}
               footer={dtFooter()}
               paginator
               responsive
               rows={5}
               value={vouchers}
-              rowsPerPageOptions={[5, 20, 50]}
+              rowClassName={() => ({ 'table-row': true })}
+              rowsPerPageOptions={[5, 10, 15]}
             >
-              <Column body={dateTemplate} header="Fecha de emisión" />
-              <Column field="Cod_TipoOperacion" header="Tipo de operacion" />
-              <Column field="Serie" header="Serie" />
-              <Column field="Numero" header="Numero" />
-              <Column field="Doc_Cliente" header="Documento del cliente" />
-              <Column field="Nom_Cliente" header="Nombre del cliente" />
-              <Column field="Cod_Moneda" header="Codigo de moneda" />
-              <Column field="Total" header="Total" />
-              <Column field="Cod_EstadoComprobante" header="Estado de comprobante" />
-              <Column body={actionTemplate} />
+              <Column body={dateTemplate} header="Fecha" style={{ width: '10%' }} />
+              <Column field="Cod_TipoOperacion" header="Tipo" style={{ width: '5%' }} />
+              <Column field="Serie" header="Serie" style={{ width: '5%' }} />
+              <Column field="Numero" header="Numero" style={{ width: '10%' }} />
+              <Column field="Doc_Cliente" header="N. Documento" style={{ width: '12%' }} />
+              <Column field="Nom_Cliente" header="Denominación" style={{ width: '30%' }} />
+              <Column body={currencyTemplate} header="M" style={{ width: '3%' }} />
+              <Column field="Total" header="Total" style={{ width: '7%' }} />
+              <Column field="Cod_EstadoComprobante" header="Estado" style={{ width: '5%' }} />
+              <Column body={actionTemplate} header="Acciones" style={{ width: '14%' }} />
             </DataTable>
             <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4">
               <Button

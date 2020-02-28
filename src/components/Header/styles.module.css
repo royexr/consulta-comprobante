@@ -1,0 +1,20 @@
+/* Header block */
+.header {
+  background: transparent;
+  box-shadow: 9px 9px 9px 9px rgba(47,44,44,.2);
+  top: 0;
+  transition: .5s ease-in-out;
+  z-index: 3;
+}
+
+/* Navbar block */
+/* Brand element */
+.navbar__brand {
+  text-align: center;
+}
+
+/* Logo element */
+.navbar__logo {
+  width: 7.5rem;
+  height: 3.125rem;
+}

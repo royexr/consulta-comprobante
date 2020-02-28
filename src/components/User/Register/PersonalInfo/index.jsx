@@ -7,10 +7,10 @@ import { Formik } from 'formik';
 // Resources
 import { Button } from 'primereact/button';
 import { Messages } from 'primereact/messages';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import FormField from '../../../../sharedcomponents/FormField';
 import { isValidEmail } from '../../../../utils';
 import api from '../../../../utils/api';
-import { ProgressSpinner } from 'primereact/progressspinner';
 
 const PersonalInfo = ({ data, saveValues }) => {
   const history = useHistory();
@@ -55,7 +55,7 @@ const PersonalInfo = ({ data, saveValues }) => {
     } else if (response.message === '02') {
       saveValues(values);
     } else {
-      showMessage('error', 'Error!', 'Ese correo ya esta registrado');
+      showMessage('error', 'Error!', 'El correo ya esta registrado');
     }
     actions.setSubmitting(false);
   };

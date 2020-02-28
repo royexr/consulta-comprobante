@@ -1,7 +1,8 @@
 {
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "jest/globals": true
     },
     "extends": [
         "plugin:jsx-a11y/recommended",
@@ -21,6 +22,7 @@
     },
     "plugins": [
         "react",
+        "jest",
         "jsx-a11y"
     ],
     "rules": {

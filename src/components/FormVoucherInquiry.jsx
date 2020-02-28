@@ -171,7 +171,7 @@ const FormVoucherInquiry = ({ method }) => {
     const date = fullDate.getDate().toString().length === 2 ? fullDate.getDate().toString() : `0${fullDate.getDate().toString()}`;
     const formatDate = `${year}/${month}/${date}`;
     const formatData = `${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.pdf`;
-    url = `https://www.api.consultasruc.com:4000/api/AArchivo/COMPROBANTES/${ruc}/${formatDate}/PDF/${formatData}`;
+    url = `${config.ftpApi}/AArchivo/COMPROBANTES/${ruc}/${formatDate}/PDF/${formatData}`;
     setShouldShowPDF(true);
     setPdfSource(url);
   };
@@ -186,7 +186,7 @@ const FormVoucherInquiry = ({ method }) => {
     const formatDate = `${year}/${month}/${date}`;
     const urln = `${ruc}/${formatDate}/XML/${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.zip`;
     const codificado = btoa(urln);
-    let url = 'https://www.api.consultasruc.com:4000/api/AArchivo/url/';
+    let url = '${config.ftpApi}/AArchivo/url/';
     url += codificado;
     window.location.href = url;
   };
@@ -201,7 +201,7 @@ const FormVoucherInquiry = ({ method }) => {
     const formatDate = `${year}/${month}/${date}`;
     const urln = `${ruc}/${formatDate}/CDR/R-${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.zip`;
     const codificado = btoa(urln);
-    let url = 'https://www.api.consultasruc.com:4000/api/AArchivo/url/';
+    let url = '${config.ftpApi}/AArchivo/url/';
     url += codificado;
     window.location.href = url;
   };

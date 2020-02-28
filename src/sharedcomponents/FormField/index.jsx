@@ -5,6 +5,7 @@ import classNames from 'classnames';
 
 // Resources
 import { AutoComplete } from 'primereact/autocomplete';
+import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputMask } from 'primereact/inputmask';
 import { InputText } from 'primereact/inputtext';
@@ -13,12 +14,15 @@ import { Message } from 'primereact/message';
 import styles from './styles.module.css';
 
 const FormField = ({
+  buttonCN,
   className,
   disabled,
   errors,
   errorMessage,
   handleBlur,
   handleChange,
+  handleClick,
+  icon,
   keyfilter,
   label,
   mask,
@@ -26,6 +30,7 @@ const FormField = ({
   name,
   options,
   suggestions,
+  tooltip,
   type,
   value,
 }) => {
@@ -44,7 +49,16 @@ const FormField = ({
         return (
           <>
             <label htmlFor={name}>
-              <p className="form__field-label">{label}</p>
+              <p
+                className={classNames(
+                  'form__field-label',
+                  {
+                    'label--error': errors,
+                  },
+                )}
+              >
+                {label}
+              </p>
               <span>
                 <AutoComplete
                   className={classNames(
@@ -70,7 +84,16 @@ const FormField = ({
         return (
           <>
             <label htmlFor={name}>
-              <p className="form__field-label">{label}</p>
+              <p
+                className={classNames(
+                  'form__field-label',
+                  {
+                    'label--error': errors,
+                  },
+                )}
+              >
+                {label}
+              </p>
               <span>
                 <InputText
                   aria-label={label}
@@ -97,7 +120,14 @@ const FormField = ({
           <>
             <span>
               <label htmlFor={name}>
-                <p className="form__field-label">
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
                   {label}
                 </p>
                 <Dropdown
@@ -122,25 +152,37 @@ const FormField = ({
       case 'mask':
         return (
           <>
-            <span className="p-float-label">
-              <InputMask
-                autoComplete="off"
-                className={classNames(
-                  'form__field',
-                  {
-                    'p-error': errors,
-                  },
-                )}
-                disabled={disabled}
-                id={name}
-                mask={mask}
-                name={name}
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type={type}
-                value={value}
-              />
-              <label htmlFor={name}>{label}</label>
+            <span>
+              <label htmlFor={name}>
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
+                  {label}
+                </p>
+                <InputMask
+                  autoComplete="off"
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  disabled={disabled}
+                  id={name}
+                  mask={mask}
+                  name={name}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${label}`}
+                  type={type}
+                  value={value}
+                />
+              </label>
             </span>
           </>
         );
@@ -148,45 +190,115 @@ const FormField = ({
         return (
           <>
             <span>
-              <label htmlFor={name}>{label}</label>
-              <InputTextarea
-                className={classNames(
-                  'form__field',
-                  {
-                    'p-error': errors,
-                  },
-                )}
-                name={name}
-                onChange={handleChange}
-                rows={3}
-                value={value}
-              />
+              <label htmlFor={name}>
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
+                  {label}
+                </p>
+                <InputTextarea
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  name={name}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${label}`}
+                  rows={3}
+                  value={value}
+                />
+              </label>
             </span>
           </>
+        );
+      case 'input-group':
+        return (
+          <span>
+            <label htmlFor={name}>
+              <p
+                className={classNames(
+                  'form__field-label',
+                  {
+                    'label--error': errors,
+                  },
+                )}
+              >
+                {label}
+              </p>
+              <div className="p-inputgroup">
+                <InputText
+                  autoComplete="off"
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  disabled={handleChange === null ? true : disabled}
+                  id={name}
+                  keyfilter={keyfilter && keyfilter}
+                  maxLength={maxLength}
+                  name={name}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${label}`}
+                  type={type}
+                  value={value}
+                />
+                <Button
+                  icon={`pi ${icon}`}
+                  className={buttonCN}
+                  onClick={handleClick}
+                  tooltip={tooltip}
+                  tooltipOptions={{ position: 'top' }}
+                  type="button"
+                />
+              </div>
+            </label>
+          </span>
         );
       default:
         return (
           <>
-            <span className="p-float-label">
-              <InputText
-                autoComplete="off"
-                className={classNames(
-                  'form__field',
-                  {
-                    'p-error': errors,
-                  },
-                )}
-                disabled={handleChange === null ? true : disabled}
-                id={name}
-                keyfilter={keyfilter && keyfilter}
-                maxLength={maxLength && maxLength}
-                name={name}
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type={type}
-                value={value}
-              />
-              <label htmlFor={name}>{label}</label>
+            <span>
+              <label htmlFor={name}>
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
+                  {label}
+                </p>
+                <InputText
+                  autoComplete="off"
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  disabled={handleChange === null ? true : disabled}
+                  id={name}
+                  keyfilter={keyfilter && keyfilter}
+                  maxLength={maxLength && maxLength}
+                  name={name}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${label}`}
+                  type={type}
+                  value={value}
+                />
+              </label>
             </span>
           </>
         );
@@ -219,12 +331,15 @@ const FormField = ({
 };
 
 FormField.defaultProps = {
+  buttonCN: '',
   className: '',
   disabled: false,
   errors: false,
   errorMessage: '',
   handleBlur: null,
   handleChange: null,
+  handleClick: null,
+  icon: '',
   keyfilter: '',
   label: 'input',
   mask: '',
@@ -233,16 +348,20 @@ FormField.defaultProps = {
   options: [],
   suggestions: [],
   type: 'input',
+  tooltip: '',
   value: '',
 };
 
 FormField.propTypes = {
+  buttonCN: PropTypes.string,
   className: PropTypes.string,
   disabled: PropTypes.bool,
   errors: PropTypes.bool,
   errorMessage: PropTypes.string,
   handleBlur: PropTypes.func,
   handleChange: PropTypes.func,
+  handleClick: PropTypes.func,
+  icon: PropTypes.string,
   keyfilter: PropTypes.string,
   label: PropTypes.string,
   mask: PropTypes.string,
@@ -251,6 +370,7 @@ FormField.propTypes = {
   options: PropTypes.arrayOf(PropTypes.objectOf),
   suggestions: PropTypes.arrayOf(PropTypes.string),
   type: PropTypes.string,
+  tooltip: PropTypes.string,
   value: PropTypes.string,
 };
 

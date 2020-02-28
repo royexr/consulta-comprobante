@@ -5,7 +5,6 @@ import { Formik } from 'formik';
 
 // Resources
 import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
 import { Messages } from 'primereact/messages';
 import FormField from '../../../../sharedcomponents/FormField';
 import api from '../../../../utils/api';
@@ -75,31 +74,17 @@ const Verify = ({ data, previousStep, register }) => {
             <hgroup className="heading">
               <h1 className="title">Verificación de correo</h1>
             </hgroup>
-            <div className="mb-15 p-col-11 p-col-align-center">
-              <span className="p-float-label">
-                <input className="p-filled input--hidden" />
-                <div className="p-inputgroup">
-                  <InputText
-                    autoComplete="off"
-                    id="email"
-                    name="email"
-                    disabled
-                    style={{ width: '100%' }}
-                    value={data.email}
-                  />
-                  <Button
-                    icon="pi pi-envelope"
-                    className="p-button-warning"
-                    onClick={() => sendMail(data)}
-                    tooltip="Haga click para enviar el código"
-                    tooltipOptions={{ position: 'top' }}
-                    type="button"
-                    disabled={wasSended}
-                  />
-                </div>
-                <label htmlFor="email">Correo electronico</label>
-              </span>
-            </div>
+            <FormField
+              buttonCN="p-button-warning"
+              className="mb-15 p-col-11 p-col-align-center"
+              handleClick={() => sendMail(data)}
+              icon="pi-envelope"
+              label="Correo electronico"
+              name="email"
+              type="input-group"
+              tooltip="Haga click para enviar el código"
+              value={data.email}
+            />
             {
               expirationDate !== undefined && (
                 <Timer expirationDate={expirationDate} />

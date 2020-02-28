@@ -6,7 +6,7 @@ import 'react-app-polyfill/stable';
 
 // Resources
 import App from './components/App';
-import AuthContext from './contexts/Auth';
+import Contexts from './contexts';
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -14,8 +14,8 @@ import 'primeflex/primeflex.css';
 import './index.css';
 
 ReactDOM.render(
-  <AuthContext.Provider>
+  <Contexts.Provider>
     <App />
-  </AuthContext.Provider>,
+  </Contexts.Provider>,
   document.getElementById('root'),
 );

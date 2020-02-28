@@ -4,17 +4,22 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 // Resources
-import AuthContext from '../contexts/Auth';
+import Contexts from '../contexts';
+
 import Dashboard from '../components/Dashboard';
 import Configuration from '../components/Dashboard/Configuration';
 import Sales from '../components/Dashboard/Sales';
 import Purchases from '../components/Dashboard/Purchases';
+
 import Login from '../components/User/Login';
 import Register from '../components/User/Register';
 import RequestResetPassword from '../components/User/RequestReset';
 import ResetPassword from '../components/User/Reset';
+
 import NotFound from '../components/NotFound';
 import Header from '../components/Header';
+import CustomRoute from './CustomRoute';
+
 import styles from './styles.module.css';
 
 const LoginRoute = ({
@@ -36,27 +41,8 @@ LoginRoute.propTypes = {
   render: PropTypes.func.isRequired,
 };
 
-const CustomRoute = ({
-  isAuth,
-  exact,
-  path,
-  render,
-}) => {
-  if (isAuth) {
-    return <Route exact={exact} path={path} render={render} />;
-  }
-  return <Redirect to="/" />;
-};
-
-CustomRoute.propTypes = {
-  isAuth: PropTypes.bool.isRequired,
-  exact: PropTypes.bool.isRequired,
-  path: PropTypes.string.isRequired,
-  render: PropTypes.func.isRequired,
-};
-
 const Routes = () => (
-  <AuthContext.Consumer>
+  <Contexts.Consumer>
     {
       ({
         isAuth,
@@ -65,6 +51,7 @@ const Routes = () => (
         changeCompany,
         signIn,
         signOut,
+        isMS,
       }) => (
         <div className={`${styles.container} p-grid p-dir-col p-align-center p-justify-center`}>
           {
@@ -74,6 +61,7 @@ const Routes = () => (
                 currentCompany={currentCompany}
                 changeCompany={changeCompany}
                 signOut={signOut}
+                isMS={isMS}
               />
             )
           }
@@ -91,7 +79,7 @@ const Routes = () => (
         </div>
       )
     }
-  </AuthContext.Consumer>
+  </Contexts.Consumer>
 );
 
 export default Routes;

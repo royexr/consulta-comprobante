@@ -1,4 +1,6 @@
-const BASE_URL = 'http://192.168.1.8:3001/api';
+const config = require('../config');
+
+const BASE_URL = `${config.servicesApi}`;
 
 const callApi = async (endpoint, options = {}) => {
   const opts = options;

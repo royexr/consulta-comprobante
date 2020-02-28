@@ -6,7 +6,6 @@ import objectAssign from 'object-assign';
 
 // Resources
 import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
 import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import FormField from '../../../../sharedcomponents/FormField';
@@ -21,10 +20,12 @@ const Aditional = ({
   const [messages, setMessages] = useState(new Messages());
   const [loading, setLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(data.businessName !== '');
-  const [touchedBN, setTouchedBN] = useState(false);
 
   const fieldsValidation = (values) => {
     const errors = {};
+    if (!values.businessNumber) {
+      errors.businessNumber = 'Campo obligatorio';
+    }
     if (!values.password) {
       errors.password = 'Campo obligatorio';
     }
@@ -97,38 +98,23 @@ const Aditional = ({
           <hgroup className="heading">
             <h1 className="title">Datos adicionales</h1>
           </hgroup>
-          <div className="mb-15 p-col-11 p-col-align-center">
-            <span className="p-float-label">
-              <input className={`input--hidden${values.businessNumber !== '' || touchedBN ? ' p-filled' : ''}`} />
-              <div className="p-inputgroup">
-                <InputText
-                  autoComplete="off"
-                  onChange={handleChange}
-                  id="businessNumber"
-                  keyfilter="pint"
-                  maxLength="11"
-                  name="businessNumber"
-                  onFocus={() => {
-                    setTouchedBN(true);
-                  }}
-                  onBlur={() => {
-                    setTouchedBN(false);
-                  }}
-                  style={{ width: '100%' }}
-                  value={values.businessNumber}
-                />
-                <Button
-                  icon="pi pi-search"
-                  className="p-button-warning"
-                  onClick={() => verifyBN(values)}
-                  tooltip="Haga click para buscar la empresa"
-                  tooltipOptions={{ position: 'top' }}
-                  type="button"
-                />
-              </div>
-              <label htmlFor="businessNumber">RUC</label>
-            </span>
-          </div>
+          <FormField
+            buttonCN="p-button-warning"
+            className="mb-15 p-col-11 p-col-align-center"
+            errors={errors.businessNumber && touched.businessNumber}
+            errorMessage={errors.businessNumber}
+            handleBlur={handleBlur}
+            handleChange={handleChange}
+            handleClick={() => verifyBN(values)}
+            icon="pi-search"
+            keyfilter="pint"
+            label="RUC"
+            maxLength="11"
+            name="businessNumber"
+            type="input-group"
+            tooltip="Haga click para buscar la empresa"
+            value={values.businessNumber}
+          />
           {
             loading && (
               <div className="mb-15 p-col-align-center">

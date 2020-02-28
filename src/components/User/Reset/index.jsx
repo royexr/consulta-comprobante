@@ -35,7 +35,8 @@ const ResetPassword = () => {
 
   const Reset = async (values, actions) => {
     const aux = { ...values };
-    const email = location.search.split('&')[0].split('=')[1];
+    const urlParams = new window.URLSearchParams(location.search);
+    const email = urlParams.get('email');
     delete aux.confirmPassword;
     aux.password = CryptoJS.AES.encrypt(aux.password, email).toString();
     const res = await api.User.ResetPassword(aux, location.search);
@@ -79,7 +80,7 @@ const ResetPassword = () => {
                 onSubmit={handleSubmit}
               >
                 <hgroup className="heading p-col-11 p-col-align-center">
-                  <h1 className="title">Por favor ingresa tu nueva contraseña</h1>
+                  <h1 className="title">Por favor, ingresa tu nueva contraseña</h1>
                 </hgroup>
                 <FormField
                   className="mb-15 p-col-11 p-col-align-center"

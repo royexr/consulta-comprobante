@@ -1,52 +1,49 @@
 // Dependencies
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 // Resources
-import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
-import { useHistory } from 'react-router-dom';
+import BurgerMenu from './BurgerMenu';
+import MenuList from './MenuList';
+import logoPale from '../../static/images/logoPale.png';
+import styles from './styles.module.css';
 
 const Header = ({
   companies,
   currentCompany,
   changeCompany,
   signOut,
+  isMS,
 }) => {
-  const history = useHistory();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const handleChange = (e) => {
-    changeCompany(e.value);
-  };
-
-  const handleSignOut = () => {
-    signOut();
-    sessionStorage.removeItem('userJWT');
-    history.push('/');
+  const collapseMenu = () => {
+    setIsCollapsed(!isCollapsed);
   };
 
   return (
-    <header className="header p-col-12">
-      <nav className="header__navbar p-grid p-nogutter p-justify-between">
-        <div className="p-col-2" />
-        <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4 p-col-align-center">
-          <Dropdown
-            disabled={companies.length < 2}
-            name="company"
-            onChange={handleChange}
-            options={companies}
-            value={currentCompany}
-          />
-        </div>
-        <div className="p-md-4 p-lg-2 p-xl-1">
-          <Button
-            className="button"
-            icon="pi pi-sign-out"
-            label="Salir"
-            onClick={handleSignOut}
-            type="button"
-          />
-        </div>
+    <header className={`${styles.header} p-col-12`}>
+      <nav className="navbar p-grid p-nogutter p-justify-between">
+        <Link to="/dashboard" className={`${styles.navbar__brand} p-col-2`}>
+          <img className={styles.navbar__logo} src={logoPale} alt="logo" />
+        </Link>
+        {
+          isMS && (
+            <BurgerMenu
+              isCollapsed={isCollapsed}
+              collapseMenu={collapseMenu}
+            />
+          )
+        }
+        <MenuList
+          companies={companies}
+          currentCompany={currentCompany}
+          changeCompany={changeCompany}
+          isCollapsed={isCollapsed}
+          isMS={isMS}
+          signOut={signOut}
+        />
       </nav>
     </header>
   );
@@ -57,6 +54,7 @@ Header.propTypes = {
   currentCompany: PropTypes.string.isRequired,
   changeCompany: PropTypes.func.isRequired,
   signOut: PropTypes.func.isRequired,
+  isMS: PropTypes.bool.isRequired,
 };
 
 export default Header;

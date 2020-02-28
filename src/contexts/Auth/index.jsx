@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 
 // Resources
 import api from '../../utils/api';
+import config from '../../config';
 
 const AuthContext = createContext();
 const isLoggedIn = sessionStorage.getItem('userJWT') !== null;
@@ -17,7 +18,7 @@ const Provider = ({ children }) => {
   const fetchCompanies = async (auth) => {
     if (auth) {
       try {
-        const token = jwt.verify(sessionStorage.getItem('userJWT'), process.env.REACT_APP_JWT_SECRET);
+        const token = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
         const auxCompanies = (await api.User.GetCompanies(token._id.email)).data;
         const formatted = auxCompanies.map((comp) => ({
           value: comp.RUC,
