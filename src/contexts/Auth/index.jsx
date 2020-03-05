@@ -12,6 +12,7 @@ const isLoggedIn = sessionStorage.getItem('userJWT') !== null;
 
 const Provider = ({ children }) => {
   const [isAuth, setIsAuth] = useState(isLoggedIn);
+  const [isEnabled, setIsEnabled] = useState();
   const [companies, setCompanies] = useState([]);
   const [company, setCompany] = useState('');
 
@@ -19,6 +20,7 @@ const Provider = ({ children }) => {
     if (auth) {
       try {
         const token = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
+        setIsEnabled(token.isEnabled);
         const auxCompanies = (await api.User.GetCompanies(token._id.email)).data;
         const formatted = auxCompanies.map((comp) => ({
           value: comp.RUC,
@@ -27,6 +29,7 @@ const Provider = ({ children }) => {
         setCompanies(formatted);
         setCompany(formatted[0].value);
       } catch (error) {
+        setIsEnabled(false);
         setCompanies([]);
         setCompany('');
       }
@@ -39,6 +42,7 @@ const Provider = ({ children }) => {
 
   const value = {
     isAuth,
+    isEnabled,
     signIn: () => {
       setIsAuth(true);
     },

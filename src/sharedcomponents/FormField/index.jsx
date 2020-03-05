@@ -19,6 +19,8 @@ const FormField = ({
   disabled,
   errors,
   errorMessage,
+  filter,
+  filterBy,
   handleBlur,
   handleChange,
   handleClick,
@@ -115,109 +117,6 @@ const FormField = ({
             </label>
           </>
         );
-      case 'select':
-        return (
-          <>
-            <span>
-              <label htmlFor={name}>
-                <p
-                  className={classNames(
-                    'form__field-label',
-                    {
-                      'label--error': errors,
-                    },
-                  )}
-                >
-                  {label}
-                </p>
-                <Dropdown
-                  className={classNames(
-                    'form__field',
-                    {
-                      'p-error': errors,
-                    },
-                  )}
-                  disabled={disabled}
-                  id={name}
-                  name={name}
-                  value={value}
-                  options={options}
-                  onChange={handleChange}
-                  placeholder={label}
-                />
-              </label>
-            </span>
-          </>
-        );
-      case 'mask':
-        return (
-          <>
-            <span>
-              <label htmlFor={name}>
-                <p
-                  className={classNames(
-                    'form__field-label',
-                    {
-                      'label--error': errors,
-                    },
-                  )}
-                >
-                  {label}
-                </p>
-                <InputMask
-                  autoComplete="off"
-                  className={classNames(
-                    'form__field',
-                    {
-                      'p-error': errors,
-                    },
-                  )}
-                  disabled={disabled}
-                  id={name}
-                  mask={mask}
-                  name={name}
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  placeholder={`Ingrese ${label}`}
-                  type={type}
-                  value={value}
-                />
-              </label>
-            </span>
-          </>
-        );
-      case 'textarea':
-        return (
-          <>
-            <span>
-              <label htmlFor={name}>
-                <p
-                  className={classNames(
-                    'form__field-label',
-                    {
-                      'label--error': errors,
-                    },
-                  )}
-                >
-                  {label}
-                </p>
-                <InputTextarea
-                  className={classNames(
-                    'form__field',
-                    {
-                      'p-error': errors,
-                    },
-                  )}
-                  name={name}
-                  onChange={handleChange}
-                  placeholder={`Ingrese ${label}`}
-                  rows={3}
-                  value={value}
-                />
-              </label>
-            </span>
-          </>
-        );
       case 'input-group':
         return (
           <span>
@@ -263,6 +162,112 @@ const FormField = ({
               </div>
             </label>
           </span>
+        );
+      case 'mask':
+        return (
+          <>
+            <span>
+              <label htmlFor={name}>
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
+                  {label}
+                </p>
+                <InputMask
+                  autoComplete="off"
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  disabled={disabled}
+                  id={name}
+                  mask={mask}
+                  name={name}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${label}`}
+                  type={type}
+                  value={value}
+                />
+              </label>
+            </span>
+          </>
+        );
+      case 'select':
+        return (
+          <>
+            <span>
+              <label htmlFor={name}>
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
+                  {label}
+                </p>
+                <Dropdown
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  disabled={disabled}
+                  filter={filter}
+                  filterBy={filterBy}
+                  filterPlaceholder={label}
+                  id={name}
+                  name={name}
+                  value={value}
+                  options={options}
+                  onChange={handleChange}
+                  placeholder={label}
+                />
+              </label>
+            </span>
+          </>
+        );
+      case 'textarea':
+        return (
+          <>
+            <span>
+              <label htmlFor={name}>
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
+                  {label}
+                </p>
+                <InputTextarea
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  name={name}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${label}`}
+                  rows={3}
+                  value={value}
+                />
+              </label>
+            </span>
+          </>
         );
       default:
         return (
@@ -336,6 +341,8 @@ FormField.defaultProps = {
   disabled: false,
   errors: false,
   errorMessage: '',
+  filter: false,
+  filterBy: '',
   handleBlur: null,
   handleChange: null,
   handleClick: null,
@@ -358,6 +365,8 @@ FormField.propTypes = {
   disabled: PropTypes.bool,
   errors: PropTypes.bool,
   errorMessage: PropTypes.string,
+  filter: PropTypes.bool,
+  filterBy: PropTypes.string,
   handleBlur: PropTypes.func,
   handleChange: PropTypes.func,
   handleClick: PropTypes.func,

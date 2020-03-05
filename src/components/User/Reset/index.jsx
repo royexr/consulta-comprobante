@@ -109,7 +109,7 @@ const ResetPassword = () => {
                 <div className="mb-15 p-col-10 p-xl-6 p-col-align-center">
                   <Button
                     label="Establecer nueva contraseña"
-                    className="button"
+                    className="button p-button-rounded"
                     type="submit"
                     disabled={isSubmitting}
                   />

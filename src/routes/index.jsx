@@ -1,7 +1,6 @@
 // Dependencies
 import React from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { Switch, Route } from 'react-router-dom';
 
 // Resources
 import Contexts from '../contexts';
@@ -19,48 +18,25 @@ import ResetPassword from '../components/User/Reset';
 import NotFound from '../components/NotFound';
 import Header from '../components/Header';
 import CustomRoute from './CustomRoute';
+import LoginRoute from './LoginRoute';
 
 import styles from './styles.module.css';
-
-const LoginRoute = ({
-  isAuth,
-  exact,
-  path,
-  render,
-}) => {
-  if (isAuth) {
-    return <Redirect to="/dashboard" />;
-  }
-  return <Route exact={exact} path={path} render={render} />;
-};
-
-LoginRoute.propTypes = {
-  isAuth: PropTypes.bool.isRequired,
-  exact: PropTypes.bool.isRequired,
-  path: PropTypes.string.isRequired,
-  render: PropTypes.func.isRequired,
-};
 
 const Routes = () => (
   <Contexts.Consumer>
     {
       ({
         isAuth,
+        isEnabled,
         companies,
         currentCompany,
-        changeCompany,
         signIn,
-        signOut,
         isMS,
       }) => (
         <div className={`${styles.container} p-grid p-dir-col p-align-center p-justify-center`}>
           {
             isAuth && companies[0] !== undefined && (
               <Header
-                companies={companies}
-                currentCompany={currentCompany}
-                changeCompany={changeCompany}
-                signOut={signOut}
                 isMS={isMS}
               />
             )
@@ -70,10 +46,33 @@ const Routes = () => (
             <Route exact path="/register" component={Register} />
             <Route exact path="/request-reset" component={RequestResetPassword} />
             <Route exact path="/reset" component={ResetPassword} />
-            <CustomRoute isAuth={isAuth} exact path="/dashboard" render={() => (<Dashboard currentCompany={currentCompany} />)} />
-            <CustomRoute isAuth={isAuth} exact path="/sales" render={() => (<Sales currentCompany={currentCompany} />)} />
-            <CustomRoute isAuth={isAuth} exact path="/purchases" render={() => (<Purchases currentCompany={currentCompany} />)} />
-            <CustomRoute isAuth={isAuth} exact path="/configuration" render={() => (<Configuration />)} />
+            <CustomRoute
+              exact
+              isAuth={isAuth}
+              isEnabled={isEnabled}
+              path="/sales"
+              render={() => (<Sales currentCompany={currentCompany} />)}
+            />
+            <CustomRoute
+              exact
+              isAuth={isAuth}
+              isEnabled={isEnabled}
+              path="/purchases"
+              render={() => (<Purchases currentCompany={currentCompany} />)}
+            />
+            <CustomRoute
+              exact
+              isAuth={isAuth}
+              isEnabled={isEnabled}
+              path="/dashboard"
+              render={() => (<Dashboard currentCompany={currentCompany} />)}
+            />
+            <Route
+              exact={false}
+              isAuth={isAuth}
+              path="/configuration"
+              render={() => (<Configuration isEnabled={isEnabled} />)}
+            />
             <Route path="*" component={NotFound} />
           </Switch>
         </div>

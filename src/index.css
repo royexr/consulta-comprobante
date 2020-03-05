@@ -24,7 +24,6 @@ body .p-component {
 
 .p-button.button {
   width: 100%;
-  border-radius: 32px;
 }
 
 .p-button.button--red{
@@ -32,10 +31,22 @@ body .p-component {
   border-color: #d51021;
 }
 
+.p-button.button--small {
+  font-size: 0.75rem;
+}
+
+.p-button.button-large {
+  font-size: 1rem;
+}
+
 /* Data table */
 .table-row > td {
   padding: 0.15em 0 !important;
   text-align: center;
+}
+
+.p-datatable-footer {
+  font-weight: normal !important;
 }
 
 @media screen and (max-width: 64em) {
@@ -49,8 +60,8 @@ body .p-component {
       display: block;
       border: 0 none;
       width: 100% !important;
-  float: left;
-  clear: left;
+      float: left;
+      clear: left;
   }
 
   .p-datatable-responsive .p-datatable-tbody > tr.p-datatable-row > td .p-column-title {
@@ -97,6 +108,10 @@ body .p-component {
   pointer-events: none;
 }
 
+.p-dropdown-filter-container { 
+  width: 100%;
+}
+
 /* Heading */
 .heading {
   display: block;
@@ -132,6 +147,10 @@ body .p-component {
   margin-bottom: 1.5rem;
 }
 
+.m-0 {
+  margin: 0;
+}
+
 /* Paddings */
 .px-10 {
   padding: 0 1rem;
@@ -146,6 +165,14 @@ body .p-component {
 /* Text */
 .text--centered {
   text-align: center;
+}
+
+.text--start {
+  text-align: start;
+}
+
+.text--end {
+  text-align: end;
 }
 
 .text--small {

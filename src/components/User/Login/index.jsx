@@ -1,6 +1,6 @@
 // Dependencies
 import CryptoJS from 'crypto-js';
-import React, { useState } from 'react';
+import React from 'react';
 import jwt from 'jsonwebtoken';
 import { useHistory, Link } from 'react-router-dom';
 import { Formik } from 'formik';
@@ -8,16 +8,16 @@ import PropTypes from 'prop-types';
 
 // Resources
 import { Button } from 'primereact/button';
-import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import FormField from '../../../sharedcomponents/FormField';
 import { isValidEmail } from '../../../utils';
 import api from '../../../utils/api';
 import styles from './styles.module.css';
+import { useMessages } from '../../../hooks';
 
 const Login = ({ signIn }) => {
   const history = useHistory();
-  const [messages, setMessages] = useState(new Messages());
+  const [showMessages, renderMessages] = useMessages();
 
   const fieldsValidation = (values) => {
     const errors = {};
@@ -32,17 +32,13 @@ const Login = ({ signIn }) => {
     return errors;
   };
 
-  const showMessage = (severity, summary, detail) => {
-    messages.show({ severity, summary, detail });
-  };
-
   const SignIn = async (credentials, actions) => {
     const userInfo = { ...credentials };
     userInfo.password = CryptoJS.AES.encrypt(userInfo.password, userInfo.email).toString();
     const loginR = await api.User.SignIn({ userInfo });
     actions.setSubmitting(false);
     if (loginR instanceof TypeError) {
-      showMessage('error', 'Error!', 'No hay conexion');
+      showMessages('error', 'Error!', 'No hay conexion');
     } else {
       switch (loginR.resCode) {
         case '01':
@@ -51,10 +47,10 @@ const Login = ({ signIn }) => {
           history.push('/dashboard');
           break;
         case '02':
-          showMessage('error', 'Error!', 'Contraseña incorrecta');
+          showMessages('error', 'Error!', 'Contraseña incorrecta');
           break;
         case '03':
-          showMessage('error', 'Error!', 'El usuario no existe');
+          showMessages('error', 'Error!', 'El usuario no existe');
           break;
         default:
           break;
@@ -121,7 +117,7 @@ const Login = ({ signIn }) => {
                 <div className="p-col-6 p-xl-4 p-col-align-center">
                   <Button
                     label="Iniciar sesión"
-                    className="button"
+                    className="button p-button-rounded"
                     type="submit"
                     disabled={isSubmitting}
                   />
@@ -141,14 +137,14 @@ const Login = ({ signIn }) => {
                 }
                 <Link className="text--centered p-col-align-center" to="/request-reset" style={{ pointerEvents: isSubmitting && 'none' }}>¿olvidaste tu contraseña?</Link>
                 <div className="p-col-11 p-col-align-center">
-                  <Messages ref={(el) => { setMessages(el); }} />
+                  {renderMessages()}
                 </div>
                 <hr className="mb-15" style={{ width: '100%' }} />
                 <div className="p-grid p-dir-col">
                   <small className="text--centered p-col-align-center">¿no tienes cuenta?</small>
                   <div className="p-col-6 p-xl-4 p-col-align-center">
                     <Button
-                      className="p-button-secondary button"
+                      className="p-button-secondary p-button-rounded button"
                       disabled={isSubmitting}
                       label="Regístrate"
                       onClick={CreateAccount}

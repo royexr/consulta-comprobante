@@ -10,10 +10,6 @@ import logoPale from '../../static/images/logoPale.png';
 import styles from './styles.module.css';
 
 const Header = ({
-  companies,
-  currentCompany,
-  changeCompany,
-  signOut,
   isMS,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -37,12 +33,7 @@ const Header = ({
           )
         }
         <MenuList
-          companies={companies}
-          currentCompany={currentCompany}
-          changeCompany={changeCompany}
           isCollapsed={isCollapsed}
-          isMS={isMS}
-          signOut={signOut}
         />
       </nav>
     </header>
@@ -50,10 +41,6 @@ const Header = ({
 };
 
 Header.propTypes = {
-  companies: PropTypes.arrayOf(PropTypes.object).isRequired,
-  currentCompany: PropTypes.string.isRequired,
-  changeCompany: PropTypes.func.isRequired,
-  signOut: PropTypes.func.isRequired,
   isMS: PropTypes.bool.isRequired,
 };
 

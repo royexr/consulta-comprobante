@@ -166,7 +166,7 @@ const Aditional = ({
             <div className="p-grid p-justify-between">
               <div className="p-col-6 p-xl-5">
                 <Button
-                  className="button p-button-danger"
+                  className="button p-button-danger p-button-rounded"
                   disabled={loading}
                   label="Atras"
                   onClick={previousStep}
@@ -175,7 +175,7 @@ const Aditional = ({
               </div>
               <div className="p-col-6 p-xl-5">
                 <Button
-                  className="button"
+                  className="button p-button-rounded"
                   disabled={!isVerified || loading}
                   label="Siguiente"
                   type="submit"

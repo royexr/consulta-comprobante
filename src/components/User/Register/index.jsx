@@ -47,6 +47,7 @@ const Register = () => {
 
   const register = async (values) => {
     const userInfo = { ...values };
+    delete userInfo.confirmPassword;
     userInfo.password = CryptoJS.AES.encrypt(userInfo.password, userInfo.email).toString();
     const res = await api.User.Create(userInfo);
     if (res.message === '01') {

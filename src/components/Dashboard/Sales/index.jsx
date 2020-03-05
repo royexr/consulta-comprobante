@@ -8,62 +8,48 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
-import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { SplitButton } from 'primereact/splitbutton';
 import api from '../../../utils/api';
 import config from '../../../config';
 import FormField from '../../../sharedcomponents/FormField';
 import { voucherCodes } from '../../../utils/Objects';
-import { exportInvoices } from '../../../utils';
+import { exportResume, exportDetailed, currentMonthRange } from '../../../utils';
+import {
+  useEntities,
+  useMessages,
+  useSeriesNumbers,
+  useVoucherTypes,
+} from '../../../hooks';
+import {
+  actionTemplate,
+  currencyTemplate,
+  dateTemplate,
+  dtFooter,
+  stateTemplate,
+} from '../../../formikTemplates';
 
 const Sales = ({ currentCompany }) => {
-  // Concept: Fields data
-  const [entities, setEntities] = useState([]);
-  const [voucherTypes, setVoucherTypes] = useState([]);
+  const { entities } = useEntities(currentCompany, '14');
+  const { seriesNumbers } = useSeriesNumbers(currentCompany, '14');
+  const { voucherTypes } = useVoucherTypes();
+  const [showMessages, renderMessages] = useMessages();
 
-  const fetchEntities = async (cc) => {
-    if (cc !== undefined && cc.length > 0) {
-      const { data } = await api.Voucher.GetEntities(cc, '14');
-      setEntities(data.entities);
-    }
-  };
-
-  const fetchVoucherTypes = async (cc) => {
-    if (cc !== undefined && cc.length > 0) {
-      const { data } = await api.VoucherTypes.GetAll();
-      const formatted = data.map((vt) => ({
-        value: vt.Cod_TipoComprobante,
-        label: vt.Nom_TipoComprobante,
-      }));
-      setVoucherTypes(formatted);
-    }
-  };
-
-  useEffect(() => {
-    fetchEntities(currentCompany);
-    fetchVoucherTypes(currentCompany);
-  }, [currentCompany]);
-
-  // Concept: Alert messages
-  const [messages, setMessages] = useState(new Messages());
-
-  const showMessage = (severity, summary, detail) => {
-    messages.show({ severity, summary, detail });
-  };
+  // Concept: Formik default value
+  const { firstDay, lastDay } = currentMonthRange();
+  const [fd] = useState(firstDay);
+  const [ld] = useState(lastDay);
 
   // Concept: Formik functions
   const [quantity, setQuantity] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [totalF, setTotalF] = useState(0);
+  const [totalB, setTotalB] = useState(0);
+  const [totalNC, setTotalNC] = useState(0);
+  const [totalND, setTotalND] = useState(0);
   const [vouchers, setVouchers] = useState([]);
 
   const fieldsValidation = (values) => {
     const errors = {};
-    if (!values.voucherType) {
-      errors.voucherType = 'Campo obligatorio';
-    }
-    if (!values.clientDoc) {
-      errors.clientDoc = 'Campo obligatorio';
-    }
     if (!values.startDate) {
       errors.startDate = 'Campo obligatorio';
     }
@@ -78,46 +64,148 @@ const Sales = ({ currentCompany }) => {
   const onSubmit = async (values, actions) => {
     const aux = { ...values };
 
-    let query = `bookCode=14&codeCompany=${currentCompany}&`;
+    let query = `bookCode=14&companyCode=${currentCompany}&`;
     const vKeys = Object.keys(aux);
     for (let i = 0; i < vKeys.length; i += 1) {
       const key = vKeys[i];
-      if (key === 'clientDoc') {
-        const array = aux[key].split(' - ');
-        query = query.concat(`${key}=${array[0]}`);
-      } else {
-        query = query.concat(`${key}=${aux[key]}`);
+      switch (key) {
+        case 'clientDoc':
+          if (aux[key] !== '') {
+            const auxArray = aux[key].split('-');
+            query = query.concat(`${key}=${auxArray[0]}`);
+          }
+          break;
+        case 'seriesNumbers':
+          if (aux[key] !== '') {
+            const auxArray = aux[key].split('-');
+            query = query.concat(`serie=${auxArray[0]}`);
+            query = query.concat(`number=${auxArray[1]}`);
+          }
+          break;
+        default:
+          if (aux[key] !== '') {
+            query = query.concat(`${key}=${aux[key]}`);
+          }
+          break;
       }
       query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
     }
     const vouchersR = await api.Voucher.ReadMany(query);
     if (vouchersR instanceof TypeError) {
-      showMessage('error', 'Error!', 'No hay conexion');
+      showMessages('error', 'Error!', 'No hay conexion');
     } else if (vouchersR.message === '01') {
       const { data } = vouchersR;
       if (data.length !== 0) {
-        let totalV = 0;
+        let sumF = 0; let sumB = 0; let sumNC = 0; let sumND = 0;
         for (let i = 0; i < data.length; i += 1) {
-          const element = data[i];
-          totalV += element.Total;
+          const e = data[i];
+          switch (e.Cod_TipoComprobante) {
+            case 'FE' || 'FC':
+              sumF += e.Total * e.TipoCambio;
+              break;
+            case 'BE' || 'BC':
+              sumB += e.Total * e.TipoCambio;
+              break;
+            case 'NCE' || 'NCC':
+              sumNC += e.Total * e.TipoCambio;
+              break;
+            case 'NDE' || 'NDC':
+              sumND += e.Total * e.TipoCambio;
+              break;
+            default:
+              break;
+          }
         }
-        setTotal(Math.round(totalV * 100) / 100);
+        setTotalF(Math.round(sumF * 100) / 100);
+        setTotalB(Math.round(sumB * 100) / 100);
+        setTotalNC(Math.round(sumNC * 100) / 100);
+        setTotalND(Math.round(sumND * 100) / 100);
         setQuantity(data.length);
         setVouchers(data);
       } else {
-        showMessage('warn', 'Alerta!', 'No se han encontrado comprobantes');
+        showMessages('warn', 'Alerta!', 'No se han encontrado comprobantes');
         setVouchers([]);
       }
     } else {
-      showMessage('error', 'Error!', 'Se ah producido un error');
+      showMessages('error', 'Error!', 'Se ah producido un error');
       setVouchers([]);
     }
     actions.setSubmitting(false);
   };
 
+  const fetchInitialInvoices = async (cc, first, last) => {
+    if (cc !== undefined && cc.length > 0) {
+      const aux = {
+        startDate: first.toISOString().slice(0, 10),
+        endDate: last.toISOString().slice(0, 10),
+      };
+      let query = `bookCode=14&companyCode=${cc}&`;
+      const vKeys = Object.keys(aux);
+      for (let i = 0; i < vKeys.length; i += 1) {
+        const key = vKeys[i];
+        if (aux[key] !== '') {
+          query = query.concat(`${key}=${aux[key]}`);
+        }
+        query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
+      }
+      const vouchersR = await api.Voucher.ReadMany(query);
+      if (vouchersR.message === '01') {
+        const { data } = vouchersR;
+        if (data.length !== 0) {
+          let sumF = 0; let sumB = 0; let sumNC = 0; let sumND = 0;
+          for (let i = 0; i < data.length; i += 1) {
+            const e = data[i];
+            switch (e.Cod_TipoComprobante) {
+              case 'FE' || 'FC':
+                sumF += e.Total * e.TipoCambio;
+                break;
+              case 'BE' || 'BC':
+                sumB += e.Total * e.TipoCambio;
+                break;
+              case 'NCE' || 'NCC':
+                sumNC += e.Total * e.TipoCambio;
+                break;
+              case 'NDE' || 'NDC':
+                sumND += e.Total * e.TipoCambio;
+                break;
+              default:
+                break;
+            }
+          }
+          setTotalF(Math.round(sumF * 100) / 100);
+          setTotalB(Math.round(sumB * 100) / 100);
+          setTotalNC(Math.round(sumNC * 100) / 100);
+          setTotalND(Math.round(sumND * 100) / 100);
+          setQuantity(data.length);
+          setVouchers(data);
+        } else {
+          setVouchers([]);
+        }
+      } else {
+        setVouchers([]);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchInitialInvoices(currentCompany, fd, ld);
+  }, [currentCompany, fd, ld]);
+
   // Concept: Datatable functions
   const [isShowingPDF, setShowingPDF] = useState(false);
   const [pdfSource, setPdfSource] = useState('');
+  const [items] = useState([
+    {
+      label: 'Resumen',
+      icon: 'pi pi-file-o',
+      command: () => { exportResume(currentCompany, vouchers); },
+    },
+    {
+      label: 'Detallado',
+      icon: 'pi pi-file',
+      command: () => { exportDetailed(); },
+    },
+  ]);
 
   const downloadPDF = (voucher) => {
     let url = '';
@@ -163,76 +251,6 @@ const Sales = ({ currentCompany }) => {
     window.location.href = url;
   };
 
-
-  // Concept: Datatable templates
-  const actionTemplate = (rowData) => (
-    <>
-      <Button
-        className="p-button-danger"
-        label="PDF"
-        onClick={() => { downloadPDF(rowData); }}
-        style={{
-          fontSize: '10px',
-          marginRight: '0.3rem',
-        }}
-        tooltip="Descargar PDF"
-        type="button"
-      />
-      <Button
-        className="p-button-success"
-        label="XML"
-        onClick={() => { downloadXML(rowData); }}
-        style={{
-          fontSize: '10px',
-          marginRight: '0.3rem',
-        }}
-        tooltip="Descargar XML"
-        type="button"
-      />
-      <Button
-        className="p-button-primary"
-        label="CDR"
-        onClick={() => { downloadCDR(rowData); }}
-        style={{
-          fontSize: '10px',
-        }}
-        tooltip="Descargar CDR"
-        type="button"
-      />
-    </>
-  );
-
-  const currencyTemplate = (rowData) => {
-    switch (rowData.Cod_Moneda) {
-      case 'PEN':
-        return 'S/';
-      default:
-        return '$';
-    }
-  };
-
-  const dateTemplate = (rowData) => {
-    const formattedDate = (new Date(rowData.FechaEmision)).toLocaleDateString();
-    return formattedDate;
-  };
-
-  const dtHeader = () => (
-    <div className="p-clearfix">Comprobantes de ventas</div>
-  );
-
-  const dtFooter = () => (
-    <div className="p-grid p-dir-col p-justify-between">
-      <span className="px-10">
-        Total:
-        {total}
-      </span>
-      <span className="px-10">
-        Cantidad:
-        {quantity}
-      </span>
-    </div>
-  );
-
   // Concept: Dialog functions
   const hidePDFModal = () => {
     setShowingPDF(false);
@@ -246,13 +264,12 @@ const Sales = ({ currentCompany }) => {
           initialValues={{
             voucherType: '',
             clientDoc: '',
-            startDate: '',
-            endDate: '',
+            seriesNumbers: '',
+            startDate: fd.toISOString().slice(0, 10),
+            endDate: ld.toISOString().slice(0, 10),
           }}
           validate={(values) => fieldsValidation(values)}
-          onSubmit={(values, actions) => {
-            onSubmit(values, actions);
-          }}
+          onSubmit={(values, actions) => { onSubmit(values, actions); }}
         >
           {
             ({
@@ -275,8 +292,6 @@ const Sales = ({ currentCompany }) => {
                   <FormField
                     className="p-col-11 p-sm-6 p-md-6 p-lg-3 p-col-align-center"
                     disabled={isSubmitting}
-                    errors={errors.voucherType && touched.voucherType}
-                    errorMessage={errors.voucherType}
                     handleChange={handleChange}
                     label="Tipo de comprobante"
                     name="voucherType"
@@ -285,16 +300,27 @@ const Sales = ({ currentCompany }) => {
                     value={values.voucherType}
                   />
                   <FormField
-                    className="p-col-11 p-sm-6 p-md-6 p-lg-3 p-col-align-center"
+                    className="p-col-11 p-col-align-center"
                     disabled={isSubmitting}
-                    errors={errors.clientDoc && touched.clientDoc}
-                    errorMessage={errors.clientDoc}
-                    handleBlur={handleBlur}
+                    filter
+                    filterBy="value, label"
                     handleChange={handleChange}
-                    label="Entidad"
+                    label="Serie - Número"
+                    name="seriesNumbers"
+                    options={seriesNumbers}
+                    type="select"
+                    value={values.seriesNumbers}
+                  />
+                  <FormField
+                    className="p-col-11 p-sm-6 p-md-6 p-lg-4 p-col-align-center"
+                    disabled={isSubmitting}
+                    filter
+                    filterBy="value, label"
+                    handleChange={handleChange}
+                    label="Empresa"
                     name="clientDoc"
-                    suggestions={entities}
-                    type="autoComplete"
+                    options={entities}
+                    type="select"
                     value={values.clientDoc}
                   />
                   <FormField
@@ -321,10 +347,10 @@ const Sales = ({ currentCompany }) => {
                     type="date"
                     value={values.endDate}
                   />
-                  <div className="p-col-11 p-md-4 p-lg-2 p-col-align-center">
+                  <div className="p-col-11 p-md-4 p-lg-1 p-col-align-center">
                     <p />
                     <Button
-                      className="button button--blue"
+                      className="p-button-rounded button button--blue button--small"
                       label="Filtrar"
                       disabled={isSubmitting}
                       type="submit"
@@ -344,7 +370,7 @@ const Sales = ({ currentCompany }) => {
                     )
                   }
                   <div className="p-col-12 p-col-align-center">
-                    <Messages ref={(el) => { setMessages(el); }} />
+                    {renderMessages()}
                   </div>
                 </form>
               </>
@@ -384,33 +410,41 @@ const Sales = ({ currentCompany }) => {
               alwaysShowPaginator={false}
               className="p-col-11"
               columnResizeMode="fit"
-              header={dtHeader()}
-              footer={dtFooter()}
+              footer={dtFooter(totalF, totalB, totalNC, totalND, quantity)}
+              multiSortMeta={[{ field: 'FechaEmision', order: -1 }]}
               paginator
               responsive
               rows={5}
-              value={vouchers}
               rowClassName={() => ({ 'table-row': true })}
               rowsPerPageOptions={[5, 10, 15]}
+              removableSort
+              sortMode="multiple"
+              value={vouchers}
             >
               <Column body={dateTemplate} header="Fecha" style={{ width: '10%' }} />
-              <Column field="Cod_TipoOperacion" header="Tipo" style={{ width: '5%' }} />
-              <Column field="Serie" header="Serie" style={{ width: '5%' }} />
-              <Column field="Numero" header="Numero" style={{ width: '10%' }} />
+              <Column field="Cod_TipoOperacion" header="Tipo" style={{ width: '5%' }} sortable />
+              <Column field="Serie" header="Serie" style={{ width: '5%' }} sortable />
+              <Column field="Numero" header="Numero" style={{ width: '10%' }} sortable />
               <Column field="Doc_Cliente" header="N. Documento" style={{ width: '12%' }} />
-              <Column field="Nom_Cliente" header="Denominación" style={{ width: '30%' }} />
+              <Column field="Nom_Cliente" header="Denominación" style={{ width: '28%' }} />
               <Column body={currencyTemplate} header="M" style={{ width: '3%' }} />
               <Column field="Total" header="Total" style={{ width: '7%' }} />
-              <Column field="Cod_EstadoComprobante" header="Estado" style={{ width: '5%' }} />
-              <Column body={actionTemplate} header="Acciones" style={{ width: '14%' }} />
+              <Column body={stateTemplate} header="Estado" style={{ width: '7%' }} />
+              <Column
+                body={(rowData) => actionTemplate(rowData, downloadPDF, downloadXML, downloadCDR)}
+                header="Acciones"
+                style={{ width: '14%' }}
+              />
             </DataTable>
-            <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4">
-              <Button
+            <div
+              className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4"
+              style={{ textAlign: 'center' }}
+            >
+              <SplitButton
                 className="button button--blue"
                 icon="pi pi-file-excel"
                 label="Exportar a Excel"
-                onClick={() => exportInvoices(currentCompany, vouchers)}
-                type="button"
+                model={items}
               />
             </div>
           </>

@@ -1,4 +1,21 @@
 import { isEmptyObject, isValidEmail } from './validations';
-import exportInvoices from './ExportToExcel';
+import { exportDetailed, exportResume } from './ExportToExcel';
 
-export { isEmptyObject, isValidEmail, exportInvoices };
+/**
+ * Calculate the first and the last day of the current month
+ */
+function currentMonthRange() {
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  return { firstDay, lastDay };
+}
+
+export {
+  currentMonthRange,
+  isEmptyObject,
+  isValidEmail,
+  exportDetailed,
+  exportResume,
+};

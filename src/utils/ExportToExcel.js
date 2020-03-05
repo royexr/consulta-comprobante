@@ -2,7 +2,11 @@ import XLSX from 'xlsx';
 import normalizeObject from './dataStructures';
 import { invoicesFields } from './Objects';
 
-function exportInvoices(currentCompany, vouchers) {
+function exportDetailed() {
+  console.log('Reporte detallado');
+}
+
+function exportResume(currentCompany, vouchers) {
   const formatedVouchers = vouchers.map((voucher) => {
     const fVoucher = {};
     const iFieldsKeys = Object.keys(invoicesFields);
@@ -19,4 +23,4 @@ function exportInvoices(currentCompany, vouchers) {
   XLSX.writeFile(wb, `${currentCompany} Reporte${date.toLocaleString().replace(/,/gi, '').replace(/:|\//gi, '-').replace(/\s/gi, '_')}.xlsx`);
 }
 
-export { exportInvoices as default };
+export { exportResume, exportDetailed };

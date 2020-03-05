@@ -8,93 +8,101 @@ import PropTypes from 'prop-types';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import styles from './styles.module.css';
+import Contexts from '../../../contexts';
 
-const MenuList = ({
-  companies,
-  currentCompany,
-  changeCompany,
-  isCollapsed,
-  isMS,
-  signOut,
-}) => {
+const MenuList = ({ isCollapsed }) => {
   const history = useHistory();
 
-  const handleChange = (e) => {
-    changeCompany(e.value);
-  };
+  // const handleChange = (e) => {
+  //   changeCompany(e.value);
+  // };
 
-  const handleSignOut = () => {
+  const handleSignOut = (signOut) => {
     signOut();
     sessionStorage.removeItem('userJWT');
     history.push('/');
   };
 
   return (
-    <div className={classNames(
-      'p-col-align-center',
-      [`p-col-${isMS ? '12' : '8'}`],
-      [styles.header__menu],
+    <Contexts.Consumer>
       {
-        [styles['header__menu--show']]: isCollapsed,
-      },
-    )}
-    >
-      <ul className={classNames(
-        styles['menu-list'],
-        'p-align-center',
-        { 'p-dir-col': isMS },
-      )}
-      >
-        <li
-          className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-        >
-          <Link to="/purchases">Compras</Link>
-        </li>
-        <li
-          className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-        >
-          <Link to="/sales">Ventas</Link>
-        </li>
-        <li
-          className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-        >
-          <Link to="/configuration">Configuración</Link>
-        </li>
-        <li
-          className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-        >
-          <Dropdown
-            disabled={companies.length < 2}
-            name="company"
-            onChange={handleChange}
-            options={companies}
-            style={{ display: 'block' }}
-            value={currentCompany}
-          />
-        </li>
-        <li
-          className={classNames({ 'p-col-8 p-sm-6 p-md-4': isMS })}
-        >
-          <Button
-            className="button"
-            icon="pi pi-sign-out"
-            label="Salir"
-            onClick={handleSignOut}
-            type="button"
-          />
-        </li>
-      </ul>
-    </div>
+        ({
+          companies,
+          currentCompany,
+          changeCompany,
+          isMS,
+          isEnabled,
+          signOut,
+        }) => (
+          <div className={classNames(
+            'p-col-align-center',
+            [`p-col-${isMS ? '12' : '8'}`],
+            [styles.header__menu],
+            {
+              [styles['header__menu--show']]: isCollapsed,
+            },
+          )}
+          >
+            <ul className={classNames(
+              styles['menu-list'],
+              'p-align-center',
+              { 'p-dir-col': isMS },
+            )}
+            >
+              {
+                isEnabled && (
+                  <>
+                    <li
+                      className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
+                    >
+                      <Link to="/sales">Ventas</Link>
+                    </li>
+                    <li
+                      className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
+                    >
+                      <Link to="/purchases">Compras</Link>
+                    </li>
+                  </>
+                )
+              }
+              <li
+                className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
+              >
+                <Link to="/configuration">Configuración</Link>
+              </li>
+              <li
+                className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
+              >
+                <Dropdown
+                  disabled={companies.length < 2}
+                  name="company"
+                  onChange={(e) => { changeCompany(e.value); }}
+                  options={companies}
+                  style={{ display: 'block' }}
+                  value={currentCompany}
+                />
+              </li>
+              <li
+                className={classNames({ 'p-col-8 p-sm-6 p-md-4': isMS })}
+              >
+                <Button
+                  className="button p-button-rounded"
+                  icon="pi pi-power-off"
+                  label="Salir"
+                  onClick={() => handleSignOut(signOut)}
+                  type="button"
+                />
+              </li>
+            </ul>
+          </div>
+        )
+      }
+    </Contexts.Consumer>
   );
 };
 
 MenuList.propTypes = {
-  companies: PropTypes.arrayOf(PropTypes.object).isRequired,
-  currentCompany: PropTypes.string.isRequired,
-  changeCompany: PropTypes.func.isRequired,
   isCollapsed: PropTypes.bool.isRequired,
-  isMS: PropTypes.bool.isRequired,
-  signOut: PropTypes.func.isRequired,
 };
 
 export default MenuList;

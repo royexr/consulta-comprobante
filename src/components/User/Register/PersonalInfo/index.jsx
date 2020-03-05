@@ -156,7 +156,7 @@ const PersonalInfo = ({ data, saveValues }) => {
               <div className="p-grid p-justify-between">
                 <div className="p-col-6 p-xl-5">
                   <Button
-                    className="button p-button-danger"
+                    className="button p-button-danger p-button-rounded"
                     label="Atras"
                     onClick={leave}
                     type="button"
@@ -165,7 +165,7 @@ const PersonalInfo = ({ data, saveValues }) => {
                 <div className="p-col-6 p-xl-5">
                   <Button
                     label="Siguiente"
-                    className="button"
+                    className="button p-button-rounded"
                     type="submit"
                   />
                 </div>

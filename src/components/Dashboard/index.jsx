@@ -1,6 +1,6 @@
 // Dependencies
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 // Resources
@@ -61,9 +61,9 @@ const Dashboard = ({ currentCompany }) => {
       <div className="jumbotron p-col-12">
         <div className="p-grid p-dir-row">
           <hgroup className="heading p-col-12 p-col-align-center">
-            <h1 className="title title--centered">Dashboard</h1>
+            <h1 className="title title--centered">Escritorio</h1>
           </hgroup>
-          <div className="actions p-col-12 p-md-4 p-col-align-center">
+          {/* <div className="actions p-col-12 p-md-4 p-col-align-center">
             <div className="p-grid p-dir-col p-nogutter">
               <div className="mb-15 p-col-6 p-col-align-center">
                 <Link to="/purchases">Compras</Link>
@@ -75,8 +75,8 @@ const Dashboard = ({ currentCompany }) => {
                 <Link to="/configuration">Configuración</Link>
               </div>
             </div>
-          </div>
-          <div className="chart p-col-12 p-md-8 p-col-align-center">
+          </div> */}
+          <div className="chart p-col-12 p-col-align-center">
             <Chart type="line" data={lineStylesData} />
           </div>
         </div>

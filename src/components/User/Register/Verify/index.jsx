@@ -11,7 +11,7 @@ import api from '../../../../utils/api';
 import Timer from '../../../../sharedcomponents/Timer';
 
 const Verify = ({ data, previousStep, register }) => {
-  let messages = new Messages();
+  const [messages, setMessages] = useState(new Messages());
   const [wasSended, setWasSended] = useState(false);
   const [expirationDate, setExpirationDate] = useState(new Date(Date.now()));
 
@@ -103,13 +103,13 @@ const Verify = ({ data, previousStep, register }) => {
               value={values.code}
             />
             <div className="mb-15 p-col-11 p-col-align-center">
-              <Messages ref={(el) => { messages = el; }} />
+              <Messages ref={(el) => { setMessages(el); }} />
             </div>
             <div className="mb-15 p-col-11 p-col-align-center">
               <div className="p-grid p-justify-between">
                 <div className="p-col-6 p-xl-5">
                   <Button
-                    className="button p-button-danger"
+                    className="button p-button-danger p-button-rounded"
                     label="Atras"
                     onClick={previousStep}
                     style={wasSended ? { display: 'none' } : { display: 'inline-block' }}
@@ -117,7 +117,7 @@ const Verify = ({ data, previousStep, register }) => {
                 </div>
                 <div className="p-col-6 p-xl-5">
                   <Button
-                    className="button"
+                    className="button p-button-rounded"
                     disabled={!wasSended}
                     label="Registrar"
                     type="submit"

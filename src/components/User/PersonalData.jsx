@@ -76,7 +76,7 @@ const PersonalData = () => {
         >
           <div className="form-field p-col-6 p-xl-5 p-col-align-center">
             <Button
-              className="button button--blue"
+              className="p-button-rounded button button--blue"
               disabled={isCreateDisable}
               label="Siguiente"
               type="submit"

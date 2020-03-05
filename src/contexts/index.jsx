@@ -18,6 +18,7 @@ const Consumer = ({ children }) => (
   <AuthContext.Consumer>
     {({
       isAuth,
+      isEnabled,
       companies,
       currentCompany,
       changeCompany,
@@ -29,6 +30,7 @@ const Consumer = ({ children }) => (
           isMS,
         }) => children({
           isAuth,
+          isEnabled,
           companies,
           currentCompany,
           changeCompany,

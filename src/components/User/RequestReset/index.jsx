@@ -93,7 +93,7 @@ const RequestResetPassword = () => {
                 <div className="mb-15 p-col-8 p-xl-6 p-col-align-center">
                   <Button
                     label="Restablecer contraseña"
-                    className="button"
+                    className="button p-button-rounded"
                     type="submit"
                     disabled={isSubmitting}
                   />
