@@ -79,7 +79,7 @@ const Sales = ({ currentCompany }) => {
           if (aux[key] !== '') {
             const auxArray = aux[key].split('-');
             query = query.concat(`serie=${auxArray[0]}`);
-            query = query.concat(`number=${auxArray[1]}`);
+            query = query.concat(`&number=${auxArray[1]}`);
           }
           break;
         default:
@@ -194,7 +194,7 @@ const Sales = ({ currentCompany }) => {
   // Concept: Datatable functions
   const [isShowingPDF, setShowingPDF] = useState(false);
   const [pdfSource, setPdfSource] = useState('');
-  const [items] = useState([
+  const items = [
     {
       label: 'Resumen',
       icon: 'pi pi-file-o',
@@ -205,7 +205,7 @@ const Sales = ({ currentCompany }) => {
       icon: 'pi pi-file',
       command: () => { exportDetailed(); },
     },
-  ]);
+  ];
 
   const downloadPDF = (voucher) => {
     let url = '';
@@ -286,69 +286,72 @@ const Sales = ({ currentCompany }) => {
                   className="form form--filter p-grid p-justify-center"
                   onSubmit={handleSubmit}
                 >
-                  <hgroup className="heading p-col-11 p-col-align-center">
+                  <hgroup className="heading p-col-12 p-col-align-center">
                     <h1 className="title">VENTAS</h1>
                   </hgroup>
-                  <FormField
-                    className="p-col-11 p-sm-6 p-md-6 p-lg-3 p-col-align-center"
-                    disabled={isSubmitting}
-                    handleChange={handleChange}
-                    label="Tipo de comprobante"
-                    name="voucherType"
-                    options={voucherTypes}
-                    type="select"
-                    value={values.voucherType}
-                  />
-                  <FormField
-                    className="p-col-11 p-col-align-center"
-                    disabled={isSubmitting}
-                    filter
-                    filterBy="value, label"
-                    handleChange={handleChange}
-                    label="Serie - Número"
-                    name="seriesNumbers"
-                    options={seriesNumbers}
-                    type="select"
-                    value={values.seriesNumbers}
-                  />
-                  <FormField
-                    className="p-col-11 p-sm-6 p-md-6 p-lg-4 p-col-align-center"
-                    disabled={isSubmitting}
-                    filter
-                    filterBy="value, label"
-                    handleChange={handleChange}
-                    label="Empresa"
-                    name="clientDoc"
-                    options={entities}
-                    type="select"
-                    value={values.clientDoc}
-                  />
-                  <FormField
-                    className="p-col-11 p-sm-6 p-md-4 p-lg-2 p-col-align-center"
-                    disabled={isSubmitting}
-                    errors={errors.startDate && touched.startDate}
-                    errorMessage={errors.startDate}
-                    handleBlur={handleBlur}
-                    handleChange={handleChange}
-                    label="Fecha inicial"
-                    name="startDate"
-                    type="date"
-                    value={values.startDate}
-                  />
-                  <FormField
-                    className="p-col-11 p-sm-6 p-md-4 p-lg-2 p-col-align-center"
-                    disabled={isSubmitting}
-                    errors={errors.endDate && touched.endDate}
-                    errorMessage={errors.endDate}
-                    handleBlur={handleBlur}
-                    handleChange={handleChange}
-                    label="Fecha final"
-                    name="endDate"
-                    type="date"
-                    value={values.endDate}
-                  />
-                  <div className="p-col-11 p-md-4 p-lg-1 p-col-align-center">
-                    <p />
+                  <div className="p-col-12 p-md-10 p-lg-10 p-col-align-center">
+                    <div className="p-grid">
+                      <FormField
+                        className="p-col-12 p-sm-6 p-md-5 p-col-align-center"
+                        disabled={isSubmitting}
+                        handleChange={handleChange}
+                        label="Tipo de comprobante"
+                        name="voucherType"
+                        options={voucherTypes}
+                        type="select"
+                        value={values.voucherType}
+                      />
+                      <FormField
+                        className="p-col-12 p-sm-6 p-md-7 p-col-align-center"
+                        disabled={isSubmitting}
+                        filter
+                        filterBy="value, label"
+                        handleChange={handleChange}
+                        label="Empresa"
+                        name="clientDoc"
+                        options={entities}
+                        type="select"
+                        value={values.clientDoc}
+                      />
+                      <FormField
+                        className="p-col-12 p-sm-4 p-col-align-center"
+                        disabled={isSubmitting}
+                        filter
+                        filterBy="value, label"
+                        handleChange={handleChange}
+                        label="Serie - Número"
+                        name="seriesNumbers"
+                        options={seriesNumbers}
+                        type="select"
+                        value={values.seriesNumbers}
+                      />
+                      <FormField
+                        className="p-col-12 p-sm-4 p-col-align-center"
+                        disabled={isSubmitting}
+                        errors={errors.startDate && touched.startDate}
+                        errorMessage={errors.startDate}
+                        handleBlur={handleBlur}
+                        handleChange={handleChange}
+                        label="Fecha inicial"
+                        name="startDate"
+                        type="date"
+                        value={values.startDate}
+                      />
+                      <FormField
+                        className="p-col-12 p-sm-4 p-col-align-center"
+                        disabled={isSubmitting}
+                        errors={errors.endDate && touched.endDate}
+                        errorMessage={errors.endDate}
+                        handleBlur={handleBlur}
+                        handleChange={handleChange}
+                        label="Fecha final"
+                        name="endDate"
+                        type="date"
+                        value={values.endDate}
+                      />
+                    </div>
+                  </div>
+                  <div className="p-col-12 p-sm-4 p-md-2 p-col-align-center">
                     <Button
                       className="p-button-rounded button button--blue button--small"
                       label="Filtrar"

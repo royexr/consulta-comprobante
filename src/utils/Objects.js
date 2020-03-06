@@ -1,21 +1,21 @@
 const invoicesFields = {
-  FechaEmision: 'Fecha de emisión',
-  FechaVencimiento: 'Fecha de vencimiento',
-  FechaCancelacion: 'Fecha de cancelación',
-  Cod_TipoOperacion: 'Tipo',
-  Serie: 'Serie',
-  Numero: 'Número',
-  Cod_TipoDoc: 'Tipo de documento',
-  Doc_Cliente: 'Número de documento',
-  Nom_Cliente: 'Denominación',
-  Cod_Moneda: 'Moneda',
-  Cod_Periodo: 'Periodo',
-  Glosa: 'Glosa',
-  Flag_Anulado: 'Anulado',
-  Flag_Despachado: 'Despachado',
-  Impuesto: 'Impuesto',
-  Total: 'Total',
-  Cod_EstadoComprobante: 'Estado',
+  FechaEmision: 'FECHA DE EMISIÓN',
+  FechaVencimiento: 'FECHA DE VENCIMIENTO',
+  Nro_Ticketera: 'TICKET SUNAT',
+  Cod_TipoOperacion: 'TIPO',
+  Serie: 'SERIE',
+  Numero: 'NÚMERO',
+  Cod_TipoDoc: 'TIPO DE DOCUMENTO',
+  Doc_Cliente: 'NÚMERO DE DOCUMENTO',
+  Nom_Cliente: 'RAZON SOCIAL O APELLIDOS Y NOMBRES',
+  // Cod_Periodo: 'Periodo',
+  // Glosa: 'Glosa',
+  // Flag_Anulado: 'Anulado',
+  // Flag_Despachado: 'Despachado',
+  Impuesto: 'IGV',
+  Total: 'TOTAL',
+  Cod_Moneda: 'MONEDA',
+  // Cod_EstadoComprobante: 'Estado',
 };
 
 const voucherCodes = {
@@ -24,6 +24,13 @@ const voucherCodes = {
   NCE: '07',
   NDE: '08',
   GRE: '09',
+};
+
+const igvTypes = {
+  Gravada: '10',
+  Exonerada: ['20', '40'],
+  Inafecta: '30',
+  Gratuita: ['10', '12', '13', '14', '15', '16', '31', '32', '33', '34', '35', '36'],
 };
 
 export { invoicesFields, voucherCodes };
