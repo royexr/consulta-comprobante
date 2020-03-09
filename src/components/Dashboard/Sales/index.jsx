@@ -14,7 +14,12 @@ import api from '../../../utils/api';
 import config from '../../../config';
 import FormField from '../../../sharedcomponents/FormField';
 import { voucherCodes } from '../../../utils/Objects';
-import { exportResume, exportDetailed, currentMonthRange } from '../../../utils';
+import {
+  currentMonthRange,
+  createGetQuery,
+  exportResume,
+  exportDetailed,
+} from '../../../utils';
 import {
   useEntities,
   useMessages,
@@ -41,6 +46,7 @@ const Sales = ({ currentCompany }) => {
   const [ld] = useState(lastDay);
 
   // Concept: Formik functions
+  const [query, setQuery] = useState('');
   const [quantity, setQuantity] = useState(0);
   const [totalF, setTotalF] = useState(0);
   const [totalB, setTotalB] = useState(0);
@@ -62,35 +68,9 @@ const Sales = ({ currentCompany }) => {
   };
 
   const onSubmit = async (values, actions) => {
-    const aux = { ...values };
-
-    let query = `bookCode=14&companyCode=${currentCompany}&`;
-    const vKeys = Object.keys(aux);
-    for (let i = 0; i < vKeys.length; i += 1) {
-      const key = vKeys[i];
-      switch (key) {
-        case 'clientDoc':
-          if (aux[key] !== '') {
-            const auxArray = aux[key].split('-');
-            query = query.concat(`${key}=${auxArray[0]}`);
-          }
-          break;
-        case 'seriesNumbers':
-          if (aux[key] !== '') {
-            const auxArray = aux[key].split('-');
-            query = query.concat(`serie=${auxArray[0]}`);
-            query = query.concat(`&number=${auxArray[1]}`);
-          }
-          break;
-        default:
-          if (aux[key] !== '') {
-            query = query.concat(`${key}=${aux[key]}`);
-          }
-          break;
-      }
-      query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
-    }
-    const vouchersR = await api.Voucher.ReadMany(query);
+    const q = createGetQuery('14', currentCompany, values);
+    setQuery(q);
+    const vouchersR = await api.Voucher.ReadMany(q);
     if (vouchersR instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexion');
     } else if (vouchersR.message === '01') {
@@ -133,22 +113,14 @@ const Sales = ({ currentCompany }) => {
     actions.setSubmitting(false);
   };
 
-  const fetchInitialInvoices = async (cc, first, last) => {
+  const fetchInitialInvoices = async (cc) => {
     if (cc !== undefined && cc.length > 0) {
-      const aux = {
-        startDate: first.toISOString().slice(0, 10),
-        endDate: last.toISOString().slice(0, 10),
-      };
-      let query = `bookCode=14&companyCode=${cc}&`;
-      const vKeys = Object.keys(aux);
-      for (let i = 0; i < vKeys.length; i += 1) {
-        const key = vKeys[i];
-        if (aux[key] !== '') {
-          query = query.concat(`${key}=${aux[key]}`);
-        }
-        query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
-      }
-      const vouchersR = await api.Voucher.ReadMany(query);
+      const q = createGetQuery('14', currentCompany, {
+        startDate: fd.toISOString().slice(0, 10),
+        endDate: ld.toISOString().slice(0, 10),
+      });
+      setQuery(q);
+      const vouchersR = await api.Voucher.ReadMany(q);
       if (vouchersR.message === '01') {
         const { data } = vouchersR;
         if (data.length !== 0) {
@@ -188,8 +160,8 @@ const Sales = ({ currentCompany }) => {
   };
 
   useEffect(() => {
-    fetchInitialInvoices(currentCompany, fd, ld);
-  }, [currentCompany, fd, ld]);
+    fetchInitialInvoices(currentCompany);
+  }, [currentCompany]);
 
   // Concept: Datatable functions
   const [isShowingPDF, setShowingPDF] = useState(false);
@@ -198,7 +170,7 @@ const Sales = ({ currentCompany }) => {
     {
       label: 'Resumen',
       icon: 'pi pi-file-o',
-      command: () => { exportResume(currentCompany, vouchers); },
+      command: () => { exportResume(currentCompany, query); },
     },
     {
       label: 'Detallado',

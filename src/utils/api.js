@@ -30,6 +30,9 @@ const api = {
     GetEntities(companyCode, bookCode) {
       return callApi(`/vouchers/getEntities/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET' });
     },
+    GetReportResume(query) {
+      return callApi(`/vouchers/getReportResume?${query}`, { method: 'GET' });
+    },
     GetSeriesNumbers(companyCode, bookCode) {
       return callApi(`/vouchers/getSeriesNumbers/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET' });
     },

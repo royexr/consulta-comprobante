@@ -33,4 +33,4 @@ const igvTypes = {
   Gratuita: ['10', '12', '13', '14', '15', '16', '31', '32', '33', '34', '35', '36'],
 };
 
-export { invoicesFields, voucherCodes };
+export { igvTypes, invoicesFields, voucherCodes };
