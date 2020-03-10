@@ -4,10 +4,11 @@ import React from 'react';
 // Resources
 import { Button } from 'primereact/button';
 
-const actionTemplate = (rowData, downloadPDF, downloadXML, downloadCDR) => (
+const actionTemplate = (rowData, globalLoading, downloadPDF, downloadXML, downloadCDR) => (
   <>
     <Button
       className="p-button-danger p-button-rounded"
+      disabled={globalLoading}
       label="PDF"
       onClick={() => { downloadPDF(rowData); }}
       style={{
@@ -19,6 +20,7 @@ const actionTemplate = (rowData, downloadPDF, downloadXML, downloadCDR) => (
     />
     <Button
       className="p-button-success p-button-rounded"
+      disabled={globalLoading}
       label="XML"
       onClick={() => { downloadXML(rowData); }}
       style={{
@@ -30,6 +32,7 @@ const actionTemplate = (rowData, downloadPDF, downloadXML, downloadCDR) => (
     />
     <Button
       className="p-button-primary p-button-rounded"
+      disabled={globalLoading}
       label="CDR"
       onClick={() => { downloadCDR(rowData); }}
       style={{
@@ -59,6 +62,18 @@ const dtFooter = (totalF, totalB, totalNC, totalND, quantity) => (
   <table>
     <tbody className="">
       <tr className="p-grid p-dir-row">
+        <td className="p-col-12 text--center">
+          <Button
+            className="button p-button-info p-button-rounded"
+            icon="pi pi-info"
+            style={{
+              fontSize: '10px',
+              marginLeft: '.3rem',
+            }}
+            tooltip="Montos calculados en Soles"
+            tooltipOptions={{ event: 'focus' }}
+          />
+        </td>
         <td className="p-col-6 text--end">
           Total de
           <b> FACTURAS</b>

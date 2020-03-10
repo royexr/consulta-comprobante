@@ -135,13 +135,13 @@ const Login = ({ signIn }) => {
                     </div>
                   )
                 }
-                <Link className="text--centered p-col-align-center" to="/request-reset" style={{ pointerEvents: isSubmitting && 'none' }}>¿olvidaste tu contraseña?</Link>
+                <Link className="text--center p-col-align-center" to="/request-reset" style={{ pointerEvents: isSubmitting && 'none' }}>¿olvidaste tu contraseña?</Link>
                 <div className="p-col-11 p-col-align-center">
                   {renderMessages()}
                 </div>
                 <hr className="mb-15" style={{ width: '100%' }} />
                 <div className="p-grid p-dir-col">
-                  <small className="text--centered p-col-align-center">¿no tienes cuenta?</small>
+                  <small className="text--center p-col-align-center">¿no tienes cuenta?</small>
                   <div className="p-col-6 p-xl-4 p-col-align-center">
                     <Button
                       className="p-button-secondary p-button-rounded button"

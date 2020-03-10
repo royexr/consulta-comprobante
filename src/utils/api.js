@@ -30,8 +30,11 @@ const api = {
     GetEntities(companyCode, bookCode) {
       return callApi(`/vouchers/getEntities/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET' });
     },
-    GetReportResume(query) {
-      return callApi(`/vouchers/getReportResume?${query}`, { method: 'GET' });
+    GetDetailedReport(query) {
+      return callApi(`/vouchers/getDetailedReport?${query}`, { method: 'GET' });
+    },
+    GetResumedReport(query) {
+      return callApi(`/vouchers/getResumedReport?${query}`, { method: 'GET' });
     },
     GetSeriesNumbers(companyCode, bookCode) {
       return callApi(`/vouchers/getSeriesNumbers/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET' });

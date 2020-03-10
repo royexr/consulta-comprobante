@@ -1,5 +1,5 @@
 // Dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 
@@ -14,7 +14,12 @@ import api from '../../../utils/api';
 import config from '../../../config';
 import FormField from '../../../sharedcomponents/FormField';
 import { voucherCodes } from '../../../utils/Objects';
-import { exportResume, exportDetailed, currentMonthRange } from '../../../utils';
+import {
+  currentMonthRange,
+  createGetQuery,
+  exportResume,
+  exportDetailed,
+} from '../../../utils';
 import {
   useEntities,
   useMessages,
@@ -30,10 +35,12 @@ import {
 } from '../../../formikTemplates';
 
 const Purchases = ({ currentCompany }) => {
-  const { entities } = useEntities(currentCompany, '08');
-  const { seriesNumbers } = useSeriesNumbers(currentCompany, '08');
+  const bookCode = '08';
+  const { entities } = useEntities(currentCompany, bookCode);
+  const { seriesNumbers } = useSeriesNumbers(currentCompany, bookCode);
   const { voucherTypes } = useVoucherTypes();
   const [showMessages, renderMessages] = useMessages();
+  const [globalLoading, setGlobalLoading] = useState(false);
 
   // Concept: Formik default value
   const { firstDay, lastDay } = currentMonthRange();
@@ -41,6 +48,7 @@ const Purchases = ({ currentCompany }) => {
   const [ld] = useState(lastDay);
 
   // Concept: Formik functions
+  const [query, setQuery] = useState('');
   const [quantity, setQuantity] = useState(0);
   const [totalF, setTotalF] = useState(0);
   const [totalB, setTotalB] = useState(0);
@@ -62,35 +70,9 @@ const Purchases = ({ currentCompany }) => {
   };
 
   const onSubmit = async (values, actions) => {
-    const aux = { ...values };
-
-    let query = `bookCode=08&companyCode=${currentCompany}&`;
-    const vKeys = Object.keys(aux);
-    for (let i = 0; i < vKeys.length; i += 1) {
-      const key = vKeys[i];
-      switch (key) {
-        case 'clientDoc':
-          if (aux[key] !== '') {
-            const auxArray = aux[key].split('-');
-            query = query.concat(`${key}=${auxArray[0]}`);
-          }
-          break;
-        case 'seriesNumbers':
-          if (aux[key] !== '') {
-            const auxArray = aux[key].split('-');
-            query = query.concat(`serie=${auxArray[0]}`);
-            query = query.concat(`&number=${auxArray[1]}`);
-          }
-          break;
-        default:
-          if (aux[key] !== '') {
-            query = query.concat(`${key}=${aux[key]}`);
-          }
-          break;
-      }
-      query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
-    }
-    const vouchersR = await api.Voucher.ReadMany(query);
+    const q = createGetQuery(bookCode, currentCompany, values);
+    setQuery(q);
+    const vouchersR = await api.Voucher.ReadMany(q);
     if (vouchersR instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexion');
     } else if (vouchersR.message === '01') {
@@ -133,79 +115,91 @@ const Purchases = ({ currentCompany }) => {
     actions.setSubmitting(false);
   };
 
-  const fetchInitialInvoices = async (cc, first, last) => {
-    if (cc !== undefined && cc.length > 0) {
-      const aux = {
-        startDate: first.toISOString().slice(0, 10),
-        endDate: last.toISOString().slice(0, 10),
-      };
-      let query = `bookCode=14&companyCode=${cc}&`;
-      const vKeys = Object.keys(aux);
-      for (let i = 0; i < vKeys.length; i += 1) {
-        const key = vKeys[i];
-        if (aux[key] !== '') {
-          query = query.concat(`${key}=${aux[key]}`);
-        }
-        query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
-      }
-      const vouchersR = await api.Voucher.ReadMany(query);
-      if (vouchersR.message === '01') {
-        const { data } = vouchersR;
-        if (data.length !== 0) {
-          let sumF = 0; let sumB = 0; let sumNC = 0; let sumND = 0;
-          for (let i = 0; i < data.length; i += 1) {
-            const e = data[i];
-            switch (e.Cod_TipoComprobante) {
-              case 'FE' || 'FC':
-                sumF += e.Total * e.TipoCambio;
-                break;
-              case 'BE' || 'BC':
-                sumB += e.Total * e.TipoCambio;
-                break;
-              case 'NCE' || 'NCC':
-                sumNC += e.Total * e.TipoCambio;
-                break;
-              case 'NDE' || 'NDC':
-                sumND += e.Total * e.TipoCambio;
-                break;
-              default:
-                break;
-            }
-          }
-          setTotalF(Math.round(sumF * 100) / 100);
-          setTotalB(Math.round(sumB * 100) / 100);
-          setTotalNC(Math.round(sumNC * 100) / 100);
-          setTotalND(Math.round(sumND * 100) / 100);
-          setQuantity(data.length);
-          setVouchers(data);
-        } else {
-          setVouchers([]);
-        }
-      } else {
-        setVouchers([]);
-      }
-    }
-  };
+  // const fetchInitialInvoices = async (cc, first, last) => {
+  //   if (cc !== undefined && cc.length > 0) {
+  //     const aux = {
+  //       startDate: first.toISOString().slice(0, 10),
+  //       endDate: last.toISOString().slice(0, 10),
+  //     };
+  //     let query = `bookCode=14&companyCode=${cc}&`;
+  //     const vKeys = Object.keys(aux);
+  //     for (let i = 0; i < vKeys.length; i += 1) {
+  //       const key = vKeys[i];
+  //       if (aux[key] !== '') {
+  //         query = query.concat(`${key}=${aux[key]}`);
+  //       }
+  //       query = i < vKeys.length - 1 ? query.concat('&') : query.concat('');
+  //     }
+  //     const vouchersR = await api.Voucher.ReadMany(query);
+  //     if (vouchersR.message === '01') {
+  //       const { data } = vouchersR;
+  //       if (data.length !== 0) {
+  //         let sumF = 0; let sumB = 0; let sumNC = 0; let sumND = 0;
+  //         for (let i = 0; i < data.length; i += 1) {
+  //           const e = data[i];
+  //           switch (e.Cod_TipoComprobante) {
+  //             case 'FE' || 'FC':
+  //               sumF += e.Total * e.TipoCambio;
+  //               break;
+  //             case 'BE' || 'BC':
+  //               sumB += e.Total * e.TipoCambio;
+  //               break;
+  //             case 'NCE' || 'NCC':
+  //               sumNC += e.Total * e.TipoCambio;
+  //               break;
+  //             case 'NDE' || 'NDC':
+  //               sumND += e.Total * e.TipoCambio;
+  //               break;
+  //             default:
+  //               break;
+  //           }
+  //         }
+  //         setTotalF(Math.round(sumF * 100) / 100);
+  //         setTotalB(Math.round(sumB * 100) / 100);
+  //         setTotalNC(Math.round(sumNC * 100) / 100);
+  //         setTotalND(Math.round(sumND * 100) / 100);
+  //         setQuantity(data.length);
+  //         setVouchers(data);
+  //       } else {
+  //         setVouchers([]);
+  //       }
+  //     } else {
+  //       setVouchers([]);
+  //     }
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchInitialInvoices(currentCompany, fd, ld);
-  }, [currentCompany, fd, ld]);
+  // useEffect(() => {
+  //   fetchInitialInvoices(currentCompany, fd, ld);
+  // }, [currentCompany, fd, ld]);
 
   // Concept: Datatable functions
   const [isShowingPDF, setShowingPDF] = useState(false);
   const [pdfSource, setPdfSource] = useState('');
-  const [items] = useState([
+  const items = [
     {
       label: 'Resumen',
       icon: 'pi pi-file-o',
-      command: () => { exportResume(currentCompany, vouchers); },
+      command: () => {
+        setGlobalLoading(true);
+        exportResume(bookCode, currentCompany, query)
+          .then(() => {
+            setGlobalLoading(false);
+          });
+      },
     },
     {
       label: 'Detallado',
       icon: 'pi pi-file',
-      command: () => { exportDetailed(); },
+      command: () => {
+        setGlobalLoading(true);
+        exportDetailed(bookCode, currentCompany, query)
+          .then(() => {
+            setGlobalLoading(false);
+          });
+      },
     },
-  ]);
+  ];
 
   const downloadPDF = (voucher) => {
     let url = '';
@@ -292,7 +286,7 @@ const Purchases = ({ currentCompany }) => {
                     <div className="p-grid">
                       <FormField
                         className="p-col-12 p-sm-6 p-md-5 p-col-align-center"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || globalLoading}
                         handleChange={handleChange}
                         label="Tipo de comprobante"
                         name="voucherType"
@@ -302,7 +296,7 @@ const Purchases = ({ currentCompany }) => {
                       />
                       <FormField
                         className="p-col-12 p-sm-6 p-md-7 p-col-align-center"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || globalLoading}
                         filter
                         filterBy="value, label"
                         handleChange={handleChange}
@@ -314,7 +308,7 @@ const Purchases = ({ currentCompany }) => {
                       />
                       <FormField
                         className="p-col-12 p-sm-4 p-col-align-center"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || globalLoading}
                         filter
                         filterBy="value, label"
                         handleChange={handleChange}
@@ -326,7 +320,7 @@ const Purchases = ({ currentCompany }) => {
                       />
                       <FormField
                         className="p-col-12 p-sm-4 p-col-align-center"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || globalLoading}
                         errors={errors.startDate && touched.startDate}
                         errorMessage={errors.startDate}
                         handleBlur={handleBlur}
@@ -338,7 +332,7 @@ const Purchases = ({ currentCompany }) => {
                       />
                       <FormField
                         className="p-col-12 p-sm-4 p-col-align-center"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || globalLoading}
                         errors={errors.endDate && touched.endDate}
                         errorMessage={errors.endDate}
                         handleBlur={handleBlur}
@@ -354,7 +348,7 @@ const Purchases = ({ currentCompany }) => {
                     <Button
                       className="p-button-rounded button button--blue button--small"
                       label="Filtrar"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || globalLoading}
                       type="submit"
                     />
                   </div>
@@ -433,7 +427,13 @@ const Purchases = ({ currentCompany }) => {
               <Column field="Total" header="Total" style={{ width: '7%' }} />
               <Column body={stateTemplate} header="Estado" style={{ width: '7%' }} />
               <Column
-                body={(rowData) => actionTemplate(rowData, downloadPDF, downloadXML, downloadCDR)}
+                body={(rowData) => actionTemplate(
+                  rowData,
+                  globalLoading,
+                  downloadPDF,
+                  downloadXML,
+                  downloadCDR,
+                )}
                 header="Acciones"
                 style={{ width: '14%' }}
               />
@@ -444,12 +444,24 @@ const Purchases = ({ currentCompany }) => {
             >
               <SplitButton
                 className="button button--blue"
+                disabled={globalLoading}
                 icon="pi pi-file-excel"
                 label="Exportar a Excel"
                 model={items}
               />
             </div>
           </>
+        )
+      }
+      {
+        globalLoading && (
+          <ProgressSpinner
+            strokeWidth="6"
+            style={{
+              width: '2rem',
+              height: '2rem',
+            }}
+          />
         )
       }
     </>
