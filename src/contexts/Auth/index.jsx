@@ -11,25 +11,29 @@ const AuthContext = createContext();
 const isLoggedIn = sessionStorage.getItem('userJWT') !== null;
 
 const Provider = ({ children }) => {
-  const [isAuth, setIsAuth] = useState(isLoggedIn);
-  const [isEnabled, setIsEnabled] = useState();
   const [companies, setCompanies] = useState([]);
   const [company, setCompany] = useState('');
+  const [isAuth, setIsAuth] = useState(isLoggedIn);
+  const [userToken, setUserToken] = useState({});
+  // const [isEnabled, setIsEnabled] = useState();
+  // const [userType, setUserType] = useState();
 
   const fetchCompanies = async (auth) => {
     if (auth) {
       try {
         const token = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
-        setIsEnabled(token.isEnabled);
-        const auxCompanies = (await api.User.GetCompanies(token._id.email)).data;
-        const formatted = auxCompanies.map((comp) => ({
-          value: comp.RUC,
+        setUserToken(token);
+        // setIsEnabled(token.isEnabled);
+        // setUserType(token.type);
+        const { data } = (await api.User.GetCompanies(token._id.email));
+        const formatted = data[0].companies.map((comp) => ({
           label: `${comp.RUC} ${comp.RazonSocial}`,
+          value: comp.RUC,
         }));
         setCompanies(formatted);
         setCompany(formatted[0].value);
       } catch (error) {
-        setIsEnabled(false);
+        // setIsEnabled(false);
         setCompanies([]);
         setCompany('');
       }
@@ -41,19 +45,21 @@ const Provider = ({ children }) => {
   }, [isAuth]);
 
   const value = {
+    changeCompany: (newCompany) => {
+      setCompany(newCompany);
+    },
+    companies,
+    currentCompany: company,
     isAuth,
-    isEnabled,
+    // isEnabled,
+    // userType,
     signIn: () => {
       setIsAuth(true);
     },
     signOut: () => {
       setIsAuth(false);
     },
-    companies,
-    currentCompany: company,
-    changeCompany: (newCompany) => {
-      setCompany(newCompany);
-    },
+    userToken,
   };
 
   return (

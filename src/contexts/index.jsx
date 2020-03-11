@@ -18,25 +18,25 @@ const Consumer = ({ children }) => (
   <AuthContext.Consumer>
     {({
       isAuth,
-      isEnabled,
+      changeCompany,
       companies,
       currentCompany,
-      changeCompany,
       signIn,
       signOut,
+      userToken,
     }) => (
       <ScreenContext.Consumer>
         {({
           isMS,
         }) => children({
-          isAuth,
-          isEnabled,
+          changeCompany,
           companies,
           currentCompany,
-          changeCompany,
+          isAuth,
+          isMS,
           signIn,
           signOut,
-          isMS,
+          userToken,
         })}
       </ScreenContext.Consumer>
     )}

@@ -49,7 +49,7 @@ body .p-component {
   font-weight: normal !important;
 }
 
-@media screen and (max-width: 64em) {
+@media screen and (max-width: 991px) {
   .p-datatable-responsive .p-datatable-thead > tr > th,
   .p-datatable-responsive .p-datatable-tfoot > tr > td {
       display: none !important;

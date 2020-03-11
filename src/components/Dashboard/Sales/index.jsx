@@ -30,7 +30,7 @@ import {
   actionTemplate,
   currencyTemplate,
   dateTemplate,
-  dtFooter,
+  dtFooterVouchers,
   stateTemplate,
 } from '../../../formikTemplates';
 
@@ -399,8 +399,7 @@ const Sales = ({ currentCompany }) => {
               alwaysShowPaginator={false}
               className="p-col-11"
               columnResizeMode="fit"
-              disabled={globalLoading}
-              footer={dtFooter(totalF, totalB, totalNC, totalND, quantity)}
+              footer={dtFooterVouchers(totalF, totalB, totalNC, totalND, quantity)}
               multiSortMeta={[{ field: 'FechaEmision', order: -1 }]}
               paginator
               responsive

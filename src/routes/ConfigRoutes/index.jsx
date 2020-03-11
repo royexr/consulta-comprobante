@@ -14,7 +14,7 @@ const ConfigRoutes = () => {
   return (
     <Contexts.Consumer>
       {
-        ({ isAuth }) => (
+        ({ isAuth, userToken }) => (
           <Switch>
             <CustomRoute
               isAuth={isAuth}
@@ -26,7 +26,7 @@ const ConfigRoutes = () => {
               isAuth={isAuth}
               exact
               path={`${path}/companies`}
-              render={() => <Companies />}
+              render={() => <Companies userToken={userToken} />}
             />
             <CustomRoute
               isAuth={isAuth}

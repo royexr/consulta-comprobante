@@ -58,7 +58,7 @@ const dateTemplate = (rowData) => {
   return formattedDate;
 };
 
-const dtFooter = (totalF, totalB, totalNC, totalND, quantity) => (
+const dtFooterVouchers = (totalF, totalB, totalNC, totalND, quantity) => (
   <table>
     <tbody className="">
       <tr className="p-grid p-dir-row">
@@ -137,6 +137,6 @@ export {
   actionTemplate,
   currencyTemplate,
   dateTemplate,
-  dtFooter,
+  dtFooterVouchers,
   stateTemplate,
 };

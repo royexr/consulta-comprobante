@@ -27,18 +27,14 @@ const Routes = () => (
     {
       ({
         isAuth,
-        isEnabled,
-        companies,
         currentCompany,
         signIn,
-        isMS,
+        userToken,
       }) => (
         <div className={`${styles.container} p-grid p-dir-col p-align-center p-justify-center`}>
           {
-            isAuth && companies[0] !== undefined && (
-              <Header
-                isMS={isMS}
-              />
+            isAuth && (
+              <Header />
             )
           }
           <Switch>
@@ -49,21 +45,21 @@ const Routes = () => (
             <CustomRoute
               exact
               isAuth={isAuth}
-              isEnabled={isEnabled}
+              isEnabled={userToken.isEnabled}
               path="/sales"
               render={() => (<Sales currentCompany={currentCompany} />)}
             />
             <CustomRoute
               exact
               isAuth={isAuth}
-              isEnabled={isEnabled}
+              isEnabled={userToken.isEnabled}
               path="/purchases"
               render={() => (<Purchases currentCompany={currentCompany} />)}
             />
             <CustomRoute
               exact
               isAuth={isAuth}
-              isEnabled={isEnabled}
+              isEnabled={userToken.isEnabled}
               path="/dashboard"
               render={() => (<Dashboard currentCompany={currentCompany} />)}
             />
@@ -71,7 +67,7 @@ const Routes = () => (
               exact={false}
               isAuth={isAuth}
               path="/configuration"
-              render={() => (<Configuration isEnabled={isEnabled} />)}
+              render={() => (<Configuration isEnabled={userToken.isEnabled} />)}
             />
             <Route path="*" component={NotFound} />
           </Switch>
