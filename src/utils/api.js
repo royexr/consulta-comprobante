@@ -54,7 +54,7 @@ const api = {
       return callApi(`/users/${userId}`, { method: 'GET' });
     },
     GetCompanies(userId) {
-      return callApi(`/users/getCompanies/${userId}`, { method: 'GET' });
+      return callApi(`/users/getCompanies?userId=${userId}`, { method: 'GET' });
     },
     SignIn(credentials) {
       return callApi('/users/signin', { method: 'POST', body: JSON.stringify(credentials) });

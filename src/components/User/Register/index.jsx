@@ -2,18 +2,54 @@
 import React from 'react';
 import { Formik } from 'formik';
 import { useHistory } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 // Resources
 import { Button } from 'primereact/button';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import styles from './styles.module.css';
 import FormField from '../../../sharedcomponents/FormField';
 import { isValidEmail } from '../../../utils';
+import api from '../../../utils/api';
+import { useMessages } from '../../../hooks';
 
 const Register = () => {
   const history = useHistory();
+  const [showMessages, renderMessages] = useMessages();
 
   const leave = () => {
     history.push('/');
+  };
+
+  const register = async (values, actions) => {
+    const userInfo = { ...values };
+    const emailRes = await api.User.GetById(values.email);
+    if (emailRes instanceof TypeError) {
+      showMessages('error', 'Error!', 'No hay conexion');
+      actions.setSubmitting(false);
+    } else if (emailRes.message === '02') {
+      delete userInfo.confirmPassword;
+      userInfo.password = CryptoJS.AES.encrypt(userInfo.password, userInfo.email).toString();
+      const res = await api.User.Create(userInfo);
+      switch (res.message) {
+        case '01':
+        case '02':
+        case '03':
+          showMessages('success', 'Muy bien!', 'Te enviaremos un mensaje para continuar con tu registro');
+          setTimeout(() => {
+            actions.setSubmitting(false);
+            history.push('/');
+          }, 3000);
+          break;
+        default:
+          showMessages('error', 'Error!', 'Se ah producido un error');
+          actions.setSubmitting(false);
+          break;
+      }
+    } else {
+      showMessages('error', 'Error!', 'El correo ya esta registrado');
+      actions.setSubmitting(false);
+    }
   };
 
   const fieldsValidation = (values) => {
@@ -47,6 +83,7 @@ const Register = () => {
         confirmPassword: '',
       }}
       validate={(values) => fieldsValidation(values)}
+      onSubmit={(values, actions) => { register(values, actions); }}
     >
       {({
         values,
@@ -119,6 +156,7 @@ const Register = () => {
                 <div className="p-col-6 p-xl-5">
                   <Button
                     className="button p-button-rounded p-button-danger"
+                    disabled={isSubmitting}
                     label="Atras"
                     onClick={leave}
                     type="button"
@@ -127,11 +165,28 @@ const Register = () => {
                 <div className="p-col-6 p-xl-5">
                   <Button
                     className="button p-button-rounded"
+                    disabled={isSubmitting}
                     label="Registrar"
                     type="submit"
                   />
                 </div>
               </div>
+            </div>
+            {
+              isSubmitting && (
+                <div className="mb-15 p-col-align-center">
+                  <ProgressSpinner
+                    strokeWidth="6"
+                    style={{
+                      width: '2rem',
+                      height: '2rem',
+                    }}
+                  />
+                </div>
+              )
+            }
+            <div className="p-col-12 p-col-align-center">
+              {renderMessages()}
             </div>
           </form>
         </div>

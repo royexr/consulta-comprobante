@@ -15,7 +15,14 @@ const Companies = ({ userToken }) => {
   const fetchCompanies = async (uT) => {
     if (!isEmptyObject(uT)) {
       const { data } = await api.User.GetCompanies(uT._id.email);
-      setCompanies(data[0].companies);
+      const formatted = [];
+      for (let i = 0; i < data[0].companies.length; i += 1) {
+        const r = data[0].companies[i];
+        const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
+        aux[0].isEnabled = r.isEnabled;
+        formatted.push(aux[0]);
+      }
+      setCompanies(formatted);
     }
   };
 
@@ -66,6 +73,10 @@ const Companies = ({ userToken }) => {
                   </a>
                 )}
                 header="Página web"
+              />
+              <Column
+                body={(rowData) => (rowData.isEnabled ? 'SI' : 'NO')}
+                header="Habilitado"
               />
             </DataTable>
           </>

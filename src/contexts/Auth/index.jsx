@@ -15,25 +15,27 @@ const Provider = ({ children }) => {
   const [company, setCompany] = useState('');
   const [isAuth, setIsAuth] = useState(isLoggedIn);
   const [userToken, setUserToken] = useState({});
-  // const [isEnabled, setIsEnabled] = useState();
-  // const [userType, setUserType] = useState();
 
   const fetchCompanies = async (auth) => {
     if (auth) {
       try {
         const token = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
         setUserToken(token);
-        // setIsEnabled(token.isEnabled);
-        // setUserType(token.type);
         const { data } = (await api.User.GetCompanies(token._id.email));
-        const formatted = data[0].companies.map((comp) => ({
-          label: `${comp.RUC} ${comp.RazonSocial}`,
-          value: comp.RUC,
-        }));
+        const formatted = [];
+        for (let i = 0; i < data[0].companies.length; i += 1) {
+          const r = data[0].companies[i];
+          if (r.isEnabled) {
+            const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
+            formatted.push({
+              label: `${aux[0].RUC} ${aux[0].RazonSocial}`,
+              value: aux[0].RUC,
+            });
+          }
+        }
         setCompanies(formatted);
         setCompany(formatted[0].value);
       } catch (error) {
-        // setIsEnabled(false);
         setCompanies([]);
         setCompany('');
       }
@@ -51,8 +53,6 @@ const Provider = ({ children }) => {
     companies,
     currentCompany: company,
     isAuth,
-    // isEnabled,
-    // userType,
     signIn: () => {
       setIsAuth(true);
     },

@@ -69,7 +69,7 @@ const Login = ({ signIn }) => {
         <Formik
           initialValues={{ email: '', password: '' }}
           validate={(values) => fieldsValidation(values)}
-          onSubmit={(values, actions) => SignIn(values, actions)}
+          onSubmit={(values, actions) => { SignIn(values, actions); }}
         >
           {({
             values,

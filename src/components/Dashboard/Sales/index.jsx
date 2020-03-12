@@ -13,7 +13,7 @@ import { SplitButton } from 'primereact/splitbutton';
 import api from '../../../utils/api';
 import config from '../../../config';
 import FormField from '../../../sharedcomponents/FormField';
-import { voucherCodes } from '../../../utils/Objects';
+import voucherCodes from '../../../utils/Objects';
 import {
   currentMonthRange,
   createGetQuery,

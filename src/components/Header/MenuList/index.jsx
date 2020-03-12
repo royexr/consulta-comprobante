@@ -24,10 +24,18 @@ const MenuList = ({
   const fetchCompanies = async (uT) => {
     if (!isEmptyObject(uT)) {
       const { data } = await api.User.GetCompanies(uT._id.email);
-      const formatted = data[0].companies.map((company) => ({
-        label: `${company.RUC} ${company.RazonSocial}`,
-        value: company.RUC,
-      }));
+      const formatted = [];
+      for (let i = 0; i < data[0].companies.length; i += 1) {
+        const r = data[0].companies[i];
+        if (r.isEnabled) {
+          const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
+          formatted.push({
+            label: `${aux[0].RUC} ${aux[0].RazonSocial}`,
+            value: aux[0].RUC,
+          });
+        }
+      }
+
       setCompanies(formatted);
     }
   };

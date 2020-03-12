@@ -3,7 +3,6 @@ import { saveAs } from 'file-saver';
 import api from './api';
 
 async function exportDetailed(bookCode, companyCode, query) {
-  console.log(query);
   const { data } = await api.Voucher.GetDetailedReport(query);
   const date = new Date(Date.now());
   const auxBuffer = Buffer.from(data);
