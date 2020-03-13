@@ -166,7 +166,7 @@ const Sales = ({ currentCompany }) => {
   // }, [bookCode, currentCompany]);
 
   // Concept: Datatable functions
-  const [isShowingPDF, setShowingPDF] = useState(false);
+  const [showPdfDialog, setShowPdfDialog] = useState(false);
   const [pdfSource, setPdfSource] = useState('');
   const items = [
     {
@@ -203,7 +203,7 @@ const Sales = ({ currentCompany }) => {
     const formatDate = `${year}/${month}/${date}`;
     const formatData = `${ruc}-${voucherCodes[voucher.Cod_TipoComprobante]}-${voucher.Serie}-${voucher.Numero}.pdf`;
     url = `${config.ftpApi}/AArchivo/COMPROBANTES/${ruc}/${formatDate}/PDF/${formatData}`;
-    setShowingPDF(true);
+    setShowPdfDialog(true);
     setPdfSource(url);
   };
 
@@ -239,7 +239,7 @@ const Sales = ({ currentCompany }) => {
 
   // Concept: Dialog functions
   const hidePDFModal = () => {
-    setShowingPDF(false);
+    setShowPdfDialog(false);
     setPdfSource('');
   };
 
@@ -370,7 +370,7 @@ const Sales = ({ currentCompany }) => {
       <Dialog
         className="p-col-11"
         header="PDF"
-        visible={isShowingPDF}
+        visible={showPdfDialog}
         modal
         onHide={hidePDFModal}
       >

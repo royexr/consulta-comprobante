@@ -1,16 +1,22 @@
 // Resources
 import React, { useState, useEffect } from 'react';
+import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 
 // Resources
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
+import { Dialog } from 'primereact/dialog';
+import { useMessages } from '../../../hooks';
 import api from '../../../utils/api';
 import { isEmptyObject } from '../../../utils';
+import FormField from '../../../sharedcomponents/FormField';
 
 const Companies = ({ userToken }) => {
   const [companies, setCompanies] = useState([]);
+  const [showDialog, setShowDialog] = useState(false);
+  const [showMessages, renderMessages] = useMessages();
 
   const fetchCompanies = async (uT) => {
     if (!isEmptyObject(uT)) {
@@ -30,11 +36,44 @@ const Companies = ({ userToken }) => {
     fetchCompanies(userToken);
   }, [userToken]);
 
+  const fieldsValidation = (values) => {
+    const errors = {};
+    if (!values.businessNumber) {
+      errors.businessNumber = 'Campo obligatorio';
+    } else if (!(values.businessNumber.length === 11)) {
+      errors.businessNumber = 'RUC invalido';
+    }
+
+    return errors;
+  };
+
+  const onSubmit = async (values, actions) => {
+    const res = await api.Company.ReadById(values.businessNumber);
+    if (res instanceof TypeError) {
+      showMessages('error', 'Error!', 'No hay conexion');
+    } else {
+      switch (res.message) {
+        case '01':
+          showMessages('success', 'Muy bien!', 'Habilitaremos el acceso a la empresa despues de verificar tu acceso');
+          setTimeout(() => {
+            setShowDialog(false);
+            actions.setSubmitting(false);
+          }, 3000);
+          break;
+        default:
+          showMessages('error', 'Error!', 'La Empresa no esta registrada en Pale');
+          actions.setSubmitting(false);
+          break;
+      }
+    }
+  };
+
+  const requestNewCompany = () => {
+    setShowDialog(true);
+  };
+
   return (
     <>
-      {/* <hgroup className="heading p-col-12 p-col-align-center">
-        <h1 className="title">Empresas</h1>
-      </hgroup> */}
       {
         companies.length !== 0 && (
           <>
@@ -45,8 +84,10 @@ const Companies = ({ userToken }) => {
               footer={(
                 <div className="p-clearfix">
                   <Button
-                    label="Solicitar nueva empresa"
                     icon="pi pi-plus"
+                    label="Solicitar nueva empresa"
+                    style={{ float: 'right' }}
+                    onClick={requestNewCompany}
                   />
                 </div>
               )}
@@ -82,6 +123,66 @@ const Companies = ({ userToken }) => {
           </>
         )
       }
+      <Dialog
+        className="p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-4"
+        header="Solicitar nueva empresa"
+        modal
+        visible={showDialog}
+        onHide={() => setShowDialog(false)}
+      >
+        <Formik
+          initialValues={{
+            businessNumber: '',
+          }}
+          validate={(values) => fieldsValidation(values)}
+          onSubmit={(values, actions) => { onSubmit(values, actions); }}
+        >
+          {
+            ({
+              values,
+              errors,
+              touched,
+              handleBlur,
+              handleChange,
+              handleSubmit,
+              isSubmitting,
+            }) => (
+              <>
+                <form
+                  className="form p-grid p-dir-col"
+                  onSubmit={handleSubmit}
+                >
+                  <FormField
+                    className="p-col-10 p-col-align-center"
+                    disabled={isSubmitting}
+                    errors={errors.businessNumber && touched.businessNumber}
+                    errorMessage={errors.businessNumber}
+                    handleBlur={handleBlur}
+                    handleChange={handleChange}
+                    keyfilter="pint"
+                    label="RUC"
+                    maxLength="11"
+                    name="businessNumber"
+                    type="text"
+                    value={values.businessNumber}
+                  />
+                  <div className="p-col-10 p-md-5 p-md-4 p-col-align-center">
+                    <Button
+                      className="p-button-rounded p-button-primary button"
+                      label="Solicitar"
+                      disabled={isSubmitting}
+                      type="submit"
+                    />
+                  </div>
+                  <div className="p-col-10 p-col-align-center">
+                    {renderMessages()}
+                  </div>
+                </form>
+              </>
+            )
+          }
+        </Formik>
+      </Dialog>
     </>
   );
 };

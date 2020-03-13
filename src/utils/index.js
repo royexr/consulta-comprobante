@@ -1,5 +1,5 @@
 import { isEmptyObject, isValidEmail } from './validations';
-import { exportDetailed, exportResume } from './exportToExcel';
+import { exportDetailed, exportResume } from './ExportToExcel';
 import { createGetQuery, currentMonthRange } from './functions';
 
 export {

@@ -1,5 +1,5 @@
 // Dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -10,16 +10,20 @@ import { Dropdown } from 'primereact/dropdown';
 import styles from './styles.module.css';
 import api from '../../../utils/api';
 import { isEmptyObject } from '../../../utils';
+import { AuthContext } from '../../../contexts/Auth';
+import { ScreenContext } from '../../../contexts/Screen';
 
 const MenuList = ({
-  changeCompany,
-  currentCompany,
   isCollapsed,
-  isMS,
-  signOut,
-  userToken,
 }) => {
   const [companies, setCompanies] = useState([]);
+  const {
+    changeCompany,
+    currentCompany,
+    signOut,
+    userToken,
+  } = useContext(AuthContext);
+  const { isMS } = useContext(ScreenContext);
 
   const fetchCompanies = async (uT) => {
     if (!isEmptyObject(uT)) {
@@ -118,17 +122,7 @@ const MenuList = ({
 };
 
 MenuList.propTypes = {
-  changeCompany: PropTypes.func.isRequired,
-  currentCompany: PropTypes.string.isRequired,
   isCollapsed: PropTypes.bool.isRequired,
-  isMS: PropTypes.bool.isRequired,
-  signOut: PropTypes.func.isRequired,
-  userToken: PropTypes.shape({
-    _id: PropTypes.object,
-    isEnabled: PropTypes.bool,
-    password: PropTypes.string,
-    type: PropTypes.number,
-  }).isRequired,
 };
 
 export default MenuList;

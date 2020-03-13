@@ -7,13 +7,12 @@ import jwt from 'jsonwebtoken';
 import api from '../../utils/api';
 import config from '../../config';
 
-const AuthContext = createContext();
-const isLoggedIn = sessionStorage.getItem('userJWT') !== null;
+export const AuthContext = createContext();
 
 const Provider = ({ children }) => {
   const [companies, setCompanies] = useState([]);
   const [company, setCompany] = useState('');
-  const [isAuth, setIsAuth] = useState(isLoggedIn);
+  const [isAuth, setIsAuth] = useState(() => sessionStorage.getItem('userJWT'));
   const [userToken, setUserToken] = useState({});
 
   const fetchCompanies = async (auth) => {
@@ -53,11 +52,16 @@ const Provider = ({ children }) => {
     companies,
     currentCompany: company,
     isAuth,
-    signIn: () => {
+    signIn: (userInfo) => {
+      sessionStorage.setItem('userJWT', jwt.sign(userInfo, config.jwtSecret));
       setIsAuth(true);
     },
     signOut: () => {
       setIsAuth(false);
+    },
+    updateToken: (obj) => {
+      setUserToken(obj);
+      sessionStorage.setItem('userJWT', jwt.sign(obj, config.jwtSecret));
     },
     userToken,
   };
@@ -78,5 +82,4 @@ Provider.propTypes = {
 
 export default {
   Provider,
-  Consumer: AuthContext.Consumer,
 };

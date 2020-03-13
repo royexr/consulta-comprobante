@@ -1,43 +1,38 @@
 // Dependencies
-import React from 'react';
+import React, { useContext } from 'react';
 import { Switch, useRouteMatch } from 'react-router-dom';
 
 // Resources
 import CustomRoute from '../CustomRoute';
 import Companies from '../../components/Dashboard/Companies';
 import Users from '../../components/Dashboard/Users';
-import Contexts from '../../contexts';
+import { AuthContext } from '../../contexts/Auth';
 
 const ConfigRoutes = () => {
   const { path } = useRouteMatch();
+  const { isAuth, userToken } = useContext(AuthContext);
 
   return (
-    <Contexts.Consumer>
-      {
-        ({ isAuth, userToken }) => (
-          <Switch>
-            <CustomRoute
-              isAuth={isAuth}
-              exact
-              path={path}
-              render={() => <h1>Bienvenido</h1>}
-            />
-            <CustomRoute
-              isAuth={isAuth}
-              exact
-              path={`${path}/companies`}
-              render={() => <Companies userToken={userToken} />}
-            />
-            <CustomRoute
-              isAuth={isAuth}
-              exact
-              path={`${path}/users`}
-              render={() => <Users />}
-            />
-          </Switch>
-        )
-      }
-    </Contexts.Consumer>
+    <Switch>
+      <CustomRoute
+        isAuth={isAuth}
+        exact
+        path={path}
+        render={() => <h1>Bienvenido</h1>}
+      />
+      <CustomRoute
+        isAuth={isAuth}
+        exact
+        path={`${path}/companies`}
+        render={() => <Companies userToken={userToken} />}
+      />
+      <CustomRoute
+        isAuth={isAuth}
+        exact
+        path={`${path}/users`}
+        render={() => <Users />}
+      />
+    </Switch>
   );
 };
 

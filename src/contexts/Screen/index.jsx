@@ -2,7 +2,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-const ScreenContext = createContext();
+export const ScreenContext = createContext();
 
 const Provider = ({ children }) => {
   const [isMS, setIsMS] = useState(window.innerWidth <= 991);
@@ -39,5 +39,4 @@ Provider.propTypes = {
 
 export default {
   Provider,
-  Consumer: ScreenContext.Consumer,
 };

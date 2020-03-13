@@ -58,24 +58,11 @@ const Dashboard = ({ currentCompany }) => {
   return (
     <>
       <div className="jumbotron p-col-12">
-        <div className="p-grid p-dir-row">
+        <div className="p-grid p-dir-col">
           <hgroup className="heading p-col-12 p-col-align-center">
             <h1 className="title title--centered">Escritorio</h1>
           </hgroup>
-          {/* <div className="actions p-col-12 p-md-4 p-col-align-center">
-            <div className="p-grid p-dir-col p-nogutter">
-              <div className="mb-15 p-col-6 p-col-align-center">
-                <Link to="/purchases">Compras</Link>
-              </div>
-              <div className="mb-15 p-col-6 p-col-align-center">
-                <Link to="/sales">Ventas</Link>
-              </div>
-              <div className="mb-15 p-col-6 p-col-align-center">
-                <Link to="/configuration">Configuración</Link>
-              </div>
-            </div>
-          </div> */}
-          <div className="chart p-col-12 p-col-align-center">
+          <div className="chart p-col-12 p-lg-10 p-col-align-center">
             <Chart type="line" data={lineStylesData} />
           </div>
         </div>

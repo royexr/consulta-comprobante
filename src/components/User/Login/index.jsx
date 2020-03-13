@@ -1,7 +1,6 @@
 // Dependencies
 import CryptoJS from 'crypto-js';
 import React from 'react';
-import jwt from 'jsonwebtoken';
 import { useHistory, Link } from 'react-router-dom';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
@@ -42,8 +41,7 @@ const Login = ({ signIn }) => {
     } else {
       switch (loginR.resCode) {
         case '01':
-          sessionStorage.setItem('userJWT', jwt.sign(loginR.data, 'pale'));
-          signIn();
+          signIn(loginR.data);
           history.push('/dashboard');
           break;
         case '02':

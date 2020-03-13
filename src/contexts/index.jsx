@@ -3,44 +3,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // Resources
-import AuthContext from './Auth';
-import ScreenContext from './Screen';
+import Auth from './Auth';
+import Screen from './Screen';
 
 const Provider = ({ children }) => (
-  <AuthContext.Provider>
-    <ScreenContext.Provider>
+  <Auth.Provider>
+    <Screen.Provider>
       {children}
-    </ScreenContext.Provider>
-  </AuthContext.Provider>
-);
-
-const Consumer = ({ children }) => (
-  <AuthContext.Consumer>
-    {({
-      isAuth,
-      changeCompany,
-      companies,
-      currentCompany,
-      signIn,
-      signOut,
-      userToken,
-    }) => (
-      <ScreenContext.Consumer>
-        {({
-          isMS,
-        }) => children({
-          changeCompany,
-          companies,
-          currentCompany,
-          isAuth,
-          isMS,
-          signIn,
-          signOut,
-          userToken,
-        })}
-      </ScreenContext.Consumer>
-    )}
-  </AuthContext.Consumer>
+    </Screen.Provider>
+  </Auth.Provider>
 );
 
 Provider.propTypes = {
@@ -50,11 +21,6 @@ Provider.propTypes = {
   ]).isRequired,
 };
 
-Consumer.propTypes = {
-  children: PropTypes.func.isRequired,
-};
-
 export default {
   Provider,
-  Consumer,
 };
