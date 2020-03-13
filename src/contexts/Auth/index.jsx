@@ -12,7 +12,7 @@ export const AuthContext = createContext();
 const Provider = ({ children }) => {
   const [companies, setCompanies] = useState([]);
   const [company, setCompany] = useState('');
-  const [isAuth, setIsAuth] = useState(() => sessionStorage.getItem('userJWT'));
+  const [isAuth, setIsAuth] = useState(() => sessionStorage.getItem('userJWT') !== null);
   const [userToken, setUserToken] = useState({});
 
   const fetchCompanies = async (auth) => {

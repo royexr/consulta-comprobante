@@ -1,13 +1,12 @@
 // Dependencies
 import React from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 // Resources
 import { Menu } from 'primereact/menu';
 import ConfigRoutes from '../../../routes/ConfigRoutes';
 
-const Configuration = ({ isEnabled }) => {
+const Configuration = () => {
   const { url } = useRouteMatch();
   const history = useHistory();
 
@@ -15,11 +14,10 @@ const Configuration = ({ isEnabled }) => {
     {
       label: 'Perfil',
       icon: 'pi pi-fw pi-id-card',
-      command: () => { history.push(url); },
+      command: () => { history.push(`${url}/profile`); },
     },
     {
       label: 'Empresas',
-      disabled: !isEnabled,
       icon: 'pi pi-fw pi-briefcase',
       command: () => { history.push(`${url}/companies`); },
     },
@@ -45,14 +43,6 @@ const Configuration = ({ isEnabled }) => {
       </div>
     </>
   );
-};
-
-Configuration.defaultProps = {
-  isEnabled: false,
-};
-
-Configuration.propTypes = {
-  isEnabled: PropTypes.bool,
 };
 
 export default Configuration;

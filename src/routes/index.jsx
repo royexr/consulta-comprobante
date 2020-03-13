@@ -12,6 +12,7 @@ import Purchases from '../components/Dashboard/Purchases';
 
 import Login from '../components/User/Login';
 import Register from '../components/User/Register';
+import CompleteRegister from '../components/User/CompleteRegister';
 import RequestResetPassword from '../components/User/RequestReset';
 import ResetPassword from '../components/User/Reset';
 
@@ -25,9 +26,9 @@ import styles from './styles.module.css';
 const Routes = () => {
   const {
     isAuth,
+    companies,
     currentCompany,
     signIn,
-    userToken,
   } = useContext(AuthContext);
 
   return (
@@ -42,32 +43,33 @@ const Routes = () => {
         <Route exact path="/register" component={Register} />
         <Route exact path="/request-reset" component={RequestResetPassword} />
         <Route exact path="/reset" component={ResetPassword} />
+        <Route exact path="/complete-register" component={CompleteRegister} />
         <CustomRoute
           exact
           isAuth={isAuth}
-          isEnabled={userToken.isEnabled}
+          isEnabled={companies.length > 0}
           path="/sales"
           render={() => (<Sales currentCompany={currentCompany} />)}
         />
         <CustomRoute
           exact
           isAuth={isAuth}
-          isEnabled={userToken.isEnabled}
+          isEnabled={companies.length > 0}
           path="/purchases"
           render={() => (<Purchases currentCompany={currentCompany} />)}
         />
         <CustomRoute
           exact
           isAuth={isAuth}
-          isEnabled={userToken.isEnabled}
+          isEnabled={companies.length > 0}
           path="/dashboard"
           render={() => (<Dashboard currentCompany={currentCompany} />)}
         />
-        <Route
+        <CustomRoute
           exact={false}
           isAuth={isAuth}
           path="/configuration"
-          render={() => (<Configuration isEnabled={userToken.isEnabled} />)}
+          render={() => (<Configuration />)}
         />
         <Route path="*" component={NotFound} />
       </Switch>

@@ -22,13 +22,15 @@ const Companies = ({ userToken }) => {
     if (!isEmptyObject(uT)) {
       const { data } = await api.User.GetCompanies(uT._id.email);
       const formatted = [];
-      for (let i = 0; i < data[0].companies.length; i += 1) {
-        const r = data[0].companies[i];
-        const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
-        aux[0].isEnabled = r.isEnabled;
-        formatted.push(aux[0]);
+      if (data[0].companies !== undefined) {
+        for (let i = 0; i < data[0].companies.length; i += 1) {
+          const r = data[0].companies[i];
+          const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
+          aux[0].isEnabled = r.isEnabled;
+          formatted.push(aux[0]);
+        }
+        setCompanies(formatted);
       }
-      setCompanies(formatted);
     }
   };
 
@@ -54,7 +56,7 @@ const Companies = ({ userToken }) => {
     } else {
       switch (res.message) {
         case '01':
-          showMessages('success', 'Muy bien!', 'Habilitaremos el acceso a la empresa despues de verificar tu acceso');
+          showMessages('success', 'Muy bien!', 'Habilitaremos el acceso a la empresa despues de verificar tus datos');
           setTimeout(() => {
             setShowDialog(false);
             actions.setSubmitting(false);
@@ -74,6 +76,11 @@ const Companies = ({ userToken }) => {
 
   return (
     <>
+      <Button
+        icon="pi pi-plus"
+        label="Solicitar nueva empresa"
+        onClick={requestNewCompany}
+      />
       {
         companies.length !== 0 && (
           <>
@@ -81,16 +88,6 @@ const Companies = ({ userToken }) => {
               alwaysShowPaginator={false}
               className="p-col-12"
               columnResizeMode="fit"
-              footer={(
-                <div className="p-clearfix">
-                  <Button
-                    icon="pi pi-plus"
-                    label="Solicitar nueva empresa"
-                    style={{ float: 'right' }}
-                    onClick={requestNewCompany}
-                  />
-                </div>
-              )}
               rows={5}
               rowsPerPageOptions={[5, 10, 15]}
               paginator

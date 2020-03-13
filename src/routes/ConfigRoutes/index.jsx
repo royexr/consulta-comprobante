@@ -7,6 +7,7 @@ import CustomRoute from '../CustomRoute';
 import Companies from '../../components/Dashboard/Companies';
 import Users from '../../components/Dashboard/Users';
 import { AuthContext } from '../../contexts/Auth';
+import Profile from '../../components/Dashboard/Profile';
 
 const ConfigRoutes = () => {
   const { path } = useRouteMatch();
@@ -25,6 +26,12 @@ const ConfigRoutes = () => {
         exact
         path={`${path}/companies`}
         render={() => <Companies userToken={userToken} />}
+      />
+      <CustomRoute
+        isAuth={isAuth}
+        exact
+        path={`${path}/profile`}
+        render={() => <Profile />}
       />
       <CustomRoute
         isAuth={isAuth}

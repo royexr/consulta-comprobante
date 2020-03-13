@@ -2,7 +2,7 @@
 import CryptoJS from 'crypto-js';
 import React from 'react';
 import { useHistory, Link } from 'react-router-dom';
-import { Formik } from 'formik';
+import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
 
 // Resources
@@ -56,6 +56,12 @@ const Login = ({ signIn }) => {
     }
   };
 
+  const formik = useFormik({
+    initialValues: { email: '', password: '' },
+    validate: (values) => fieldsValidation(values),
+    onSubmit: (values, actions) => { SignIn(values, actions); },
+  });
+
   const CreateAccount = (e) => {
     e.preventDefault();
     history.push('/register');
@@ -64,96 +70,78 @@ const Login = ({ signIn }) => {
   return (
     <>
       <div className={`${styles.jumbotron} p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4`}>
-        <Formik
-          initialValues={{ email: '', password: '' }}
-          validate={(values) => fieldsValidation(values)}
-          onSubmit={(values, actions) => { SignIn(values, actions); }}
+        <form
+          className="form p-grid p-dir-col"
+          onSubmit={formik.handleSubmit}
         >
-          {({
-            values,
-            errors,
-            touched,
-            handleBlur,
-            handleChange,
-            handleSubmit,
-            isSubmitting,
-          }) => (
-            <>
-              <form
-                className="form p-grid p-dir-col"
-                onSubmit={handleSubmit}
-              >
-                <hgroup className="heading p-col-11 p-col-align-center">
-                  <h1 className="title">Inicia sesión en Pale</h1>
-                  <h2 className="subtitle">Ingrese sus datos a continuación</h2>
-                </hgroup>
-                <FormField
-                  className="p-col-11 p-col-align-center"
-                  disabled={isSubmitting}
-                  errors={errors.email && touched.email}
-                  errorMessage={errors.email}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
-                  keyfilter="email"
-                  label="Correo electronico"
-                  name="email"
-                  type="email"
-                  value={values.email}
+          <hgroup className="heading p-col-11 p-col-align-center">
+            <h1 className="title">Inicia sesión en Pale</h1>
+            <h2 className="subtitle">Ingrese sus datos a continuación</h2>
+          </hgroup>
+          <FormField
+            className="p-col-11 p-col-align-center"
+            disabled={formik.isSubmitting}
+            errors={formik.errors.email && formik.touched.email}
+            errorMessage={formik.errors.email}
+            handleBlur={formik.handleBlur}
+            handleChange={formik.handleChange}
+            keyfilter="email"
+            label="Correo electronico"
+            name="email"
+            type="email"
+            value={formik.values.email}
+          />
+          <FormField
+            className="p-col-11 p-col-align-center"
+            disabled={formik.isSubmitting}
+            errors={formik.errors.password && formik.touched.password}
+            errorMessage={formik.errors.password}
+            handleBlur={formik.handleBlur}
+            handleChange={formik.handleChange}
+            label="Contraseña"
+            name="password"
+            type="password"
+            value={formik.values.password}
+          />
+          <div className="p-col-6 p-xl-4 p-col-align-center">
+            <Button
+              label="Iniciar sesión"
+              className="button p-button-rounded"
+              type="submit"
+              disabled={formik.isSubmitting}
+            />
+          </div>
+          {
+            formik.isSubmitting && (
+              <div className="mb-15 p-col-align-center">
+                <ProgressSpinner
+                  strokeWidth="6"
+                  style={{
+                    width: '2rem',
+                    height: '2rem',
+                  }}
                 />
-                <FormField
-                  className="p-col-11 p-col-align-center"
-                  disabled={isSubmitting}
-                  errors={errors.password && touched.password}
-                  errorMessage={errors.password}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
-                  label="Contraseña"
-                  name="password"
-                  type="password"
-                  value={values.password}
-                />
-                <div className="p-col-6 p-xl-4 p-col-align-center">
-                  <Button
-                    label="Iniciar sesión"
-                    className="button p-button-rounded"
-                    type="submit"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                {
-                  isSubmitting && (
-                    <div className="mb-15 p-col-align-center">
-                      <ProgressSpinner
-                        strokeWidth="6"
-                        style={{
-                          width: '2rem',
-                          height: '2rem',
-                        }}
-                      />
-                    </div>
-                  )
-                }
-                <Link className="text--center p-col-align-center" to="/request-reset" style={{ pointerEvents: isSubmitting && 'none' }}>¿olvidaste tu contraseña?</Link>
-                <div className="p-col-11 p-col-align-center">
-                  {renderMessages()}
-                </div>
-                <hr className="mb-15" style={{ width: '100%' }} />
-                <div className="p-grid p-dir-col">
-                  <small className="text--center p-col-align-center">¿no tienes cuenta?</small>
-                  <div className="p-col-6 p-xl-4 p-col-align-center">
-                    <Button
-                      className="p-button-secondary p-button-rounded button"
-                      disabled={isSubmitting}
-                      label="Regístrate"
-                      onClick={CreateAccount}
-                      type="button"
-                    />
-                  </div>
-                </div>
-              </form>
-            </>
-          )}
-        </Formik>
+              </div>
+            )
+          }
+          <Link className="text--center p-col-align-center" to="/request-reset" style={{ pointerEvents: formik.isSubmitting && 'none' }}>¿olvidaste tu contraseña?</Link>
+          <div className="p-col-11 p-col-align-center">
+            {renderMessages()}
+          </div>
+          <hr className="mb-15" style={{ width: '100%' }} />
+          <div className="p-grid p-dir-col">
+            <small className="text--center p-col-align-center">¿no tienes cuenta?</small>
+            <div className="p-col-6 p-xl-4 p-col-align-center">
+              <Button
+                className="p-button-secondary p-button-rounded button"
+                disabled={formik.isSubmitting}
+                label="Regístrate"
+                onClick={CreateAccount}
+                type="button"
+              />
+            </div>
+          </div>
+        </form>
       </div>
     </>
   );
