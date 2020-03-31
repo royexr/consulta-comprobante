@@ -1,14 +1,17 @@
 // Dependencies
 import React from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
+import jwt from 'jsonwebtoken';
 
 // Resources
 import { Menu } from 'primereact/menu';
-import ConfigRoutes from '../../../routes/ConfigRoutes';
+import ConfigurationRoutes from '../../../routes/Configuration';
+import config from '../../../config';
 
 const Configuration = () => {
   const { url } = useRouteMatch();
   const history = useHistory();
+  const { type } = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
 
   const items = [
     {
@@ -16,12 +19,26 @@ const Configuration = () => {
       icon: 'pi pi-fw pi-id-card',
       command: () => { history.push(`${url}/profile`); },
     },
-    {
-      label: 'Empresas',
-      icon: 'pi pi-fw pi-briefcase',
-      command: () => { history.push(`${url}/companies`); },
-    },
   ];
+
+  switch (type) {
+    case 1:
+      items.push({
+        label: 'Empresas',
+        icon: 'pi pi-fw pi-briefcase',
+        command: () => { history.push(`${url}/companies`); },
+      });
+      break;
+    case 2:
+      items.push({
+        label: 'Usuarios',
+        icon: 'pi pi-fw pi-users',
+        command: () => { history.push(`${url}/users`); },
+      });
+      break;
+    default:
+      break;
+  }
 
   return (
     <>
@@ -37,7 +54,7 @@ const Configuration = () => {
             />
           </aside>
           <section className="p-col-11 p-lg-9 p-xl-10">
-            <ConfigRoutes />
+            <ConfigurationRoutes />
           </section>
         </div>
       </div>

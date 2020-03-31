@@ -1,18 +1,19 @@
 // Dependencies
 import React, { useContext } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 // Resources
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import styles from './styles.module.css';
 import { AuthContext } from '../../../contexts/Auth';
 import { ScreenContext } from '../../../contexts/Screen';
+import MenuLink from './MenuLink';
+import styles from './styles.module.css';
 
 const MenuList = ({
-  isCollapsed,
+  collapseMenu,
 }) => {
   const {
     companies,
@@ -21,7 +22,6 @@ const MenuList = ({
     signOut,
   } = useContext(AuthContext);
   const { isMS } = useContext(ScreenContext);
-
   const history = useHistory();
 
   const handleSignOut = () => {
@@ -32,12 +32,8 @@ const MenuList = ({
 
   return (
     <div className={classNames(
-      'p-col-align-center',
-      [`p-col-${isMS ? '12' : '8'}`],
+      'p-col-12 p-lg-9',
       [styles.header__menu],
-      {
-        [styles['header__menu--show']]: isCollapsed,
-      },
     )}
     >
       <ul className={classNames(
@@ -49,43 +45,50 @@ const MenuList = ({
         {
           companies.length > 0 && (
             <>
-              <li
-                className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-              >
-                <Link to="/sales">Ventas</Link>
-              </li>
-              <li
-                className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-              >
-                <Link to="/purchases">Compras</Link>
-              </li>
+              <MenuLink
+                exact
+                label="Inicio"
+                onClick={collapseMenu}
+                to="/dashboard"
+              />
+              <MenuLink
+                exact
+                label="Ventas"
+                onClick={collapseMenu}
+                to="/sales"
+              />
+              <MenuLink
+                exact
+                label="Compras"
+                onClick={collapseMenu}
+                to="/purchases"
+              />
             </>
           )
         }
-        <li
-          className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-        >
-          <Link to="/configuration">Configuración</Link>
-        </li>
+        <MenuLink
+          label="Configuración"
+          onClick={collapseMenu}
+          to="/configuration"
+        />
         {
           companies.length > 0 && (
-          <li
-            className={classNames({ 'p-col-10 p-sm-8 p-md-6': isMS })}
-          >
+          <MenuLink>
             <Dropdown
               disabled={companies.length < 2}
               name="company"
-              onChange={(e) => { changeCompany(e.value); }}
+              onChange={(e) => {
+                collapseMenu();
+                changeCompany(e.value);
+              }}
               options={companies}
               style={{ display: 'block' }}
               value={currentCompany}
             />
-          </li>
+          </MenuLink>
           )
         }
-        <li
-          className={classNames({ 'p-col-8 p-sm-6 p-md-4': isMS })}
-        >
+        <MenuLink>
           <Button
             className="button p-button-rounded"
             icon="pi pi-power-off"
@@ -93,14 +96,14 @@ const MenuList = ({
             onClick={() => handleSignOut()}
             type="button"
           />
-        </li>
+        </MenuLink>
       </ul>
     </div>
   );
 };
 
 MenuList.propTypes = {
-  isCollapsed: PropTypes.bool.isRequired,
+  collapseMenu: PropTypes.func.isRequired,
 };
 
 export default MenuList;

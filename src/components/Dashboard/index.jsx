@@ -15,18 +15,21 @@ const Dashboard = ({ currentCompany }) => {
   const fetchData = async (cc) => {
     if (cc !== undefined && cc.length > 0) {
       const report = (await api.Voucher.ReadReport(cc)).data;
-      const sales = []; const purchases = [];
-      for (let i = 0; i < report.length; i += 1) {
-        const e = report[i];
-        sales.push(e.sales);
-        purchases.push(e.purchases);
+      const sales = []; const purchases = []; const rLabels = [];
+      for (let i = 0; i < 12; i += 1) {
+        const aux = report.filter((ri) => new Date(ri.date).getMonth() === i);
+        if (aux.length === 1) {
+          sales.push(aux[0].sales);
+          purchases.push(aux[0].purchases);
+        } else {
+          sales.push(0);
+          purchases.push(0);
+        }
+        rLabels.push(`${months[i]} - ${new Date(Date.now()).getFullYear()}`);
       }
-      const rLabels = report.map((item) => (
-        `${months[item._id.month - 1]} - ${item._id.year}`
-      ));
-      setLabels(rLabels.reverse());
-      setSalesT(sales.reverse());
-      setPurchasesT(purchases.reverse());
+      setLabels(rLabels);
+      setSalesT(sales);
+      setPurchasesT(purchases);
     }
   };
 
@@ -60,7 +63,7 @@ const Dashboard = ({ currentCompany }) => {
       <div className="jumbotron p-col-12">
         <div className="p-grid p-dir-col">
           <hgroup className="heading p-col-12 p-col-align-center">
-            <h1 className="title title--centered">Escritorio</h1>
+            <h1 className="title text--center">Escritorio</h1>
           </hgroup>
           <div className="chart p-col-12 p-lg-10 p-col-align-center">
             <Chart type="line" data={lineStylesData} />

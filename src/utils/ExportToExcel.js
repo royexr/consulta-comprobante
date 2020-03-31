@@ -24,7 +24,6 @@ async function exportDetailed(bookCode, companyCode, query) {
 }
 
 async function exportResume(bookCode, companyCode, query) {
-  console.log(query);
   const { data } = await api.Voucher.GetResumedReport(query);
   const date = new Date(Date.now());
   const auxBuffer = Buffer.from(data);

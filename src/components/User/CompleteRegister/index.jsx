@@ -1,7 +1,7 @@
 // Dependencies
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
-// import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 
 // Resources
 import { Button } from 'primereact/button';
@@ -12,23 +12,26 @@ import api from '../../../utils/api';
 import styles from './styles.module.css';
 
 const CompleteRegister = () => {
-  // const location = useLocation();
+  const history = useHistory();
+  const location = useLocation();
+  const urlParams = new window.URLSearchParams(location.search);
   const [isVerified, setIsVerified] = useState(false);
   const [showMessages, renderMessages] = useMessages();
-  // const urlParams = new window.URLSearchParams(location.search);
 
-  const fieldsValidation = (values) => {
+  const validate = (values) => {
     const errors = {};
     if (!values.businessNumber) {
       errors.businessNumber = 'Campo obligatorio';
     }
-    if (!values.password) {
-      errors.password = 'Campo obligatorio';
+    if (!values.docNumber) {
+      errors.docNumber = 'Campo obligatorio';
+    } else if (!(values.docNumber.length === 8)) {
+      errors.docNumber = 'Número de documento invalido';
     }
-    if (!values.confirmPassword) {
-      errors.confirmPassword = 'Campo obligatorio';
-    } else if (values.password !== values.confirmPassword) {
-      errors.confirmPassword = 'Las contraseñas no son iguales';
+    if (!values.cellphone) {
+      errors.cellphone = 'Campo obligatorio';
+    } else if (!values.cellphone.startsWith('9') || !(values.cellphone.length === 9)) {
+      errors.cellphone = 'Numero de celular invalido';
     }
     return errors;
   };
@@ -50,69 +53,117 @@ const CompleteRegister = () => {
     setSubmitting(false);
   };
 
-  const formik = useFormik({
+  const completeSignUp = async (values, actions) => {
+    const obj = { ...values };
+    obj.email = urlParams.get('email');
+    obj.code = urlParams.get('userId');
+    const res = await api.User.CreateWithCode(obj);
+    if (res instanceof TypeError) {
+      showMessages('error', 'Error!', 'No hay conexión');
+      actions.setSubmitting(false);
+    } else {
+      switch (res.message) {
+        case '01':
+          showMessages('success', 'Muy bien!', 'Se han registrado los datos correctamente');
+          setTimeout(() => {
+            history.push('/');
+            actions.setSubmitting(false);
+          }, 3000);
+          break;
+        case '02':
+          showMessages('warn', 'Alerta!', 'Este usuario ya esta registrado');
+          actions.setSubmitting(false);
+          break;
+        case '03':
+          showMessages('error', 'Error!', 'Tu codigo de registro expiro');
+          actions.setSubmitting(false);
+          break;
+        default:
+          showMessages('error', 'Error!', 'Algo ah salido mal');
+          break;
+      }
+    }
+  };
+
+  const {
+    errors,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    isSubmitting,
+    setSubmitting,
+    touched,
+    values,
+  } = useFormik({
     initialValues: {
       businessNumber: '',
-      businessName: '',
-      password: '',
-      confirmPassword: '',
+      docNumber: '',
+      cellphone: '',
     },
-    validate: (values) => fieldsValidation(values),
-    onSubmit: (values) => { console.log(values); },
+    validate,
+    onSubmit: (vals, actions) => { completeSignUp(vals, actions); },
   });
 
   return (
-    <div className={`${styles.jumbotron} p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4`}>
+    <div className={`${styles.jumbotron} p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-4`}>
       <form
         className="form p-grid p-dir-col"
-        onSubmit={formik.handleSubmit}
+        onSubmit={handleSubmit}
       >
         <hgroup className="heading">
           <h1 className="title">Completar registro</h1>
         </hgroup>
+        <div className="p-col-11 p-col-align-center">
+          {renderMessages()}
+        </div>
         <FormField
           buttonCN="p-button-warning"
           className="p-col-11 p-col-align-center"
-          errors={formik.errors.businessNumber && formik.touched.businessNumber}
-          errorMessage={formik.errors.businessNumber}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
-          handleClick={() => verifyBN(formik.values.businessNumber, formik.setSubmitting)}
+          disabled={isSubmitting}
+          errors={errors.businessNumber && touched.businessNumber}
+          errorMessage={errors.businessNumber}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
+          handleClick={() => verifyBN(values.businessNumber, setSubmitting)}
           icon="pi-search"
           keyfilter="pint"
           label="RUC"
           maxLength="11"
           name="businessNumber"
           type="input-group"
-          tooltip="Haga click para buscar la empresa"
-          value={formik.values.businessNumber}
+          tooltip="Haga click para verificar el RUC de la empresa"
+          value={values.businessNumber}
         />
         <FormField
           className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.password && formik.touched.password}
-          errorMessage={formik.errors.password}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
-          label="Contraseña"
-          name="password"
-          type="password"
-          value={formik.values.password}
+          disabled={isSubmitting}
+          errors={errors.docNumber && touched.docNumber}
+          errorMessage={errors.docNumber}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
+          keyfilter="pint"
+          label="DNI"
+          maxLength="8"
+          name="docNumber"
+          type="text"
+          value={values.docNumber}
         />
         <FormField
           className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.confirmPassword && formik.touched.confirmPassword}
-          errorMessage={formik.errors.confirmPassword}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
-          label="Confirmar contraseña"
-          name="confirmPassword"
-          type="password"
-          value={formik.values.confirmPassword}
+          disabled={isSubmitting}
+          errors={errors.cellphone && touched.cellphone}
+          errorMessage={errors.cellphone}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
+          keyfilter="pint"
+          label="Celular"
+          maxLength="9"
+          name="cellphone"
+          type="text"
+          value={values.cellphone}
         />
         {
-          formik.isSubmitting && (
+          isSubmitting && (
             <div className="mb-15 p-col-align-center">
               <ProgressSpinner
                 strokeWidth="6"
@@ -127,14 +178,19 @@ const CompleteRegister = () => {
         <div className="p-col-11 p-col-align-center">
           <Button
             className="p-button-rounded button"
-            disabled={!isVerified || formik.isSubmitting}
+            disabled={!isVerified || isSubmitting}
             label="Completar registro"
             type="submit"
           />
         </div>
-        <div className="p-col-11 p-col-align-center">
-          {renderMessages()}
-        </div>
+        {
+
+          !isVerified && (
+          <span className="p-col-11 p-col-align-center text--center">
+            <small>Primero debes verificar el Ruc para registarte</small>
+          </span>
+          )
+        }
       </form>
     </div>
   );

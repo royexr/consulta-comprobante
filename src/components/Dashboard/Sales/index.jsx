@@ -1,7 +1,7 @@
 // Dependencies
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Formik } from 'formik';
+import { useFormik } from 'formik';
 
 // Resources
 import { Button } from 'primereact/button';
@@ -32,7 +32,7 @@ import {
   dateTemplate,
   dtFooterVouchers,
   stateTemplate,
-} from '../../../formikTemplates';
+} from '../../../templates';
 
 const Sales = ({ currentCompany }) => {
   const bookCode = '14';
@@ -56,7 +56,7 @@ const Sales = ({ currentCompany }) => {
   const [totalND, setTotalND] = useState(0);
   const [vouchers, setVouchers] = useState([]);
 
-  const fieldsValidation = (values) => {
+  const validate = (values) => {
     const errors = {};
     if (!values.startDate) {
       errors.startDate = 'Campo obligatorio';
@@ -109,61 +109,11 @@ const Sales = ({ currentCompany }) => {
         setVouchers([]);
       }
     } else {
-      showMessages('error', 'Error!', 'Se ah producido un error');
+      showMessages('error', 'Error!', 'Algo ah salido mal');
       setVouchers([]);
     }
     actions.setSubmitting(false);
   };
-
-  // const fetchInitialInvoices = async (bc, cc) => {
-  //   if (cc !== undefined && cc.length > 0) {
-  //     const q = createGetQuery(bc, cc, {
-  //       startDate: fd.toISOString().slice(0, 10),
-  //       endDate: ld.toISOString().slice(0, 10),
-  //     });
-  //     setQuery(q);
-  //     const vouchersR = await api.Voucher.ReadMany(q);
-  //     if (vouchersR.message === '01') {
-  //       const { data } = vouchersR;
-  //       if (data.length !== 0) {
-  //         let sumF = 0; let sumB = 0; let sumNC = 0; let sumND = 0;
-  //         for (let i = 0; i < data.length; i += 1) {
-  //           const e = data[i];
-  //           switch (e.Cod_TipoComprobante) {
-  //             case 'FE' || 'FC':
-  //               sumF += e.Total * e.TipoCambio;
-  //               break;
-  //             case 'BE' || 'BC':
-  //               sumB += e.Total * e.TipoCambio;
-  //               break;
-  //             case 'NCE' || 'NCC':
-  //               sumNC += e.Total * e.TipoCambio;
-  //               break;
-  //             case 'NDE' || 'NDC':
-  //               sumND += e.Total * e.TipoCambio;
-  //               break;
-  //             default:
-  //               break;
-  //           }
-  //         }
-  //         setTotalF(Math.round(sumF * 100) / 100);
-  //         setTotalB(Math.round(sumB * 100) / 100);
-  //         setTotalNC(Math.round(sumNC * 100) / 100);
-  //         setTotalND(Math.round(sumND * 100) / 100);
-  //         setQuantity(data.length);
-  //         setVouchers(data);
-  //       } else {
-  //         setVouchers([]);
-  //       }
-  //     } else {
-  //       setVouchers([]);
-  //     }
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchInitialInvoices(bookCode, currentCompany);
-  // }, [bookCode, currentCompany]);
 
   // Concept: Datatable functions
   const [showPdfDialog, setShowPdfDialog] = useState(false);
@@ -243,131 +193,126 @@ const Sales = ({ currentCompany }) => {
     setPdfSource('');
   };
 
+  const {
+    values,
+    errors,
+    touched,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    isSubmitting,
+  } = useFormik({
+    initialValues: {
+      voucherType: '',
+      clientDoc: '',
+      seriesNumbers: '',
+      startDate: fd.toISOString().slice(0, 10),
+      endDate: ld.toISOString().slice(0, 10),
+    },
+    validate,
+    onSubmit: (vals, actions) => { onSubmit(vals, actions); },
+  });
+
   return (
     <>
       <div className="p-col-11">
-        <Formik
-          initialValues={{
-            voucherType: '',
-            clientDoc: '',
-            seriesNumbers: '',
-            startDate: fd.toISOString().slice(0, 10),
-            endDate: ld.toISOString().slice(0, 10),
-          }}
-          validate={(values) => fieldsValidation(values)}
-          onSubmit={(values, actions) => { onSubmit(values, actions); }}
+        <form
+          className="form form--filter p-grid p-justify-center"
+          onSubmit={handleSubmit}
         >
+          <hgroup className="heading p-col-12 p-col-align-center">
+            <h1 className="title">VENTAS</h1>
+          </hgroup>
+          <div className="p-col-12 p-col-align-center">
+            {renderMessages()}
+          </div>
+          <div className="p-col-12 p-md-10 p-lg-10 p-col-align-center">
+            <div className="p-grid">
+              <FormField
+                className="p-col-12 p-sm-6 p-md-5 p-col-align-center"
+                disabled={isSubmitting || globalLoading}
+                handleChange={handleChange}
+                label="Tipo de comprobante"
+                name="voucherType"
+                options={voucherTypes}
+                type="select"
+                value={values.voucherType}
+              />
+              <FormField
+                className="p-col-12 p-sm-6 p-md-7 p-col-align-center"
+                disabled={isSubmitting || globalLoading}
+                filter
+                filterBy="value, label"
+                handleChange={handleChange}
+                label="Empresa"
+                name="clientDoc"
+                options={entities}
+                type="select"
+                value={values.clientDoc}
+              />
+              <FormField
+                className="p-col-12 p-sm-4 p-col-align-center"
+                disabled={isSubmitting || globalLoading}
+                filter
+                filterBy="value, label"
+                handleChange={handleChange}
+                label="Serie - Número"
+                name="seriesNumbers"
+                options={seriesNumbers}
+                type="select"
+                value={values.seriesNumbers}
+              />
+              <FormField
+                className="p-col-12 p-sm-4 p-col-align-center"
+                disabled={isSubmitting || globalLoading}
+                errors={errors.startDate && touched.startDate}
+                errorMessage={errors.startDate}
+                handleBlur={handleBlur}
+                handleChange={handleChange}
+                label="Fecha inicial"
+                name="startDate"
+                type="date"
+                value={values.startDate}
+              />
+              <FormField
+                className="p-col-12 p-sm-4 p-col-align-center"
+                disabled={isSubmitting || globalLoading}
+                errors={errors.endDate && touched.endDate}
+                errorMessage={errors.endDate}
+                handleBlur={handleBlur}
+                handleChange={handleChange}
+                label="Fecha final"
+                name="endDate"
+                type="date"
+                value={values.endDate}
+              />
+            </div>
+          </div>
+          <div className="p-col-12 p-sm-4 p-md-2 p-col-align-center">
+            <Button
+              className="p-button-rounded button button--blue button--small"
+              label="Filtrar"
+              disabled={isSubmitting || globalLoading}
+              type="submit"
+            />
+          </div>
           {
-            ({
-              values,
-              errors,
-              touched,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              isSubmitting,
-            }) => (
-              <>
-                <form
-                  className="form form--filter p-grid p-justify-center"
-                  onSubmit={handleSubmit}
-                >
-                  <hgroup className="heading p-col-12 p-col-align-center">
-                    <h1 className="title">VENTAS</h1>
-                  </hgroup>
-                  <div className="p-col-12 p-md-10 p-lg-10 p-col-align-center">
-                    <div className="p-grid">
-                      <FormField
-                        className="p-col-12 p-sm-6 p-md-5 p-col-align-center"
-                        disabled={isSubmitting || globalLoading}
-                        handleChange={handleChange}
-                        label="Tipo de comprobante"
-                        name="voucherType"
-                        options={voucherTypes}
-                        type="select"
-                        value={values.voucherType}
-                      />
-                      <FormField
-                        className="p-col-12 p-sm-6 p-md-7 p-col-align-center"
-                        disabled={isSubmitting || globalLoading}
-                        filter
-                        filterBy="value, label"
-                        handleChange={handleChange}
-                        label="Empresa"
-                        name="clientDoc"
-                        options={entities}
-                        type="select"
-                        value={values.clientDoc}
-                      />
-                      <FormField
-                        className="p-col-12 p-sm-4 p-col-align-center"
-                        disabled={isSubmitting || globalLoading}
-                        filter
-                        filterBy="value, label"
-                        handleChange={handleChange}
-                        label="Serie - Número"
-                        name="seriesNumbers"
-                        options={seriesNumbers}
-                        type="select"
-                        value={values.seriesNumbers}
-                      />
-                      <FormField
-                        className="p-col-12 p-sm-4 p-col-align-center"
-                        disabled={isSubmitting || globalLoading}
-                        errors={errors.startDate && touched.startDate}
-                        errorMessage={errors.startDate}
-                        handleBlur={handleBlur}
-                        handleChange={handleChange}
-                        label="Fecha inicial"
-                        name="startDate"
-                        type="date"
-                        value={values.startDate}
-                      />
-                      <FormField
-                        className="p-col-12 p-sm-4 p-col-align-center"
-                        disabled={isSubmitting || globalLoading}
-                        errors={errors.endDate && touched.endDate}
-                        errorMessage={errors.endDate}
-                        handleBlur={handleBlur}
-                        handleChange={handleChange}
-                        label="Fecha final"
-                        name="endDate"
-                        type="date"
-                        value={values.endDate}
-                      />
-                    </div>
-                  </div>
-                  <div className="p-col-12 p-sm-4 p-md-2 p-col-align-center">
-                    <Button
-                      className="p-button-rounded button button--blue button--small"
-                      label="Filtrar"
-                      disabled={isSubmitting || globalLoading}
-                      type="submit"
-                    />
-                  </div>
-                  {
-                    isSubmitting && (
-                      <div className="mb-15 p-col-align-center">
-                        <ProgressSpinner
-                          strokeWidth="6"
-                          style={{
-                            width: '2rem',
-                            height: '2rem',
-                          }}
-                        />
-                      </div>
-                    )
-                  }
-                  <div className="p-col-12 p-col-align-center">
-                    {renderMessages()}
-                  </div>
-                </form>
-              </>
+            isSubmitting && (
+              <div className="mb-15 p-col-align-center">
+                <ProgressSpinner
+                  strokeWidth="6"
+                  style={{
+                    width: '2rem',
+                    height: '2rem',
+                  }}
+                />
+              </div>
             )
           }
-        </Formik>
+        </form>
       </div>
       <Dialog
+        blockScroll
         className="p-col-11"
         header="PDF"
         visible={showPdfDialog}
@@ -441,6 +386,7 @@ const Sales = ({ currentCompany }) => {
                 icon="pi pi-file-excel"
                 label="Exportar a Excel"
                 model={items}
+                tooltip="El tiempo para generar el reporte dependera de la cantidad de comprobantes"
               />
             </div>
           </>

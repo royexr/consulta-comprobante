@@ -380,7 +380,10 @@ FormField.propTypes = {
   suggestions: PropTypes.arrayOf(PropTypes.string),
   type: PropTypes.string,
   tooltip: PropTypes.string,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
 };
 
 export default FormField;

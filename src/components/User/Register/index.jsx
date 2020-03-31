@@ -2,7 +2,7 @@
 import React from 'react';
 import { useFormik } from 'formik';
 import { useHistory } from 'react-router-dom';
-// import CryptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js';
 
 // Resources
 import { Button } from 'primereact/button';
@@ -23,26 +23,28 @@ const Register = () => {
 
   const register = async (values, actions) => {
     const userInfo = { ...values };
-    const emailRes = await api.User.GetById(values.email);
-    if (emailRes instanceof TypeError) {
+    const userRes = await api.User.GetById(values.email);
+    if (userRes instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexion');
       actions.setSubmitting(false);
-    } else if (emailRes.message === '02') {
-      // delete userInfo.confirmPassword;
-      // userInfo.password = CryptoJS.AES.encrypt(userInfo.password, userInfo.email).toString();
-      const res = await api.User.Create(userInfo);
-      switch (res.message) {
+    } else if (userRes.message === '02') {
+      delete userInfo.confirmPassword;
+      userInfo.password = CryptoJS.AES.encrypt(userInfo.password, userInfo.email).toString();
+      const { message } = await api.UserCode.Create(userInfo);
+      switch (message) {
         case '01':
-        case '02':
-        case '03':
           showMessages('success', 'Muy bien!', 'Te enviaremos un mensaje para continuar con tu registro');
           setTimeout(() => {
             actions.setSubmitting(false);
             history.push('/');
           }, 3000);
           break;
+        case '02':
+          showMessages('warn', 'Alerta!', 'El correo electronico ya se registro, revise su bandeja de entrada');
+          actions.setSubmitting(false);
+          break;
         default:
-          showMessages('error', 'Error!', 'Se ah producido un error');
+          showMessages('error', 'Error!', 'Algo ah salido mal');
           actions.setSubmitting(false);
           break;
       }
@@ -52,7 +54,7 @@ const Register = () => {
     }
   };
 
-  const fieldsValidation = (values) => {
+  const validate = (values) => {
     const errors = {};
     if (!values.name) {
       errors.name = 'Campo obligatorio';
@@ -62,134 +64,105 @@ const Register = () => {
     } else if (!isValidEmail(values.email)) {
       errors.email = 'Correo electronico invalido';
     }
-    if (!values.docNumber) {
-      errors.docNumber = 'Campo obligatorio';
-    } else if (!(values.docNumber.length === 8)) {
-      errors.docNumber = 'Número de documento invalido';
+    if (!values.password) {
+      errors.password = 'Campo obligatorio';
     }
-    if (!values.cellphone) {
-      errors.cellphone = 'Campo obligatorio';
-    } else if (!values.cellphone.startsWith('9') || !(values.cellphone.length === 9)) {
-      errors.cellphone = 'Numero de celular invalido';
+    if (!values.confirmPassword) {
+      errors.confirmPassword = 'Campo obligatorio';
+    } else if (values.password !== values.confirmPassword) {
+      errors.confirmPassword = 'Las contraseñas no son iguales';
     }
-    // if (!values.password) {
-    //   errors.password = 'Campo obligatorio';
-    // }
-    // if (!values.confirmPassword) {
-    //   errors.confirmPassword = 'Campo obligatorio';
-    // } else if (values.password !== values.confirmPassword) {
-    //   errors.confirmPassword = 'Las contraseñas no son iguales';
-    // }
 
     return errors;
   };
 
-  const formik = useFormik({
+  const {
+    values,
+    errors,
+    touched,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    isSubmitting,
+  } = useFormik({
     initialValues: {
       name: '',
       email: '',
-      docNumber: '',
-      cellphone: '',
-      // password: '',
-      // confirmPassword: '',
+      password: '',
+      confirmPassword: '',
     },
-    validate: (values) => fieldsValidation(values),
-    onSubmit: (values, actions) => { register(values, actions); },
+    validate,
+    onSubmit: (vals, actions) => { register(vals, actions); },
   });
 
   return (
-    <div className={`${styles.jumbotron} p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4`}>
+    <div className={`${styles.jumbotron} p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-4`}>
       <form
         className="form p-grid p-dir-col"
-        onSubmit={formik.handleSubmit}
+        onSubmit={handleSubmit}
       >
         <hgroup className="heading p-col-11 p-col-align-center">
           <h1 className="title">Solicitud</h1>
           <h2 className="subtitle">Ingresa tus datos personales y nos contactaremos contigo</h2>
         </hgroup>
+        <div className="p-col-11 p-col-align-center">
+          {renderMessages()}
+        </div>
         <FormField
           className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.name && formik.touched.name}
-          errorMessage={formik.errors.name}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
+          disabled={isSubmitting}
+          errors={errors.name && touched.name}
+          errorMessage={errors.name}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
           label="Nombre completo"
           name="name"
           type="text"
-          value={formik.values.name}
+          value={values.name}
         />
         <FormField
           className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.email && formik.touched.email}
-          errorMessage={formik.errors.email}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
+          disabled={isSubmitting}
+          errors={errors.email && touched.email}
+          errorMessage={errors.email}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
           keyfilter="email"
           label="Correo electronico"
           name="email"
           type="email"
-          value={formik.values.email}
+          value={values.email}
         />
         <FormField
           className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.docNumber && formik.touched.docNumber}
-          errorMessage={formik.errors.docNumber}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
-          keyfilter="pint"
-          label="DNI"
-          maxLength="8"
-          name="docNumber"
-          type="text"
-          value={formik.values.docNumber}
-        />
-        <FormField
-          className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.cellphone && formik.touched.cellphone}
-          errorMessage={formik.errors.cellphone}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
-          keyfilter="pint"
-          label="Celular"
-          maxLength="9"
-          name="cellphone"
-          type="text"
-          value={formik.values.cellphone}
-        />
-        {/* <FormField
-          className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.password && formik.touched.password}
-          errorMessage={formik.errors.password}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
+          disabled={isSubmitting}
+          errors={errors.password && touched.password}
+          errorMessage={errors.password}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
           label="Contraseña"
           name="password"
           type="password"
-          value={formik.values.password}
+          value={values.password}
         />
         <FormField
           className="p-col-11 p-col-align-center"
-          disabled={formik.isSubmitting}
-          errors={formik.errors.confirmPassword && formik.touched.confirmPassword}
-          errorMessage={formik.errors.confirmPassword}
-          handleBlur={formik.handleBlur}
-          handleChange={formik.handleChange}
+          disabled={isSubmitting}
+          errors={errors.confirmPassword && touched.confirmPassword}
+          errorMessage={errors.confirmPassword}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
           label="Confirmar contraseña"
           name="confirmPassword"
           type="password"
-          value={formik.values.confirmPassword}
-        /> */}
+          value={values.confirmPassword}
+        />
         <div className="p-col-11 p-col-align-center">
           <div className="p-grid p-justify-between">
             <div className="p-col-6 p-xl-5">
               <Button
                 className="button p-button-rounded p-button-danger"
-                disabled={formik.isSubmitting}
+                disabled={isSubmitting}
                 label="Atras"
                 onClick={leave}
                 type="button"
@@ -198,7 +171,7 @@ const Register = () => {
             <div className="p-col-6 p-xl-5">
               <Button
                 className="button p-button-rounded"
-                disabled={formik.isSubmitting}
+                disabled={isSubmitting}
                 label="Registrar"
                 type="submit"
               />
@@ -206,7 +179,7 @@ const Register = () => {
           </div>
         </div>
         {
-          formik.isSubmitting && (
+          isSubmitting && (
             <div className="mb-15 p-col-align-center">
               <ProgressSpinner
                 strokeWidth="6"
@@ -218,9 +191,6 @@ const Register = () => {
             </div>
           )
         }
-        <div className="p-col-12 p-col-align-center">
-          {renderMessages()}
-        </div>
       </form>
     </div>
   );

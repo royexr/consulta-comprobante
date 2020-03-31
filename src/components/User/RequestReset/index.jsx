@@ -1,20 +1,20 @@
 // Dependencies
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { Formik } from 'formik';
+import { useFormik } from 'formik';
 
 // Resources
 import { Button } from 'primereact/button';
-import { Messages } from 'primereact/messages';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { isValidEmail } from '../../../utils';
+import { useMessages } from '../../../hooks';
 import FormField from '../../../sharedcomponents/FormField';
 import styles from './styles.module.css';
-import { isValidEmail } from '../../../utils';
 import api from '../../../utils/api';
 
 const RequestResetPassword = () => {
   const history = useHistory();
-  const [messages, setMessages] = useState(new Messages());
+  const [showMessages, renderMessages] = useMessages();
 
   const fieldsValidation = (values) => {
     const errors = {};
@@ -26,98 +26,80 @@ const RequestResetPassword = () => {
     return errors;
   };
 
-  const showMessage = (severity, summary, detail) => {
-    messages.show({ severity, summary, detail });
-  };
-
   const RequestReset = async (values, actions) => {
     const res = await api.User.RequestReset({ email: values.email });
     switch (res.message) {
       case '01':
       case '02':
       case '03':
-        showMessage('success', 'Muy bien!', 'Si tienes una cuenta, te enviaremos un enlace de restablecimiento');
+        showMessages('success', 'Muy bien!', 'Si tienes una cuenta, te enviaremos un enlace de restablecimiento');
         setTimeout(() => {
           actions.setSubmitting(false);
           history.push('/');
         }, 3000);
         break;
       default:
-        showMessage('error', 'Error!', 'Se ah producido un error');
+        showMessages('error', 'Error!', 'Algo ah salido mal');
         actions.setSubmitting(false);
         break;
     }
   };
 
+  const formik = useFormik({
+    initialValues: { email: '' },
+    validate: (values) => fieldsValidation(values),
+    onSubmit: (values, actions) => { RequestReset(values, actions); },
+  });
+
   return (
     <>
-      <div className={`${styles.jumbotron} p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4`}>
-        <Formik
-          initialValues={{ email: '' }}
-          validate={(values) => fieldsValidation(values)}
-          onSubmit={(values, actions) => {
-            RequestReset(values, actions);
-          }}
+      <div className={`${styles.jumbotron} p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-4`}>
+        <form
+          className="form p-grid p-dir-col"
+          onSubmit={formik.handleSubmit}
         >
+          <hgroup className="heading p-col-11 p-col-align-center">
+            <h1 className="title">¿Olvidaste tu contraseña?</h1>
+            <h2 className="subtitle">Le ayudaremos a restablecerlo</h2>
+          </hgroup>
+          <div className="p-col-11 p-col-align-center">
+            {renderMessages()}
+          </div>
+          <FormField
+            className="p-col-11 p-col-align-center"
+            disabled={formik.isSubmitting}
+            errors={formik.errors.email && formik.touched.email}
+            errorMessage={formik.errors.email}
+            handleBlur={formik.handleBlur}
+            handleChange={formik.handleChange}
+            keyfilter="email"
+            label="Correo electronico"
+            name="email"
+            type="email"
+            value={formik.values.email}
+          />
+          <div className="p-col-8 p-xl-6 p-col-align-center">
+            <Button
+              label="Restablecer contraseña"
+              className="button p-button-rounded"
+              type="submit"
+              disabled={formik.isSubmitting}
+            />
+          </div>
           {
-            ({
-              values,
-              errors,
-              touched,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              isSubmitting,
-            }) => (
-              <form
-                className="form p-grid p-dir-col p-nogutter"
-                onSubmit={handleSubmit}
-              >
-                <hgroup className="heading p-col-11 p-col-align-center">
-                  <h1 className="title">¿Olvidaste tu contraseña?</h1>
-                  <h2 className="subtitle">Le ayudaremos a restablecerlo</h2>
-                </hgroup>
-                <FormField
-                  className="mb-15 p-col-11 p-col-align-center"
-                  disabled={isSubmitting}
-                  errors={errors.email && touched.email}
-                  errorMessage={errors.email}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
-                  keyfilter="email"
-                  label="Correo electronico"
-                  name="email"
-                  type="email"
-                  value={values.email}
+            formik.isSubmitting && (
+              <div className="p-col-align-center">
+                <ProgressSpinner
+                  strokeWidth="6"
+                  style={{
+                    width: '2rem',
+                    height: '2rem',
+                  }}
                 />
-                <div className="mb-15 p-col-8 p-xl-6 p-col-align-center">
-                  <Button
-                    label="Restablecer contraseña"
-                    className="button p-button-rounded"
-                    type="submit"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                {
-                  isSubmitting && (
-                    <div className="mb-15 p-col-align-center">
-                      <ProgressSpinner
-                        strokeWidth="6"
-                        style={{
-                          width: '2rem',
-                          height: '2rem',
-                        }}
-                      />
-                    </div>
-                  )
-                }
-                <div className="p-col-11 p-col-align-center">
-                  <Messages ref={(el) => { setMessages(el); }} />
-                </div>
-              </form>
+              </div>
             )
           }
-        </Formik>
+        </form>
       </div>
     </>
   );

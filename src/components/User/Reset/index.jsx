@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import CryptoJS from 'crypto-js';
 import { useLocation, useHistory } from 'react-router-dom';
-import { Formik } from 'formik';
+import { useFormik } from 'formik';
 
 // Resources
 import { Button } from 'primereact/button';
@@ -57,83 +57,74 @@ const ResetPassword = () => {
     }
   };
 
+  const formik = useFormik({
+    initialValues: {
+      password: '',
+      confirmPassword: '',
+    },
+    validate: (values) => fieldsValidation(values),
+    onSubmit: (values, actions) => { Reset(values, actions); },
+  });
+
   return (
     <>
       <div className="p-col-11 p-sm-10 p-md-8 p-lg-6 p-xl-4">
-        <Formik
-          initialValues={{ password: '', confirmPassword: '' }}
-          validate={(values) => fieldsValidation(values)}
-          onSubmit={(values, actions) => { Reset(values, actions); }}
+        <form
+          className="form p-grid p-dir-col p-nogutter"
+          onSubmit={formik.handleSubmit}
         >
+          <hgroup className="heading p-col-11 p-col-align-center">
+            <h1 className="title">Por favor, ingresa tu nueva contraseña</h1>
+          </hgroup>
+          <FormField
+            className="mb-15 p-col-11 p-col-align-center"
+            disabled={formik.isSubmitting}
+            errors={formik.errors.password && formik.touched.password}
+            errorMessage={formik.errors.password}
+            handleBlur={formik.handleBlur}
+            handleChange={formik.handleChange}
+            label="Contraseña"
+            name="password"
+            type="password"
+            value={formik.values.password}
+          />
+          <FormField
+            className="mb-15 p-col-11 p-col-align-center"
+            disabled={formik.isSubmitting}
+            errors={formik.errors.confirmPassword && formik.touched.confirmPassword}
+            errorMessage={formik.errors.confirmPassword}
+            handleBlur={formik.handleBlur}
+            handleChange={formik.handleChange}
+            label="Confirmar contraseña"
+            name="confirmPassword"
+            type="password"
+            value={formik.values.confirmPassword}
+          />
+          <div className="mb-15 p-col-10 p-xl-6 p-col-align-center">
+            <Button
+              label="Establecer nueva contraseña"
+              className="button p-button-rounded"
+              type="submit"
+              disabled={formik.isSubmitting}
+            />
+          </div>
           {
-            ({
-              values,
-              errors,
-              touched,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              isSubmitting,
-            }) => (
-              <form
-                className="form p-grid p-dir-col p-nogutter"
-                onSubmit={handleSubmit}
-              >
-                <hgroup className="heading p-col-11 p-col-align-center">
-                  <h1 className="title">Por favor, ingresa tu nueva contraseña</h1>
-                </hgroup>
-                <FormField
-                  className="mb-15 p-col-11 p-col-align-center"
-                  disabled={isSubmitting}
-                  errors={errors.password && touched.password}
-                  errorMessage={errors.password}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
-                  label="Contraseña"
-                  name="password"
-                  type="password"
-                  value={values.password}
+            formik.isSubmitting && (
+              <div className="mb-15 p-col-align-center">
+                <ProgressSpinner
+                  strokeWidth="6"
+                  style={{
+                    width: '2rem',
+                    height: '2rem',
+                  }}
                 />
-                <FormField
-                  className="mb-15 p-col-11 p-col-align-center"
-                  disabled={isSubmitting}
-                  errors={errors.confirmPassword && touched.confirmPassword}
-                  errorMessage={errors.confirmPassword}
-                  handleBlur={handleBlur}
-                  handleChange={handleChange}
-                  label="Confirmar contraseña"
-                  name="confirmPassword"
-                  type="password"
-                  value={values.confirmPassword}
-                />
-                <div className="mb-15 p-col-10 p-xl-6 p-col-align-center">
-                  <Button
-                    label="Establecer nueva contraseña"
-                    className="button p-button-rounded"
-                    type="submit"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                {
-                  isSubmitting && (
-                    <div className="mb-15 p-col-align-center">
-                      <ProgressSpinner
-                        strokeWidth="6"
-                        style={{
-                          width: '2rem',
-                          height: '2rem',
-                        }}
-                      />
-                    </div>
-                  )
-                }
-                <div className="p-col-11 p-col-align-center">
-                  <Messages ref={(el) => { setMessages(el); }} />
-                </div>
-              </form>
+              </div>
             )
           }
-        </Formik>
+          <div className="p-col-11 p-col-align-center">
+            <Messages ref={(el) => { setMessages(el); }} />
+          </div>
+        </form>
       </div>
     </>
   );

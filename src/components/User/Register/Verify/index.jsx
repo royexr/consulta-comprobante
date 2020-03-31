@@ -33,14 +33,14 @@ const Verify = ({ data, previousStep, register }) => {
       setWasSended(false);
     }, 1000 * 60 * 5);
     const email = { email: values.email };
-    const res = await api.User.SendMail(email);
-    if (res instanceof TypeError) {
-      showMessage('error', 'Error!', 'No hay conexion');
-    } else if (res.message === '01' || res.message === '02') {
-      setExpirationDate(new Date(res.data.expirationDate));
-    } else {
-      showMessage('error', 'Error!', 'no se pudo enviar el correo');
-    }
+    // const res = await api.User.SendMail(email);
+    // if (res instanceof TypeError) {
+    //   showMessage('error', 'Error!', 'No hay conexion');
+    // } else if (res.message === '01' || res.message === '02') {
+    //   setExpirationDate(new Date(res.data.expirationDate));
+    // } else {
+    //   showMessage('error', 'Error!', 'no se pudo enviar el correo');
+    // }
   };
 
   const verifyCode = async (values) => {

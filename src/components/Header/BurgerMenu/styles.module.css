@@ -2,8 +2,8 @@
 .burger-menu {
   display: block;
   justify-self: end;
-  width: 3.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 2.125rem;
   position: relative;
   transition: .5s ease-in-out;
 }
@@ -13,7 +13,7 @@
   position: absolute;
   width: 100%;
   left: 0;
-  height: .3125rem;
+  height: .25rem;
   background: black;
   padding: 0;
   border-radius: 5px;
@@ -25,15 +25,15 @@
 }
 
 .burger-menu span:nth-child(2) {
-  top: 1.25rem;
+  top: 0.9375rem;
 }
 
 .burger-menu span:nth-child(3) {
-  top: 1.25rem;
+  top: 0.9375rem;
 }
 
 .burger-menu span:nth-child(4) {
-  top: 2.5rem;
+  bottom: 0rem;
 }
 
 /* Burger menu modifiers */

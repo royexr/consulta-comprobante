@@ -6,26 +6,19 @@ import PropTypes from 'prop-types';
 // Resources
 import { AuthContext } from '../../contexts/Auth';
 
-const CustomRoute = ({
-  exact,
-  path,
-  render,
-}) => {
-  const { isAuth, currentCompany } = useContext(AuthContext);
+const AuthRoute = ({ exact, path, render }) => {
+  const { isAuth } = useContext(AuthContext);
 
   if (isAuth) {
-    if (currentCompany === '') {
-      return <h1>Usuario inhabilitado</h1>;
-    }
     return <Route exact={exact} path={path} render={render} />;
   }
   return <Redirect to="/" />;
 };
 
-CustomRoute.propTypes = {
+AuthRoute.propTypes = {
   exact: PropTypes.bool.isRequired,
   path: PropTypes.string.isRequired,
   render: PropTypes.func.isRequired,
 };
 
-export default CustomRoute;
+export default AuthRoute;

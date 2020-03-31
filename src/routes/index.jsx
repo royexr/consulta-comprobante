@@ -18,6 +18,7 @@ import ResetPassword from '../components/User/Reset';
 
 import NotFound from '../components/NotFound';
 import Header from '../components/Header';
+import AuthRoute from './AuthRoute';
 import CustomRoute from './CustomRoute';
 import LoginRoute from './LoginRoute';
 
@@ -26,7 +27,6 @@ import styles from './styles.module.css';
 const Routes = () => {
   const {
     isAuth,
-    companies,
     currentCompany,
     signIn,
   } = useContext(AuthContext);
@@ -39,35 +39,34 @@ const Routes = () => {
         )
       }
       <Switch>
-        <LoginRoute isAuth={isAuth} exact path="/" render={() => (<Login signIn={signIn} />)} />
+        <LoginRoute
+          exact
+          path="/"
+          render={() => (<Login signIn={signIn} />)}
+        />
         <Route exact path="/register" component={Register} />
         <Route exact path="/request-reset" component={RequestResetPassword} />
         <Route exact path="/reset" component={ResetPassword} />
         <Route exact path="/complete-register" component={CompleteRegister} />
         <CustomRoute
           exact
-          isAuth={isAuth}
-          isEnabled={companies.length > 0}
+          path="/dashboard"
+          render={() => (
+            <Dashboard currentCompany={currentCompany} />
+          )}
+        />
+        <CustomRoute
+          exact
           path="/sales"
           render={() => (<Sales currentCompany={currentCompany} />)}
         />
         <CustomRoute
           exact
-          isAuth={isAuth}
-          isEnabled={companies.length > 0}
           path="/purchases"
           render={() => (<Purchases currentCompany={currentCompany} />)}
         />
-        <CustomRoute
-          exact
-          isAuth={isAuth}
-          isEnabled={companies.length > 0}
-          path="/dashboard"
-          render={() => (<Dashboard currentCompany={currentCompany} />)}
-        />
-        <CustomRoute
+        <AuthRoute
           exact={false}
-          isAuth={isAuth}
           path="/configuration"
           render={() => (<Configuration />)}
         />
