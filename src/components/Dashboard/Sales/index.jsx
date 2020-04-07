@@ -75,7 +75,7 @@ const Sales = ({ currentCompany }) => {
     const vouchersR = await api.Voucher.ReadMany(q);
     if (vouchersR instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexion');
-    } else if (vouchersR.message === '01') {
+    } else if (vouchersR.code === '01') {
       const { data } = vouchersR;
       if (data.length !== 0) {
         let sumF = 0; let sumB = 0; let sumNC = 0; let sumND = 0;

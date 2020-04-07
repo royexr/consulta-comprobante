@@ -47,7 +47,7 @@ const Aditional = ({
       showMessage('error', 'Error!', 'Número de RUC invalido');
     } else {
       const res = await api.Company.ReadById(values.businessNumber);
-      if (res.message === '01') {
+      if (res.code === '01') {
         showMessage('success', 'Muy bien!');
         setData(objectAssign(
           {},

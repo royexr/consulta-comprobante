@@ -27,11 +27,11 @@ const Register = () => {
     if (userRes instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexion');
       actions.setSubmitting(false);
-    } else if (userRes.message === '02') {
+    } else if (userRes.code === '02') {
       delete userInfo.confirmPassword;
       userInfo.password = CryptoJS.AES.encrypt(userInfo.password, userInfo.email).toString();
-      const { message } = await api.UserCode.Create(userInfo);
-      switch (message) {
+      const { code } = await api.UserCode.Create(userInfo);
+      switch (code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Te enviaremos un mensaje para continuar con tu registro');
           setTimeout(() => {

@@ -40,7 +40,7 @@ const ResetPassword = () => {
     delete aux.confirmPassword;
     aux.password = CryptoJS.AES.encrypt(aux.password, email).toString();
     const res = await api.User.ResetPassword(aux, location.search);
-    switch (res.message) {
+    switch (res.code) {
       case '01':
         showMessage('success', 'Muy bien!', 'Se actualizaron tus datos');
         setTimeout(() => {

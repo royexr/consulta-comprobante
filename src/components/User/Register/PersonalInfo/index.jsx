@@ -52,7 +52,7 @@ const PersonalInfo = ({ data, saveValues }) => {
     const response = await api.User.GetById(values.email);
     if (response instanceof TypeError) {
       showMessage('error', 'Error!', 'No hay conexion');
-    } else if (response.message === '02') {
+    } else if (response.code === '02') {
       saveValues(values);
     } else {
       showMessage('error', 'Error!', 'El correo ya esta registrado');

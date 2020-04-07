@@ -28,7 +28,7 @@ const RequestResetPassword = () => {
 
   const RequestReset = async (values, actions) => {
     const res = await api.User.RequestReset({ email: values.email });
-    switch (res.message) {
+    switch (res.code) {
       case '01':
       case '02':
       case '03':

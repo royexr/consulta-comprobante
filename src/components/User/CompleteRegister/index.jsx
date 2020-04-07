@@ -42,7 +42,7 @@ const CompleteRegister = () => {
       setIsVerified(false);
     } else {
       const res = await api.Company.ReadById(businessNumber);
-      if (res.message === '01') {
+      if (res.code === '01') {
         showMessages('success', 'Muy bien!');
         setIsVerified(true);
       } else {
@@ -62,7 +62,7 @@ const CompleteRegister = () => {
       showMessages('error', 'Error!', 'No hay conexión');
       actions.setSubmitting(false);
     } else {
-      switch (res.message) {
+      switch (res.code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Se han registrado los datos correctamente');
           setTimeout(() => {

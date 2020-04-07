@@ -66,7 +66,7 @@ const Companies = () => {
       if (res instanceof TypeError) {
         showMessages('error', 'Error!', 'No hay conexion');
       } else {
-        switch (res.message) {
+        switch (res.code) {
           case '01':
             showMessages('success', 'Muy bien!', 'Habilitaremos el acceso a la empresa despues de verificar tus datos');
             companies.push(res.data);

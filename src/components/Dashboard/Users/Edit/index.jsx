@@ -39,7 +39,7 @@ const Edit = () => {
       showMessages('error', 'Error!', 'No hay conexión');
       actions.setSubmitting(false);
     } else {
-      switch (res.message) {
+      switch (res.code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Se ha registrado al usuario');
           setTimeout(() => {
@@ -75,7 +75,7 @@ const Edit = () => {
       showMessages('error', 'Error!', 'No hay conexion');
       actions.setSubmitting(false);
     } else {
-      switch (userRes.message) {
+      switch (userRes.code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Se actualizaron los datos');
           setTimeout(() => {

@@ -39,7 +39,7 @@ const Users = () => {
       showMessages('error', 'Error!', 'No hay conexion');
       setDeleting(false);
     } else {
-      switch (res.message) {
+      switch (res.code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Se borro el usuario');
           setUsers(users.filter((u) => u.email !== rowData.email));

@@ -63,7 +63,7 @@ const Profile = () => {
     if (userRes instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexion');
       actions.setSubmitting(false);
-    } else if (userRes.message === '01') {
+    } else if (userRes.code === '01') {
       delete userInfo.confirmPassword;
       if (userInfo.password !== '') {
         userInfo.password = CryptoJS.AES.encrypt(
@@ -73,8 +73,8 @@ const Profile = () => {
       } else {
         delete userInfo.password;
       }
-      const { message } = await api.User.UpdateUser(userInfo);
-      switch (message) {
+      const { code } = await api.User.UpdateUser(userInfo);
+      switch (code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Se actualizaron los datos');
           actions.setSubmitting(false);
