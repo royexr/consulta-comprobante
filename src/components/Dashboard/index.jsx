@@ -17,7 +17,7 @@ const Dashboard = ({ currentCompany }) => {
       const report = (await api.Voucher.ReadReport(cc)).data;
       const sales = []; const purchases = []; const rLabels = [];
       for (let i = 0; i < 12; i += 1) {
-        const aux = report.filter((ri) => new Date(ri.date).getMonth() === i);
+        const aux = report.filter((ri) => new Date(ri.date).getUTCMonth() === i);
         if (aux.length === 1) {
           sales.push(aux[0].sales);
           purchases.push(aux[0].purchases);

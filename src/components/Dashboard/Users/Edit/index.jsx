@@ -287,6 +287,10 @@ const Edit = () => {
                 label: 'Administrador',
                 value: 2,
               },
+              {
+                label: 'Super Administrador',
+                value: 3,
+              },
             ]}
             type="select"
             value={values.type}

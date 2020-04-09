@@ -1,5 +1,6 @@
 // Dependencies
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useFormik } from 'formik';
 import CryptoJS from 'crypto-js';
 import jwt from 'jsonwebtoken';
@@ -13,22 +14,22 @@ import FormField from '../../../sharedcomponents/FormField';
 import { useMessages } from '../../../hooks';
 
 const Profile = () => {
-  const { _id } = jwt.verify(
-    sessionStorage.getItem('userJWT'),
-    config.jwtSecret,
-  );
-
+  const history = useHistory();
   const [showMessages, renderMessages] = useMessages();
   const [profileData, setProfileData] = useState({});
 
-  const fetchProfile = async (email) => {
-    const { data } = await api.User.GetById(email);
+  const fetchProfile = async () => {
+    const { _id } = jwt.verify(
+      sessionStorage.getItem('userJWT'),
+      config.jwtSecret,
+    );
+    const { data } = await api.User.GetById(_id.email);
     setProfileData(data);
   };
 
   useEffect(() => {
-    fetchProfile(_id.email);
-  }, [_id]);
+    fetchProfile();
+  }, []);
 
   const validate = (values) => {
     const errors = {};
@@ -77,6 +78,7 @@ const Profile = () => {
       switch (code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Se actualizaron los datos');
+          history.goBack();
           actions.setSubmitting(false);
           break;
         default:
@@ -91,6 +93,13 @@ const Profile = () => {
   };
 
   const {
+    _id,
+    name,
+    docNumber,
+    cellphone,
+  } = profileData;
+
+  const {
     values,
     errors,
     touched,
@@ -101,10 +110,10 @@ const Profile = () => {
   } = useFormik({
     enableReinitialize: true,
     initialValues: {
-      email: _id.email,
-      name: profileData.name,
-      docNumber: profileData.docNumber,
-      cellphone: profileData.cellphone,
+      email: _id !== undefined ? _id.email : '',
+      name,
+      docNumber,
+      cellphone,
       password: '',
       confirmPassword: '',
     },

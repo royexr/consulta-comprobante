@@ -30,6 +30,7 @@ const Configuration = () => {
       });
       break;
     case 2:
+    case 3:
       items.push({
         label: 'Usuarios',
         icon: 'pi pi-fw pi-users',

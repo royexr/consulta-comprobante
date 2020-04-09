@@ -36,7 +36,8 @@ const Provider = ({ children }) => {
             setCompany(formatted[0].value);
             break;
           }
-          case 2: {
+          case 2:
+          case 3: {
             const { data } = await api.Company.ReadAll();
             const formatted = data.map((c) => ({
               label: `${c.RUC} ${c.RazonSocial}`,

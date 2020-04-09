@@ -29,16 +29,13 @@ const ConfigurationRoutes = () => {
         render={() => <Profile />}
       />
       {
-        type === 1 && (
+        type === 1 ? (
           <AuthRoute
             exact
             path={`${path}/companies`}
             render={() => <Companies />}
           />
-        )
-      }
-      {
-        type === 2 && (
+        ) : (
           <>
             <AuthRoute
               exact
@@ -58,6 +55,27 @@ const ConfigurationRoutes = () => {
           </>
         )
       }
+      {/* {
+        type === 2 && (
+          <>
+            <AuthRoute
+              exact
+              path={`${path}/users`}
+              render={() => <Users />}
+            />
+            <AuthRoute
+              exact
+              path={`${path}/users/edit/:userId`}
+              render={() => <Edit />}
+            />
+            <AuthRoute
+              exact
+              path={`${path}/users/new`}
+              render={() => <Edit />}
+            />
+          </>
+        )
+      } */}
       <Route path="*" component={NotFound} />
     </Switch>
   );

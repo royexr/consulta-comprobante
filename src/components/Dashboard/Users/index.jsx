@@ -139,7 +139,16 @@ const Users = () => {
               header="Telefono"
             />
             <Column
-              body={(rowData) => (rowData.type === 2 ? 'Admin' : 'Cliente')}
+              body={(rowData) => {
+                switch (rowData.type) {
+                  case 1:
+                    return 'Cliente';
+                  case 2:
+                    return 'Admin';
+                  default:
+                    return 'SAdmin';
+                }
+              }}
               header="Tipo"
               style={{ width: '10%' }}
             />
