@@ -22,20 +22,27 @@ const Configuration = () => {
   ];
 
   switch (type) {
-    case 1:
+    case 2:
       items.push({
         label: 'Empresas',
         icon: 'pi pi-fw pi-briefcase',
-        command: () => { history.push(`${url}/companies`); },
+        command: () => { history.push(`${url}/request-companies`); },
       });
       break;
-    case 2:
     case 3:
-      items.push({
-        label: 'Usuarios',
-        icon: 'pi pi-fw pi-users',
-        command: () => { history.push(`${url}/users`); },
-      });
+    case 4:
+      items.push(
+        {
+          label: 'Usuarios',
+          icon: 'pi pi-fw pi-users',
+          command: () => { history.push(`${url}/users`); },
+        },
+        {
+          label: 'Empresas',
+          icon: 'pi pi-fw pi-briefcase',
+          command: () => { history.push(`${url}/companies`); },
+        },
+      );
       break;
     default:
       break;

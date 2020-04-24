@@ -1,6 +1,7 @@
 // Dependencies
 import React, { useContext } from 'react';
 import { Switch, Route } from 'react-router-dom';
+import jwt from 'jsonwebtoken';
 
 // Resources
 import { AuthContext } from '../contexts/Auth';
@@ -22,14 +23,19 @@ import AuthRoute from './AuthRoute';
 import CustomRoute from './CustomRoute';
 import LoginRoute from './LoginRoute';
 
+import config from '../config';
 import styles from './styles.module.css';
 
 const Routes = () => {
   const {
     isAuth,
     currentCompany,
-    signIn,
   } = useContext(AuthContext);
+
+  let token = {};
+  if (isAuth) {
+    token = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
+  }
 
   return (
     <div className={`${styles.container} p-grid p-dir-col p-align-center p-justify-center`}>
@@ -42,7 +48,7 @@ const Routes = () => {
         <LoginRoute
           exact
           path="/"
-          render={() => (<Login signIn={signIn} />)}
+          render={() => (<Login />)}
         />
         <Route exact path="/register" component={Register} />
         <Route exact path="/request-reset" component={RequestResetPassword} />
@@ -60,11 +66,21 @@ const Routes = () => {
           path="/sales"
           render={() => (<Sales currentCompany={currentCompany} />)}
         />
-        <CustomRoute
-          exact
-          path="/purchases"
-          render={() => (<Purchases currentCompany={currentCompany} />)}
-        />
+        {
+          (isAuth && token.type === 1) ? (
+            <Route
+              exact
+              path="/purchases"
+              render={() => (<Purchases currentCompany={currentCompany} />)}
+            />
+          ) : (
+            <CustomRoute
+              exact
+              path="/purchases"
+              render={() => (<Purchases currentCompany={currentCompany} />)}
+            />
+          )
+        }
         <AuthRoute
           exact={false}
           path="/configuration"

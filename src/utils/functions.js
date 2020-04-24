@@ -14,20 +14,13 @@ function createGetQuery(bookCode, companyCode, values) {
     const key = vKeys[i];
     switch (key) {
       case 'clientDoc':
-        if (aux[key] !== '') {
+        if (aux[key] !== '' && aux[key] !== null) {
           const auxArray = aux[key].split('-');
           query = query.concat(`&${key}=${auxArray[0]}`);
         }
         break;
-      case 'seriesNumbers':
-        if (aux[key] !== '') {
-          const auxArray = aux[key].split('-');
-          query = query.concat(`&serie=${auxArray[0]}`);
-          query = query.concat(`&number=${auxArray[1]}`);
-        }
-        break;
       default:
-        if (aux[key] !== '') {
+        if (aux[key] !== '' && aux[key] !== null) {
           query = query.concat(`&${key}=${aux[key]}`);
         }
         break;
@@ -36,4 +29,19 @@ function createGetQuery(bookCode, companyCode, values) {
   return query;
 }
 
-export { createGetQuery, currentMonthRange };
+function objectToQuery(object) {
+  const aux = { ...object };
+  let query = '';
+  const auxKeys = Object.keys(aux);
+  for (let i = 0; i < auxKeys.length; i += 1) {
+    const key = auxKeys[i];
+    query = query.concat(`${key}=${aux[key]}`);
+    if (i < auxKeys.length - 1) {
+      query = query.concat('&');
+    }
+  }
+
+  return query;
+}
+
+export { createGetQuery, currentMonthRange, objectToQuery };

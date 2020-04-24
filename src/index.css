@@ -3,8 +3,8 @@ body {
   /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif; */
-  /* font-family: 'Titillium Web'; */
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Titillium Web';
+  /* font-family: 'Roboto', sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -39,9 +39,32 @@ body .p-component {
 
 /* Data table */
 .table-row > td {
-  padding: 0.15em 0 !important;
-  text-align: center;
+  padding: 0.15em 0.30em !important;
   overflow: hidden;
+}
+
+.badge {
+  border-radius: 2px;
+  padding: .25em .5em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .3px;
+}
+
+.badge--warn {
+  background-color: #FFD8B2;
+  color: #805B36;
+}
+
+.badge--success {
+  background-color: #C8E6C9;
+  color: #256029;
+}
+
+.badge--error {
+  background-color: #FFCDD2;
+  color: #C63737;
 }
 
 .p-datatable-footer {

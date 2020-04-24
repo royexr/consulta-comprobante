@@ -1,12 +1,14 @@
 // Dependencies
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { useFormik } from 'formik';
 import { useLocation, useHistory } from 'react-router-dom';
 
 // Resources
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { AuthContext } from '../../../contexts/Auth';
 import { useMessages } from '../../../hooks';
+import { objectToQuery } from '../../../utils';
 import FormField from '../../../sharedcomponents/FormField';
 import api from '../../../utils/api';
 import styles from './styles.module.css';
@@ -15,71 +17,79 @@ const CompleteRegister = () => {
   const history = useHistory();
   const location = useLocation();
   const urlParams = new window.URLSearchParams(location.search);
-  const [isVerified, setIsVerified] = useState(false);
+  const { signIn } = useContext(AuthContext);
   const [showMessages, renderMessages] = useMessages();
 
   const validate = (values) => {
     const errors = {};
+    if (!values.serie) {
+      errors.serie = 'Campo obligatorio';
+    } else if (values.serie.length !== 4) {
+      errors.serie = 'Serie de comprobante invalido';
+    }
+    if (!values.number) {
+      errors.number = 'Campo obligatorio';
+    } else if (values.number.length !== 8) {
+      errors.number = 'Número de comprobante invalido';
+    }
+    if (!values.date) {
+      errors.date = 'Campo obligatorio';
+    }
     if (!values.businessNumber) {
       errors.businessNumber = 'Campo obligatorio';
-    }
-    if (!values.docNumber) {
-      errors.docNumber = 'Campo obligatorio';
-    } else if (!(values.docNumber.length === 8)) {
-      errors.docNumber = 'Número de documento invalido';
-    }
-    if (!values.cellphone) {
-      errors.cellphone = 'Campo obligatorio';
-    } else if (!values.cellphone.startsWith('9') || !(values.cellphone.length === 9)) {
-      errors.cellphone = 'Numero de celular invalido';
+    } else if (values.businessNumber.length !== 8 && values.businessNumber.length !== 11) {
+      errors.businessNumber = 'RUC o DNI invalido';
     }
     return errors;
   };
 
-  const verifyBN = async (businessNumber, setSubmitting) => {
-    if (businessNumber.length !== 11) {
-      showMessages('error', 'Error!', 'Número de RUC invalido');
-      setIsVerified(false);
-    } else {
-      const res = await api.Company.ReadById(businessNumber);
-      if (res.code === '01') {
-        showMessages('success', 'Muy bien!');
-        setIsVerified(true);
-      } else {
-        showMessages('error', 'Error!', 'La Empresa no esta registrada en Pale');
-        setIsVerified(false);
-      }
-    }
-    setSubmitting(false);
-  };
-
-  const completeSignUp = async (values, actions) => {
+  const verifyVoucher = async (values, actions) => {
     const obj = { ...values };
     obj.email = urlParams.get('email');
     obj.code = urlParams.get('userId');
-    const res = await api.User.CreateWithCode(obj);
-    if (res instanceof TypeError) {
+    const query = objectToQuery(obj);
+    const resV = await api.Voucher.VerifyVoucher(query);
+    if (resV instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexión');
       actions.setSubmitting(false);
     } else {
-      switch (res.code) {
+      switch (resV.code) {
         case '01':
-          showMessages('success', 'Muy bien!', 'Se han registrado los datos correctamente');
-          setTimeout(() => {
-            history.push('/');
-            actions.setSubmitting(false);
+          showMessages('success', 'Muy bien!', 'Hemos encontrado comprobantes a tu nombre');
+          setTimeout(async () => {
+            const resU = await api.User.CreateWithCode(obj);
+            if (resU instanceof TypeError) {
+              showMessages('error', 'Error!', 'No hay conexión');
+              actions.setSubmitting(false);
+            } else {
+              switch (resU.code) {
+                case '01':
+                  showMessages('success', 'Muy bien!', 'Se han registrado los datos correctamente');
+                  setTimeout(() => {
+                    signIn(resU.user);
+                    history.push('/dashboard');
+                  }, 3000);
+                  break;
+                case '02':
+                  showMessages('warn', 'Alerta!', 'Este usuario ya esta registrado');
+                  actions.setSubmitting(false);
+                  break;
+                case '03':
+                  showMessages('error', 'Error!', 'Tu codigo de registro expiro');
+                  actions.setSubmitting(false);
+                  break;
+                default:
+                  showMessages('error', 'Error!', 'Algo ah salido mal');
+                  break;
+              }
+            }
           }, 3000);
           break;
         case '02':
-          showMessages('warn', 'Alerta!', 'Este usuario ya esta registrado');
-          actions.setSubmitting(false);
-          break;
-        case '03':
-          showMessages('error', 'Error!', 'Tu codigo de registro expiro');
+          showMessages('warn', 'Alerta!', 'No hemos podido encontrar comprobantes a tu nombre');
           actions.setSubmitting(false);
           break;
         default:
-          showMessages('error', 'Error!', 'Algo ah salido mal');
           break;
       }
     }
@@ -91,17 +101,17 @@ const CompleteRegister = () => {
     handleChange,
     handleSubmit,
     isSubmitting,
-    setSubmitting,
     touched,
     values,
   } = useFormik({
     initialValues: {
+      serie: '',
+      number: '',
       businessNumber: '',
-      docNumber: '',
-      cellphone: '',
+      date: new Date().toISOString().slice(0, 10),
     },
     validate,
-    onSubmit: (vals, actions) => { completeSignUp(vals, actions); },
+    onSubmit: (vals, actions) => { verifyVoucher(vals, actions); },
   });
 
   return (
@@ -110,57 +120,66 @@ const CompleteRegister = () => {
         className="form p-grid p-dir-col"
         onSubmit={handleSubmit}
       >
-        <hgroup className="heading">
+        <hgroup className="heading p-col-12 p-col-align-center">
           <h1 className="title">Completar registro</h1>
+          <h2 className="subtitle">Para continuar con su registro por favor llene los campos con la serie, numero, su RUC o DNI y la fecha de emision</h2>
         </hgroup>
-        <div className="p-col-11 p-col-align-center">
+        <div className="p-col-12 p-col-align-center">
           {renderMessages()}
         </div>
         <FormField
-          buttonCN="p-button-warning"
-          className="p-col-11 p-col-align-center"
+          className="p-col-12 p-col-align-center"
+          disabled={isSubmitting}
+          errors={errors.serie && touched.serie}
+          errorMessage={errors.serie}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
+          keyfilter="alphanum"
+          label="Serie"
+          maxLength="4"
+          name="serie"
+          type="text"
+          value={values.serie}
+        />
+        <FormField
+          className="p-col-12 p-col-align-center"
+          disabled={isSubmitting}
+          errors={errors.number && touched.number}
+          errorMessage={errors.number}
+          handleBlur={handleBlur}
+          handleChange={handleChange}
+          keyfilter="pint"
+          label="Número"
+          maxLength="8"
+          name="number"
+          type="text"
+          value={values.number}
+        />
+        <FormField
+          className="p-col-12 p-col-align-center"
           disabled={isSubmitting}
           errors={errors.businessNumber && touched.businessNumber}
           errorMessage={errors.businessNumber}
           handleBlur={handleBlur}
           handleChange={handleChange}
-          handleClick={() => verifyBN(values.businessNumber, setSubmitting)}
-          icon="pi-search"
           keyfilter="pint"
-          label="RUC"
+          label="su RUC o DNI"
           maxLength="11"
           name="businessNumber"
-          type="input-group"
-          tooltip="Haga click para verificar el RUC de la empresa"
+          type="text"
           value={values.businessNumber}
         />
         <FormField
-          className="p-col-11 p-col-align-center"
+          className="p-col-12 p-col-align-center"
           disabled={isSubmitting}
-          errors={errors.docNumber && touched.docNumber}
-          errorMessage={errors.docNumber}
+          errors={errors.date && touched.date}
+          errorMessage={errors.date}
           handleBlur={handleBlur}
           handleChange={handleChange}
-          keyfilter="pint"
-          label="DNI"
-          maxLength="8"
-          name="docNumber"
-          type="text"
-          value={values.docNumber}
-        />
-        <FormField
-          className="p-col-11 p-col-align-center"
-          disabled={isSubmitting}
-          errors={errors.cellphone && touched.cellphone}
-          errorMessage={errors.cellphone}
-          handleBlur={handleBlur}
-          handleChange={handleChange}
-          keyfilter="pint"
-          label="Celular"
-          maxLength="9"
-          name="cellphone"
-          type="text"
-          value={values.cellphone}
+          label="Fecha de emisión"
+          name="date"
+          type="date"
+          value={values.date}
         />
         {
           isSubmitting && (
@@ -175,22 +194,14 @@ const CompleteRegister = () => {
             </div>
           )
         }
-        <div className="p-col-11 p-col-align-center">
+        <div className="p-col-12 p-col-align-center">
           <Button
             className="p-button-rounded button"
-            disabled={!isVerified || isSubmitting}
+            disabled={isSubmitting}
             label="Completar registro"
             type="submit"
           />
         </div>
-        {
-
-          !isVerified && (
-          <span className="p-col-11 p-col-align-center text--center">
-            <small>Primero debes verificar el Ruc para registarte</small>
-          </span>
-          )
-        }
       </form>
     </div>
   );

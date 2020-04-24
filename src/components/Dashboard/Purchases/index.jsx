@@ -23,7 +23,6 @@ import {
 import {
   useEntities,
   useMessages,
-  useSeriesNumbers,
   useVoucherTypes,
 } from '../../../hooks';
 import {
@@ -31,13 +30,12 @@ import {
   currencyTemplate,
   dateTemplate,
   dtFooterVouchers,
-  stateTemplate,
+  stateHeaderTemplate,
 } from '../../../templates';
 
 const Purchases = ({ currentCompany }) => {
   const bookCode = '08';
   const { entities } = useEntities(currentCompany, bookCode);
-  const { seriesNumbers } = useSeriesNumbers(currentCompany, bookCode);
   const { voucherTypes } = useVoucherTypes();
   const [showMessages, renderMessages] = useMessages();
   const [globalLoading, setGlobalLoading] = useState(false);
@@ -72,11 +70,11 @@ const Purchases = ({ currentCompany }) => {
   const onSubmit = async (values, actions) => {
     const q = createGetQuery(bookCode, currentCompany, values);
     setQuery(q);
-    const vouchersR = await api.Voucher.ReadMany(q);
-    if (vouchersR instanceof TypeError) {
+    const res = await api.Voucher.ReadMany(q);
+    if (res instanceof TypeError) {
       showMessages('error', 'Error!', 'No hay conexion');
-    } else if (vouchersR.code === '01') {
-      const { data } = vouchersR;
+    } else if (res.code === '01') {
+      const { data } = res;
       if (data.length !== 0) {
         let sumF = 0; let sumB = 0; let sumNC = 0; let sumND = 0;
         for (let i = 0; i < data.length; i += 1) {
@@ -145,7 +143,7 @@ const Purchases = ({ currentCompany }) => {
 
   const downloadPDF = (voucher) => {
     let url = '';
-    const ruc = currentCompany;
+    const ruc = voucher.emittedBy[0].RUC;
     const fullDate = new Date(voucher.FechaEmision);
     const year = fullDate.getFullYear();
     const month = (fullDate.getMonth() + 1).toString().length === 2 ? (fullDate.getMonth() + 1).toString() : `0${(fullDate.getMonth() + 1).toString()}`;
@@ -158,7 +156,7 @@ const Purchases = ({ currentCompany }) => {
   };
 
   const downloadXML = (voucher) => {
-    const ruc = currentCompany;
+    const ruc = voucher.emittedBy[0].RUC;
     const fullDate = new Date(voucher.FechaEmision);
     const year = fullDate.getFullYear();
     const month = (fullDate.getMonth() + 1).toString().length === 2 ? (fullDate.getMonth() + 1).toString() : `0${(fullDate.getMonth() + 1).toString()}`;
@@ -173,7 +171,7 @@ const Purchases = ({ currentCompany }) => {
   };
 
   const downloadCDR = (voucher) => {
-    const ruc = currentCompany;
+    const ruc = voucher.emittedBy[0].RUC;
     const fullDate = new Date(voucher.FechaEmision);
     const year = fullDate.getFullYear();
     const month = (fullDate.getMonth() + 1).toString().length === 2 ? (fullDate.getMonth() + 1).toString() : `0${(fullDate.getMonth() + 1).toString()}`;
@@ -205,7 +203,8 @@ const Purchases = ({ currentCompany }) => {
     initialValues: {
       voucherType: '',
       clientDoc: '',
-      seriesNumbers: '',
+      serie: '',
+      number: '',
       startDate: fd.toISOString().slice(0, 10),
       endDate: ld.toISOString().slice(0, 10),
     },
@@ -235,32 +234,37 @@ const Purchases = ({ currentCompany }) => {
                 label="Tipo de comprobante"
                 name="voucherType"
                 options={voucherTypes}
+                showClear={values.voucherType !== ''}
                 type="select"
                 value={values.voucherType}
               />
               <FormField
                 className="p-col-12 p-sm-6 p-md-7 p-col-align-center"
-                disabled={isSubmitting || globalLoading}
-                filter
-                filterBy="value, label"
+                disabled={isSubmitting || globalLoading || entities.length < 2}
                 handleChange={handleChange}
                 label="Empresa"
                 name="clientDoc"
-                options={entities}
-                type="select"
+                suggestions={entities}
+                type="autoComplete"
                 value={values.clientDoc}
               />
               <FormField
-                className="p-col-12 p-sm-4 p-col-align-center"
+                className="p-col-12 p-sm-2 p-col-align-center"
                 disabled={isSubmitting || globalLoading}
-                filter
-                filterBy="value, label"
                 handleChange={handleChange}
-                label="Serie - Número"
-                name="seriesNumbers"
-                options={seriesNumbers}
-                type="select"
-                value={values.seriesNumbers}
+                label="Serie"
+                name="serie"
+                type="text"
+                value={values.serie}
+              />
+              <FormField
+                className="p-col-12 p-sm-2 p-col-align-center"
+                disabled={isSubmitting || globalLoading}
+                handleChange={handleChange}
+                label="Número"
+                name="number"
+                type="text"
+                value={values.number}
               />
               <FormField
                 className="p-col-12 p-sm-4 p-col-align-center"
@@ -348,22 +352,63 @@ const Purchases = ({ currentCompany }) => {
               multiSortMeta={[{ field: 'FechaEmision', order: 1 }]}
               paginator
               responsive
-              rows={5}
+              rows={50}
               rowClassName={() => ({ 'table-row': true })}
-              rowsPerPageOptions={[5, 10, 15]}
+              rowsPerPageOptions={[50, 100, 200]}
               removableSort
               sortMode="multiple"
               value={vouchers}
             >
-              <Column body={dateTemplate} header="Fecha" style={{ width: '10%' }} />
-              <Column field="Cod_TipoOperacion" header="Tipo" style={{ width: '5%' }} sortable />
-              <Column field="Serie" header="Serie" style={{ width: '5%' }} sortable />
-              <Column field="Numero" header="Numero" style={{ width: '10%' }} sortable />
-              <Column field="Doc_Cliente" header="N. Documento" style={{ width: '12%' }} />
-              <Column field="Nom_Cliente" header="Denominación" style={{ width: '28%' }} />
-              <Column body={currencyTemplate} header="M" style={{ width: '3%' }} />
-              <Column field="Total" header="Total" style={{ width: '7%' }} />
-              <Column body={stateTemplate} header="Estado" style={{ width: '7%' }} />
+              <Column
+                body={dateTemplate}
+                field="FechaEmision"
+                header="Fecha"
+                style={{ width: '10%' }}
+                sortable
+              />
+              <Column
+                field="Cod_TipoOperacion"
+                header="Tipo"
+                style={{ width: '5%' }}
+                sortable
+              />
+              <Column
+                field="Serie"
+                header="Serie"
+                style={{ width: '5%' }}
+                sortable
+              />
+              <Column
+                field="Numero"
+                header="Numero"
+                style={{ width: '10%' }}
+                sortable
+              />
+              <Column
+                body={(rowData) => rowData.emittedBy[0].RUC}
+                header="N. Documento"
+                style={{ width: '12%' }}
+              />
+              <Column
+                body={(rowData) => rowData.emittedBy[0].Nom_Comercial}
+                header="Denominación"
+                style={{ width: '28%' }}
+              />
+              <Column
+                body={currencyTemplate}
+                header="M"
+                style={{ width: '3%', textAlign: 'right' }}
+              />
+              <Column
+                body={(rowData) => rowData.Total.toFixed(2)}
+                header="Total"
+                style={{ width: '7%', textAlign: 'right' }}
+              />
+              <Column
+                field="Cod_EstadoComprobante"
+                header={stateHeaderTemplate}
+                style={{ width: '7%' }}
+              />
               <Column
                 body={(rowData) => actionTemplate(
                   rowData,
@@ -387,7 +432,10 @@ const Purchases = ({ currentCompany }) => {
                 label="Exportar a Excel"
                 model={items}
                 tooltip="El tiempo para generar el reporte dependera de la cantidad de comprobantes"
-                tooltipOptions={{ event: 'focus' }}
+                tooltipOptions={{
+                  event: 'hover',
+                  position: 'top',
+                }}
               />
             </div>
           </>

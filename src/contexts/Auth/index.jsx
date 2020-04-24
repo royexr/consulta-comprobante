@@ -21,6 +21,13 @@ const Provider = ({ children }) => {
         switch (type) {
           case 1: {
             const { data } = await api.User.GetCompanies(_id.email);
+            if (data[0].companies[0].isEnabled) {
+              setCompany(data[0].companies[0].number);
+            }
+            break;
+          }
+          case 2: {
+            const { data } = await api.User.GetCompanies(_id.email);
             const formatted = [];
             for (let i = 0; i < data[0].companies.length; i += 1) {
               const r = data[0].companies[i];
@@ -36,8 +43,8 @@ const Provider = ({ children }) => {
             setCompany(formatted[0].value);
             break;
           }
-          case 2:
-          case 3: {
+          case 3:
+          case 4: {
             const { data } = await api.Company.ReadAll();
             const formatted = data.map((c) => ({
               label: `${c.RUC} ${c.RazonSocial}`,

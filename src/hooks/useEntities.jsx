@@ -10,10 +10,13 @@ const useEntities = (currentCompany, bookCode) => {
   const fetchEntities = async (cc, bc) => {
     if (cc !== undefined && cc.length > 0) {
       const { data } = await api.Voucher.GetEntities(cc, bc);
-      const formatted = data.entities.map((entity) => ({
-        value: entity.docNumber,
-        label: `${entity.docNumber}-${entity.name}`,
-      }));
+      const formatted = data.entities.map((entity) => (
+        // {
+        //   value: entity.docNumber,
+        //   label: `${entity.docNumber}-${entity.name}`,
+        // }
+        `${entity.docNumber}-${entity.name}`
+      ));
       setEntities(formatted);
     }
   };

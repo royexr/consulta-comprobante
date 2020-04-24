@@ -8,6 +8,7 @@ import { AutoComplete } from 'primereact/autocomplete';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputMask } from 'primereact/inputmask';
+import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
@@ -28,9 +29,14 @@ const FormField = ({
   keyfilter,
   label,
   mask,
+  max,
   maxLength,
+  min,
+  minLength,
   name,
   options,
+  prefix,
+  showClear,
   suggestions,
   tooltip,
   type,
@@ -39,10 +45,12 @@ const FormField = ({
   const [filteredSuggs, setFilteredSuggs] = useState([]);
 
   const suggestBrands = async (event) => {
-    const results = suggestions.filter((brand) => brand.toLowerCase()
-      .includes(event.query.toLowerCase()));
+    if (event.query.length > 2) {
+      const results = suggestions.filter((brand) => brand.toLowerCase()
+        .includes(event.query.toLowerCase()));
 
-    setFilteredSuggs(results);
+      setFilteredSuggs(results);
+    }
   };
 
   function selector() {
@@ -143,11 +151,12 @@ const FormField = ({
                   disabled={handleChange === null ? true : disabled}
                   id={name}
                   keyfilter={keyfilter && keyfilter}
+                  minLength={minLength}
                   maxLength={maxLength}
                   name={name}
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  placeholder={`Ingrese ${label}`}
+                  placeholder={`Ingrese ${label.toLowerCase()}`}
                   type={type}
                   value={value}
                 />
@@ -192,8 +201,45 @@ const FormField = ({
                   name={name}
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  placeholder={`Ingrese ${label}`}
+                  placeholder={`Ingrese ${label.toLowerCase()}`}
                   type={type}
+                  value={value}
+                />
+              </label>
+            </span>
+          </>
+        );
+      case 'number':
+        return (
+          <>
+            <span>
+              <label htmlFor={name}>
+                <p
+                  className={classNames(
+                    'form__field-label',
+                    {
+                      'label--error': errors,
+                    },
+                  )}
+                >
+                  {label}
+                </p>
+                <InputNumber
+                  className={classNames(
+                    'form__field',
+                    {
+                      'p-error': errors,
+                    },
+                  )}
+                  disabled={handleChange === null ? true : disabled}
+                  id={name}
+                  max={max}
+                  min={min}
+                  name={name}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${label.toLowerCase()}`}
+                  prefix={prefix}
                   value={value}
                 />
               </label>
@@ -232,6 +278,7 @@ const FormField = ({
                   options={options}
                   onChange={handleChange}
                   placeholder={label}
+                  showClear={showClear}
                 />
               </label>
             </span>
@@ -261,7 +308,7 @@ const FormField = ({
                   )}
                   name={name}
                   onChange={handleChange}
-                  placeholder={`Ingrese ${label}`}
+                  placeholder={`Ingrese ${label.toLowerCase()}`}
                   rows={3}
                   value={value}
                 />
@@ -299,7 +346,7 @@ const FormField = ({
                   name={name}
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  placeholder={`Ingrese ${label}`}
+                  placeholder={`Ingrese ${label.toLowerCase()}`}
                   type={type}
                   value={value}
                 />
@@ -349,10 +396,15 @@ FormField.defaultProps = {
   icon: '',
   keyfilter: '',
   label: 'input',
+  min: null,
+  minLength: '',
   mask: '',
+  max: null,
   maxLength: '',
   name: 'input',
   options: [],
+  prefix: '',
+  showClear: false,
   suggestions: [],
   type: 'input',
   tooltip: '',
@@ -374,9 +426,14 @@ FormField.propTypes = {
   keyfilter: PropTypes.string,
   label: PropTypes.string,
   mask: PropTypes.string,
+  max: PropTypes.number,
   maxLength: PropTypes.string,
+  min: PropTypes.number,
+  minLength: PropTypes.string,
   name: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.objectOf),
+  prefix: PropTypes.string,
+  showClear: PropTypes.bool,
   suggestions: PropTypes.arrayOf(PropTypes.string),
   type: PropTypes.string,
   tooltip: PropTypes.string,

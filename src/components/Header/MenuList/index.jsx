@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import jwt from 'jsonwebtoken';
 
 // Resources
 import { Button } from 'primereact/button';
@@ -10,6 +11,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { AuthContext } from '../../../contexts/Auth';
 import { ScreenContext } from '../../../contexts/Screen';
 import MenuLink from './MenuLink';
+import config from '../../../config';
 import styles from './styles.module.css';
 
 const MenuList = ({
@@ -23,6 +25,7 @@ const MenuList = ({
   } = useContext(AuthContext);
   const { isMS } = useContext(ScreenContext);
   const history = useHistory();
+  const token = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
 
   const handleSignOut = () => {
     signOut();
@@ -43,7 +46,14 @@ const MenuList = ({
       )}
       >
         {
-          companies.length > 0 && (
+          companies.length === 0 && token.type === 1 ? (
+            <MenuLink
+              exact
+              label="Compras"
+              onClick={collapseMenu}
+              to="/purchases"
+            />
+          ) : (
             <>
               <MenuLink
                 exact

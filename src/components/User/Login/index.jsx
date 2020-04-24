@@ -1,21 +1,23 @@
 // Dependencies
-import CryptoJS from 'crypto-js';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import PropTypes from 'prop-types';
+import CryptoJS from 'crypto-js';
 
 // Resources
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { AuthContext } from '../../../contexts/Auth';
 import { isValidEmail } from '../../../utils';
 import { useMessages } from '../../../hooks';
 import FormField from '../../../sharedcomponents/FormField';
 import api from '../../../utils/api';
 import styles from './styles.module.css';
 
-const Login = ({ signIn }) => {
+const Login = () => {
   const history = useHistory();
+  const { signIn } = useContext(AuthContext);
   const [showMessages, renderMessages] = useMessages();
 
   const SignIn = async (credentials, actions) => {
@@ -158,10 +160,6 @@ const Login = ({ signIn }) => {
       </div>
     </>
   );
-};
-
-Login.propTypes = {
-  signIn: PropTypes.func.isRequired,
 };
 
 export default Login;

@@ -36,16 +36,16 @@ const Profile = () => {
     if (!values.name) {
       errors.name = 'Campo obligatorio';
     }
-    if (!values.docNumber) {
-      errors.docNumber = 'Campo obligatorio';
-    } else if (!(values.docNumber.length === 8)) {
-      errors.docNumber = 'Número de documento invalido';
-    }
-    if (!values.cellphone) {
-      errors.cellphone = 'Campo obligatorio';
-    } else if (!values.cellphone.startsWith('9') || !(values.cellphone.length === 9)) {
-      errors.cellphone = 'Numero de celular invalido';
-    }
+    // if (!values.docNumber) {
+    //   errors.docNumber = 'Campo obligatorio';
+    // } else if (!(values.docNumber.length === 8)) {
+    //   errors.docNumber = 'Número de documento invalido';
+    // }
+    // if (!values.cellphone) {
+    //   errors.cellphone = 'Campo obligatorio';
+    // } else if (!values.cellphone.startsWith('9') || !(values.cellphone.length === 9)) {
+    //   errors.cellphone = 'Numero de celular invalido';
+    // }
     if (!values.password) {
       errors.password = 'Campo obligatorio';
     }
@@ -74,7 +74,7 @@ const Profile = () => {
       } else {
         delete userInfo.password;
       }
-      const { code } = await api.User.UpdateUser(userInfo);
+      const { code } = await api.User.Update(userInfo);
       switch (code) {
         case '01':
           showMessages('success', 'Muy bien!', 'Se actualizaron los datos');
@@ -112,8 +112,8 @@ const Profile = () => {
     initialValues: {
       email: _id !== undefined ? _id.email : '',
       name,
-      docNumber,
-      cellphone,
+      docNumber: docNumber !== undefined ? docNumber : '',
+      cellphone: cellphone !== undefined ? cellphone : '',
       password: '',
       confirmPassword: '',
     },

@@ -6,6 +6,7 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
+import { InputText } from 'primereact/inputtext';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useMessages } from '../../../hooks';
 import api from '../../../utils/api';
@@ -15,17 +16,42 @@ const Users = () => {
   const history = useHistory();
   const [users, setUsers] = useState([]);
   const [isDeleting, setDeleting] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState('');
   const [showMessages, renderMessages] = useMessages();
 
   const fetchUsers = async () => {
-    const { data } = await api.User.GetAll();
-    const formatted = data.map((u) => {
-      const aux = { ...u };
-      const { _id } = u;
-      aux.email = _id.email;
-      return aux;
-    });
-    setUsers(formatted);
+    const res = await api.User.GetAllWithCompanies();
+    if (res instanceof TypeError) {
+      showMessages('error', 'Error!', 'No hay conexion');
+    } else {
+      const formatted = res.data.map((u) => {
+        const aux = { ...u };
+        const { _id } = u;
+        aux.email = _id.email;
+        aux.status = 'CORRECTO';
+        aux.socialReasons = '';
+        aux.tradenames = '';
+        if (aux.companies !== undefined && aux.companies.length > 0) {
+          const disabledC = aux.companies.filter((c) => c.isEnabled === false);
+          if (disabledC.length > 0) {
+            aux.status = 'PENDIENTE';
+          }
+        }
+        if (aux.companiesInfo !== undefined && aux.companiesInfo) {
+          for (let i = 0; i < aux.companiesInfo.length; i += 1) {
+            const companyInfo = aux.companiesInfo[i];
+            aux.socialReasons = aux.socialReasons.concat(companyInfo.RazonSocial);
+            aux.tradenames = aux.tradenames.concat(companyInfo.Nom_Comercial);
+            if (i < aux.companiesInfo.length - 1) {
+              aux.socialReasons = aux.socialReasons.concat(', ');
+              aux.tradenames = aux.tradenames.concat(', ');
+            }
+          }
+        }
+        return aux;
+      });
+      setUsers(formatted);
+    }
   };
 
   useEffect(() => {
@@ -41,7 +67,7 @@ const Users = () => {
     } else {
       switch (res.code) {
         case '01':
-          showMessages('success', 'Muy bien!', 'Se borro el usuario');
+          showMessages('success', 'Muy bien!', 'Se elimino el usuario');
           setUsers(users.filter((u) => u.email !== rowData.email));
           setDeleting(false);
           break;
@@ -81,6 +107,20 @@ const Users = () => {
     </>
   );
 
+  const headerTemplate = (
+    <div style={{ textAlign: 'left' }}>
+      <i className="pi pi-search" style={{ margin: '4px 4px 0 0' }} />
+      <InputText
+        onInput={(e) => {
+          setGlobalFilter(e.target.value);
+        }}
+        placeholder="Busqueda global"
+        size="20"
+        type="search"
+      />
+    </div>
+  );
+
   return (
     <div className="p-grid p-dir-col">
       <div className="p-col-10 p-sm-5 p-md-4 p-lg-3 p-col-align-center">
@@ -116,12 +156,15 @@ const Users = () => {
             alwaysShowPaginator={false}
             className="p-col-12"
             columnResizeMode="fit"
+            emptyMessage="No se encontraron registros"
+            globalFilter={globalFilter}
+            header={headerTemplate}
+            paginator
+            removableSort
+            responsive
             rows={5}
             rowClassName={() => ({ 'table-row': true })}
             rowsPerPageOptions={[5, 10, 15]}
-            paginator
-            responsive
-            removableSort
             sortMode="multiple"
             value={users}
           >
@@ -132,30 +175,29 @@ const Users = () => {
             <Column
               field="name"
               header="Nombre"
-              style={{ width: '30%' }}
             />
             <Column
-              field="cellphone"
-              header="Telefono"
+              body={(rowData) => (
+                rowData.status === 'PENDIENTE'
+                  ? <span className="badge badge--warn">PENDIENTE</span>
+                  : <span className="badge badge--success">CORRECTO</span>
+              )}
+              field="status"
+              header="Estado"
+              style={{ textAlign: 'center' }}
             />
             <Column
-              body={(rowData) => {
-                switch (rowData.type) {
-                  case 1:
-                    return 'Cliente';
-                  case 2:
-                    return 'Admin';
-                  default:
-                    return 'SAdmin';
-                }
-              }}
-              header="Tipo"
-              style={{ width: '10%' }}
+              header="Razones sociales"
+              field="socialReasons"
+            />
+            <Column
+              header="Nombres comerciales"
+              field="tradenames"
             />
             <Column
               body={actionTemplate}
               header="Acciones"
-              style={{ width: '12%' }}
+              style={{ width: '12%', textAlign: 'center' }}
             />
           </DataTable>
         )

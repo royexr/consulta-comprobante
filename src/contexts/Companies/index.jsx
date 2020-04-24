@@ -15,8 +15,8 @@ const Provider = ({ children }) => {
 
   const fetchCompanies = async () => {
     try {
-      const token = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
-      const { data } = await api.User.GetCompanies(token['_id'].email);
+      const { _id } = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
+      const { data } = await api.User.GetCompanies(_id.email);
       const formatted = [];
       for (let i = 0; i < data[0].companies.length; i += 1) {
         const r = data[0].companies[i];

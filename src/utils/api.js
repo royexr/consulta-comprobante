@@ -22,11 +22,20 @@ const callApi = async (endpoint, options = {}) => {
 
 const api = {
   Company: {
+    Create(object) {
+      return callApi('/companies', { method: 'POST', body: JSON.stringify(object) });
+    },
+    Delete(id) {
+      return callApi(`/companies/${id}`, { method: 'DELETE' });
+    },
     ReadAll() {
       return callApi('/companies', { method: 'GET' });
     },
     ReadById(id) {
       return callApi(`/companies/${id}`, { method: 'GET' });
+    },
+    Update(object) {
+      return callApi('/companies', { method: 'PUT', body: JSON.stringify(object) });
     },
   },
   Voucher: {
@@ -48,16 +57,27 @@ const api = {
     ReadReport(id) {
       return callApi(`/vouchers/getReport/${id}`, { method: 'GET' });
     },
+    VerifyFinalUser(clientCode) {
+      return callApi(`/vouchers/verifyFinalUser/${clientCode}`, { method: 'GET' });
+    },
+    VerifyVoucher(query) {
+      return callApi(`/vouchers/verifyVoucher?${query}`, { method: 'GET' });
+    },
+  },
+  VoucherTypes: {
+    GetAll() {
+      return callApi('/voucherTypes', { method: 'GET' });
+    },
   },
   User: {
     AddCompany(object) {
       return callApi('/users/addCompany', { method: 'PUT', body: JSON.stringify(object) });
     },
-    Create(user) {
-      return callApi('/users', { method: 'POST', body: JSON.stringify(user) });
+    Create(object) {
+      return callApi('/users', { method: 'POST', body: JSON.stringify(object) });
     },
-    CreateWithCode(user) {
-      return callApi('/users/withCode', { method: 'POST', body: JSON.stringify(user) });
+    CreateWithCode(object) {
+      return callApi('/users/withCode', { method: 'POST', body: JSON.stringify(object) });
     },
     Delete(userId) {
       return callApi(`/users/${userId}`, { method: 'DELETE' });
@@ -65,25 +85,25 @@ const api = {
     GetAll() {
       return callApi('/users', { method: 'GET' });
     },
+    GetAllWithCompanies() {
+      return callApi('/users/allWithCompanies', { method: 'GET' });
+    },
     GetById(userId) {
       return callApi(`/users/${userId}`, { method: 'GET' });
     },
     GetCompanies(userId) {
       return callApi(`/users/getCompanies?userId=${userId}`, { method: 'GET' });
     },
-    SignIn(credentials) {
-      return callApi('/users/signin', { method: 'POST', body: JSON.stringify(credentials) });
-    },
-    // SendMail(object) {
-    //   return callApi('/users/sendmail', { method: 'POST', body: JSON.stringify(object) });
-    // },
     RequestReset(object) {
       return callApi('/users/requestResetPassword', { method: 'POST', body: JSON.stringify(object) });
     },
     ResetPassword(object, query) {
       return callApi(`/users/resetPassword${query}`, { method: 'POST', body: JSON.stringify(object) });
     },
-    UpdateUser(object) {
+    SignIn(credentials) {
+      return callApi('/users/signin', { method: 'POST', body: JSON.stringify(credentials) });
+    },
+    Update(object) {
       return callApi('/users/', { method: 'PUT', body: JSON.stringify(object) });
     },
     VerifyEmail(object) {
@@ -91,13 +111,8 @@ const api = {
     },
   },
   UserCode: {
-    Create(userCode) {
-      return callApi('/userCodes', { method: 'POST', body: JSON.stringify(userCode) });
-    },
-  },
-  VoucherTypes: {
-    GetAll() {
-      return callApi('/voucherTypes', { method: 'GET' });
+    Create(object) {
+      return callApi('/userCodes', { method: 'POST', body: JSON.stringify(object) });
     },
   },
 };

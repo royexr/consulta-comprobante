@@ -105,6 +105,34 @@ const dtFooterVouchers = (totalF, totalB, totalNC, totalND, quantity) => (
   </table>
 );
 
+const stateHeaderTemplate = (
+  <>
+    Estado
+    <Button
+      className="button p-button-info p-button-rounded"
+      icon="pi pi-info"
+      style={{
+        fontSize: '10px',
+        marginLeft: '.3rem',
+      }}
+      tooltip={
+        `<b>INI</b>: Iniciado
+        <b>EMI</b>: Emitido
+        <b>ENS</b>: Enviado Sunat
+        <b>REC</b>: Rechazado
+        <b>ACS</b>: Aceptado Sunat
+        <b>ENB</b>: Enviado a BD
+        <b>ENF</b>: Enviado a FTP
+        <b>ENE</b>: Enviado a email
+        <b>FIN</b>: Finalizado
+        <b>RFIN</b>: Verificado Sunat
+        <b>BAJA</b>: Dado de baja`
+      }
+      tooltipOptions={{ event: 'focus' }}
+    />
+  </>
+);
+
 const stateTemplate = (rowData) => (
   <>
     {rowData.Cod_EstadoComprobante}
@@ -139,4 +167,5 @@ export {
   dateTemplate,
   dtFooterVouchers,
   stateTemplate,
+  stateHeaderTemplate,
 };
