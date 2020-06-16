@@ -1,0 +1,17 @@
+/* Header menu block */
+.header__menu {
+ align-self: center;
+}
+
+/* Menu list block */
+.menu-list {
+  justify-content: flex-end;
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.active {
+  color: red;
+}

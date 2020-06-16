@@ -1,0 +1,29 @@
+/* Nav item block */
+.nav-item {
+  padding: 0 .5rem;
+}
+
+.ancor-link {
+  color: #898989;
+}
+
+.ancor-link:hover {
+  color: red;
+}
+
+.ancor-link--active {
+  color: red;
+}
+
+.ancor-link--active + div {
+  background-color: red;
+  height: 3px;
+  border-radius: 10px 10px 0 0;
+}
+
+@media screen and (max-width: 991px) {
+  .nav-item {
+    padding: .5rem 0;
+    font-size: 1.5rem;
+  }
+}
