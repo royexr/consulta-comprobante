@@ -121,22 +121,30 @@ const Sales = ({ currentCompany }) => {
       label: 'Resumen',
       icon: 'pi pi-file-o',
       command: () => {
-        setGlobalLoading(true);
-        exportResume(bookCode, currentCompany, query)
-          .then(() => {
-            setGlobalLoading(false);
-          });
+        exportResume(
+          bookCode,
+          currentCompany,
+          query,
+          setGlobalLoading,
+        ).catch(() => {
+          window.scroll(0, 0);
+          showMessages('error', 'Error!', 'Se perdio la conexion');
+        });
       },
     },
     {
       label: 'Detallado',
       icon: 'pi pi-file',
-      command: async () => {
-        setGlobalLoading(true);
-        exportDetailed(bookCode, currentCompany, query)
-          .then(() => {
-            setGlobalLoading(false);
-          });
+      command: () => {
+        exportDetailed(
+          bookCode,
+          currentCompany,
+          query,
+          setGlobalLoading,
+        ).catch(() => {
+          window.scroll(0, 0);
+          showMessages('error', 'Error!', 'Se perdio la conexion');
+        });
       },
     },
   ];
@@ -300,19 +308,6 @@ const Sales = ({ currentCompany }) => {
               type="submit"
             />
           </div>
-          {
-            isSubmitting && (
-              <div className="mb-15 p-col-align-center">
-                <ProgressSpinner
-                  strokeWidth="6"
-                  style={{
-                    width: '2rem',
-                    height: '2rem',
-                  }}
-                />
-              </div>
-            )
-          }
         </form>
       </div>
       <Dialog
@@ -412,7 +407,6 @@ const Sales = ({ currentCompany }) => {
               <Column
                 body={(rowData) => actionTemplate(
                   rowData,
-                  globalLoading,
                   downloadPDF,
                   downloadXML,
                   downloadCDR,
@@ -441,17 +435,24 @@ const Sales = ({ currentCompany }) => {
           </>
         )
       }
-      {
-        globalLoading && (
-          <ProgressSpinner
-            strokeWidth="6"
-            style={{
-              width: '2rem',
-              height: '2rem',
-            }}
-          />
-        )
-      }
+      <Dialog
+        blockScroll
+        className="p-col-11 p-sm-9 p-md-7 p-lg-5 p-xl-4"
+        closable={false}
+        header="Cargando ..."
+        visible={isSubmitting || globalLoading}
+        modal
+        onHide={() => {}}
+        contentStyle={{ textAlign: 'center' }}
+      >
+        <ProgressSpinner
+          strokeWidth="6"
+          style={{
+            width: '3rem',
+            height: '3rem',
+          }}
+        />
+      </Dialog>
     </>
   );
 };

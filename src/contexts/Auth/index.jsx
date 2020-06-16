@@ -14,59 +14,59 @@ const Provider = ({ children }) => {
   const [company, setCompany] = useState('');
   const [isAuth, setIsAuth] = useState(() => sessionStorage.getItem('userJWT') !== null);
 
-  const fetchCompanies = async (auth) => {
-    if (auth) {
-      try {
-        const { _id, type } = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
-        switch (type) {
-          case 1: {
-            const { data } = await api.User.GetCompanies(_id.email);
-            if (data[0].companies[0].isEnabled) {
-              setCompany(data[0].companies[0].number);
-            }
-            break;
-          }
-          case 2: {
-            const { data } = await api.User.GetCompanies(_id.email);
-            const formatted = [];
-            for (let i = 0; i < data[0].companies.length; i += 1) {
-              const r = data[0].companies[i];
-              if (r.isEnabled) {
-                const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
-                formatted.push({
-                  label: `${aux[0].RUC} ${aux[0].RazonSocial}`,
-                  value: aux[0].RUC,
-                });
-              }
-            }
-            setCompanies(formatted);
-            setCompany(formatted[0].value);
-            break;
-          }
-          case 3:
-          case 4: {
-            const { data } = await api.Company.ReadAll();
-            const formatted = data.map((c) => ({
-              label: `${c.RUC} ${c.RazonSocial}`,
-              value: c.RUC,
-            }));
-            setCompanies(formatted);
-            setCompany(formatted[0].value);
-            break;
-          }
-          default:
-            setCompanies([]);
-            setCompany('');
-            break;
-        }
-      } catch (error) {
-        setCompanies([]);
-        setCompany('');
-      }
-    }
-  };
-
   useEffect(() => {
+    const fetchCompanies = async (auth) => {
+      if (auth) {
+        try {
+          const { _id, type } = jwt.verify(sessionStorage.getItem('userJWT'), config.jwtSecret);
+          switch (type) {
+            case 1: {
+              const { data } = await api.User.GetCompanies(_id.email);
+              if (data[0].companies[0].isEnabled) {
+                setCompany(data[0].companies[0].number);
+              }
+              break;
+            }
+            case 2: {
+              const { data } = await api.User.GetCompanies(_id.email);
+              const formatted = [];
+              for (let i = 0; i < data[0].companies.length; i += 1) {
+                const r = data[0].companies[i];
+                if (r.isEnabled) {
+                  const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
+                  formatted.push({
+                    label: `${aux[0].RUC} ${aux[0].RazonSocial}`,
+                    value: aux[0].RUC,
+                  });
+                }
+              }
+              setCompanies(formatted);
+              setCompany(formatted[0].value);
+              break;
+            }
+            case 3:
+            case 4: {
+              const { data } = await api.Company.ReadAll();
+              const formatted = data.map((c) => ({
+                label: `${c.RUC} ${c.RazonSocial}`,
+                value: c.RUC,
+              }));
+              setCompanies(formatted);
+              setCompany(formatted[0].value);
+              break;
+            }
+            default:
+              setCompanies([]);
+              setCompany('');
+              break;
+          }
+        } catch (error) {
+          setCompanies([]);
+          setCompany('');
+        }
+      }
+    };
+
     fetchCompanies(isAuth);
   }, [isAuth]);
 

@@ -6,13 +6,10 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useMessages } from '../../../hooks';
-import FormField from '../../../sharedcomponents/FormField';
 import api from '../../../utils/api';
-import config from '../../../config';
 
 const Companies = () => {
   const { path } = useRouteMatch();
@@ -22,13 +19,19 @@ const Companies = () => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [showMessages, renderMessages] = useMessages();
 
-  const fetchCompanies = async () => {
-    const { data } = await api.Company.ReadAll();
-    setCompanies(data);
-  };
-
   useEffect(() => {
+    const controller = new AbortController();
+    const fetchCompanies = async () => {
+      const { data } = await api.Company.ReadAll(controller.signal);
+      if (!controller.signal.aborted) {
+        setCompanies(data);
+      }
+    };
+
     fetchCompanies();
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const deleteCompany = async (rowData) => {

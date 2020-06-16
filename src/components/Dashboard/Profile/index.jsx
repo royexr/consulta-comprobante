@@ -18,17 +18,23 @@ const Profile = () => {
   const [showMessages, renderMessages] = useMessages();
   const [profileData, setProfileData] = useState({});
 
-  const fetchProfile = async () => {
-    const { _id } = jwt.verify(
-      sessionStorage.getItem('userJWT'),
-      config.jwtSecret,
-    );
-    const { data } = await api.User.GetById(_id.email);
-    setProfileData(data);
-  };
-
   useEffect(() => {
+    const controller = new AbortController();
+    const fetchProfile = async () => {
+      const { _id } = jwt.verify(
+        sessionStorage.getItem('userJWT'),
+        config.jwtSecret,
+      );
+      const { data } = await api.User.GetById(_id.email, controller.signal);
+      if (!controller.signal.aborted) {
+        setProfileData(data);
+      }
+    };
+
     fetchProfile();
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const validate = (values) => {
@@ -36,16 +42,6 @@ const Profile = () => {
     if (!values.name) {
       errors.name = 'Campo obligatorio';
     }
-    // if (!values.docNumber) {
-    //   errors.docNumber = 'Campo obligatorio';
-    // } else if (!(values.docNumber.length === 8)) {
-    //   errors.docNumber = 'Número de documento invalido';
-    // }
-    // if (!values.cellphone) {
-    //   errors.cellphone = 'Campo obligatorio';
-    // } else if (!values.cellphone.startsWith('9') || !(values.cellphone.length === 9)) {
-    //   errors.cellphone = 'Numero de celular invalido';
-    // }
     if (!values.password) {
       errors.password = 'Campo obligatorio';
     }

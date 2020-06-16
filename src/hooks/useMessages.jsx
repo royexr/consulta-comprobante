@@ -1,17 +1,22 @@
 // Dependencies
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 
 // Resources
 import { Messages } from 'primereact/messages';
 
 const useMessages = () => {
-  const [messages, setMessages] = useState(new Messages());
+  const messages = useRef(null);
 
   const showMessages = (severity, summary, detail) => {
-    messages.show({ severity, summary, detail });
+    messages.current.show({
+      detail,
+      severity,
+      life: severity === 'error' ? 5000 : 3000,
+      summary,
+    });
   };
 
-  const renderMessages = () => <Messages ref={(el) => { setMessages(el); }} />;
+  const renderMessages = () => <Messages ref={messages} />;
 
   return [showMessages, renderMessages];
 };

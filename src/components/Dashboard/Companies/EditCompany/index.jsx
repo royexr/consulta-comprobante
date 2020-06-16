@@ -5,7 +5,6 @@ import { useFormik } from 'formik';
 
 // Resources
 import { Button } from 'primereact/button';
-import { Checkbox } from 'primereact/checkbox';
 import FormField from '../../../../sharedcomponents/FormField';
 import { useMessages } from '../../../../hooks';
 import api from '../../../../utils/api';
@@ -80,19 +79,23 @@ const EditCompany = () => {
     }
   };
 
-  const fetchCompany = async (id, h) => {
-    if (id !== undefined) {
-      const { data } = await api.Company.ReadById(id);
-      if (data !== undefined) {
-        setCompany(data);
-      } else {
-        h.goBack();
-      }
-    }
-  };
-
   useEffect(() => {
+    const controller = new AbortController();
+    const fetchCompany = async (id, h) => {
+      if (id !== undefined) {
+        const { data } = await api.Company.ReadById(id, controller.signal);
+        if (data !== undefined && !controller.signal.aborted) {
+          setCompany(data);
+        } else {
+          h.goBack();
+        }
+      }
+    };
+
     fetchCompany(companyId, history);
+    return () => {
+      controller.abort();
+    };
   }, [companyId, history]);
 
   const validate = (values) => {
@@ -109,27 +112,6 @@ const EditCompany = () => {
     if (!values.Direccion) {
       errors.Direccion = 'Campo obligatorio';
     }
-    // if (!values.Web) {
-    //   errors.Web = 'Campo obligatorio';
-    // }
-    // if (!values.Des_Impuesto) {
-    //   errors.Des_Impuesto = 'Campo obligatorio';
-    // }
-    // if (!values.Por_Impuesto) {
-    //   errors.Por_Impuesto = 'Campo obligatorio';
-    // }
-    // if (!values.EstructuraContable) {
-    //   errors.EstructuraContable = 'Campo obligatorio';
-    // }
-    // if (!values.Version) {
-    //   errors.Version = 'Campo obligatorio';
-    // }
-    // if (!values.Cod_Ubigeo) {
-    //   errors.Cod_Ubigeo = 'Campo obligatorio';
-    // }
-    // if (!values.Cod_UsuarioReg) {
-    //   errors.Cod_UsuarioReg = 'Campo obligatorio';
-    // }
     return errors;
   };
 
@@ -146,14 +128,6 @@ const EditCompany = () => {
     Nom_Comercial,
     RazonSocial,
     Direccion,
-    Web,
-    Flag_ExoneradoImpuesto,
-    Des_Impuesto,
-    Por_Impuesto,
-    EstructuraContable,
-    Version,
-    Cod_Ubigeo,
-    Cod_UsuarioReg,
   } = company;
 
   const {
@@ -171,14 +145,6 @@ const EditCompany = () => {
       Nom_Comercial,
       RazonSocial,
       Direccion,
-      Web,
-      Flag_ExoneradoImpuesto,
-      Des_Impuesto,
-      Por_Impuesto,
-      EstructuraContable,
-      Version,
-      Cod_Ubigeo,
-      Cod_UsuarioReg,
       Fecha_Reg: new Date().toISOString().slice(0, 10),
     },
     onSubmit: (vals, actions) => { onSubmit(vals, actions); },
@@ -240,126 +206,6 @@ const EditCompany = () => {
         type="text"
         value={values.Direccion}
       />
-      {/* <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled={isSubmitting}
-        errors={errors.Web && touched.Web}
-        errorMessage={errors.Web}
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        label="Página web"
-        name="Web"
-        type="text"
-        value={values.Web}
-      />
-      <div className="p-col-12 p-sm-6 p-col-align-center">
-        <span>
-          <label htmlFor="Flag_ExoneradoImpuesto">
-            <p className="form__field-label">
-              Exonerado de impuesto
-            </p>
-            <div id="Flag_ExoneradoImpuesto">
-              <Checkbox
-                className="form__field"
-                disabled={isSubmitting}
-                id="Exonerado"
-                name="Flag_ExoneradoImpuesto"
-                onChange={handleChange}
-                checked={values.Flag_ExoneradoImpuesto}
-              />
-              <label
-                htmlFor="Exonerado"
-                className="p-checkbox-label"
-              >
-                Exonerado
-              </label>
-            </div>
-          </label>
-        </span>
-      </div>
-      <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled={isSubmitting}
-        errors={errors.Des_Impuesto && touched.Des_Impuesto}
-        errorMessage={errors.Des_Impuesto}
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        label="Descripción de impuesto"
-        name="Des_Impuesto"
-        type="text"
-        value={values.Des_Impuesto}
-      />
-      <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled={isSubmitting}
-        errors={errors.Por_Impuesto && touched.Por_Impuesto}
-        errorMessage={errors.Por_Impuesto}
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        label="Porcentaje de Impuesto"
-        max={100}
-        min={0}
-        name="Por_Impuesto"
-        prefix="%"
-        type="number"
-        value={values.Por_Impuesto}
-      />
-      <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled={isSubmitting}
-        errors={errors.EstructuraContable && touched.EstructuraContable}
-        errorMessage={errors.EstructuraContable}
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        label="Estructura contable"
-        name="EstructuraContable"
-        type="text"
-        value={values.EstructuraContable}
-      />
-      <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled={isSubmitting}
-        errors={errors.Version && touched.Version}
-        errorMessage={errors.Version}
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        label="Versión"
-        name="Version"
-        type="text"
-        value={values.Version}
-      />
-      <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled={isSubmitting}
-        errors={errors.Cod_Ubigeo && touched.Cod_Ubigeo}
-        errorMessage={errors.Cod_Ubigeo}
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        label="Código ubigeo"
-        name="Cod_Ubigeo"
-        type="text"
-        value={values.Cod_Ubigeo}
-      />
-      <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled={isSubmitting}
-        errors={errors.Cod_UsuarioReg && touched.Cod_UsuarioReg}
-        errorMessage={errors.Cod_UsuarioReg}
-        handleBlur={handleBlur}
-        handleChange={handleChange}
-        label="Código de usuario"
-        name="Cod_UsuarioReg"
-        type="text"
-        value={values.Cod_UsuarioReg}
-      /> */}
-      {/* <FormField
-        className="p-col-12 p-sm-6 p-col-align-center"
-        disabled
-        label="Fecha de registro"
-        name="Fecha_Reg"
-        type="date"
-        value={values.Fecha_Reg}
-      /> */}
       <div className="p-col-10 p-md-5 p-md-4 p-col-align-center">
         <div className="p-grid p-justify-between">
           <div className="p-col-12 p-sm-6 p-xl-5">

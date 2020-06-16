@@ -124,20 +124,24 @@ const EditUser = () => {
     }
   };
 
-  const fetchUser = async (id, h) => {
-    if (id !== undefined) {
-      const { data } = await api.User.GetById(id);
-      if (data !== undefined) {
-        setUser(data);
-        setCompanies(data.companies);
-      } else {
-        h.goBack();
-      }
-    }
-  };
-
   useEffect(() => {
+    const controller = new AbortController();
+    const fetchUser = async (id, h) => {
+      if (id !== undefined) {
+        const { data } = await api.User.GetById(id, controller.signal);
+        if (data !== undefined && !controller.signal.aborted) {
+          setUser(data);
+          setCompanies(data.companies);
+        } else {
+          h.goBack();
+        }
+      }
+    };
+
     fetchUser(userId, history);
+    return () => {
+      controller.abort();
+    };
   }, [userId, history]);
 
   const validate = (values) => {
@@ -370,7 +374,10 @@ const EditUser = () => {
             />
             {
               values.type <= 2 && values.type !== 0 ? (
-                <Fieldset className="p-col-11 p-col-align-center" legend="Empresas">
+                <Fieldset
+                  className="p-col-11 p-col-align-center"
+                  legend={values.type === 1 ? 'Entidades' : 'Empresas'}
+                >
                   <div className="p-grid p-dir-col">
                     {
                       (values.type !== 1 || companies.length === 0) && (
@@ -402,10 +409,15 @@ const EditUser = () => {
                           rowClassName={() => ({ 'table-row': true })}
                           value={companies}
                         >
-                          <Column field="number" header="RUC" />
+                          <Column field="number" header="Número de documento" />
                           <Column
-                            body={(rowData) => (rowData.isEnabled ? 'SI' : 'NO')}
-                            header="Habilitado"
+                            body={(rowData) => (rowData.isEnabled
+                              ? <span className="badge badge--success">HABILITADO</span>
+                              : <span className="badge badge--error">INHABILITADO</span>
+                            )}
+                            field="isEnabled"
+                            header="Estado"
+                            style={{ textAlign: 'center' }}
                           />
                           <Column
                             body={(rowData) => actionTemplate(rowData, values)}

@@ -11,10 +11,10 @@ const CustomRoute = ({
   path,
   render,
 }) => {
-  const { isAuth, companies } = useContext(AuthContext);
+  const { isAuth, companies, currentCompany } = useContext(AuthContext);
 
   if (isAuth) {
-    if (companies.length < 1) {
+    if (companies.length < 1 && currentCompany === '') {
       return <h1>Usuario inhabilitado</h1>;
     }
     return <Route exact={exact} path={path} render={render} />;

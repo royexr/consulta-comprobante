@@ -47,12 +47,20 @@ const MenuList = ({
       >
         {
           companies.length === 0 && token.type === 1 ? (
-            <MenuLink
-              exact
-              label="Compras"
-              onClick={collapseMenu}
-              to="/purchases"
-            />
+            <>
+              <MenuLink
+                exact
+                label="Inicio"
+                onClick={collapseMenu}
+                to="/dashboard"
+              />
+              <MenuLink
+                exact
+                label="Compras"
+                onClick={collapseMenu}
+                to="/purchases"
+              />
+            </>
           ) : (
             <>
               <MenuLink
@@ -86,6 +94,9 @@ const MenuList = ({
           <MenuLink>
             <Dropdown
               disabled={companies.length < 2}
+              filter
+              filterBy="label, value"
+              filterPlaceholder="Seleccione una empresa"
               name="company"
               onChange={(e) => {
                 collapseMenu();

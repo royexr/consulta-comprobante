@@ -19,43 +19,48 @@ const Users = () => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [showMessages, renderMessages] = useMessages();
 
-  const fetchUsers = async () => {
-    const res = await api.User.GetAllWithCompanies();
-    if (res instanceof TypeError) {
-      showMessages('error', 'Error!', 'No hay conexion');
-    } else {
-      const formatted = res.data.map((u) => {
-        const aux = { ...u };
-        const { _id } = u;
-        aux.email = _id.email;
-        aux.status = 'CORRECTO';
-        aux.socialReasons = '';
-        aux.tradenames = '';
-        if (aux.companies !== undefined && aux.companies.length > 0) {
-          const disabledC = aux.companies.filter((c) => c.isEnabled === false);
-          if (disabledC.length > 0) {
-            aux.status = 'PENDIENTE';
-          }
-        }
-        if (aux.companiesInfo !== undefined && aux.companiesInfo) {
-          for (let i = 0; i < aux.companiesInfo.length; i += 1) {
-            const companyInfo = aux.companiesInfo[i];
-            aux.socialReasons = aux.socialReasons.concat(companyInfo.RazonSocial);
-            aux.tradenames = aux.tradenames.concat(companyInfo.Nom_Comercial);
-            if (i < aux.companiesInfo.length - 1) {
-              aux.socialReasons = aux.socialReasons.concat(', ');
-              aux.tradenames = aux.tradenames.concat(', ');
+  useEffect(() => {
+    const controller = new AbortController();
+    const fetchUsers = async () => {
+      const res = await api.User.GetAllWithCompanies(controller.signal);
+      if (!(res instanceof TypeError) && !controller.signal.aborted) {
+        const formatted = res.data.map((u) => {
+          const aux = { ...u };
+          const { _id } = u;
+          aux.email = _id.email;
+          aux.status = 'CORRECTO';
+          aux.socialReasons = '';
+          aux.tradenames = '';
+          if (aux.companies !== undefined && aux.companies.length > 0) {
+            const disabledC = aux.companies.filter((c) => c.isEnabled === false);
+            if (disabledC.length > 0) {
+              aux.status = 'PENDIENTE';
             }
           }
-        }
-        return aux;
-      });
-      setUsers(formatted);
-    }
-  };
+          if (aux.companiesInfo !== undefined && aux.companiesInfo.length > 0) {
+            for (let i = 0; i < aux.companiesInfo.length; i += 1) {
+              const companyInfo = aux.companiesInfo[i];
+              aux.socialReasons = aux.socialReasons.concat(companyInfo.RazonSocial);
+              aux.tradenames = aux.tradenames.concat(companyInfo.Nom_Comercial);
+              if (i < aux.companiesInfo.length - 1) {
+                aux.socialReasons = aux.socialReasons.concat(', ');
+                aux.tradenames = aux.tradenames.concat(', ');
+              }
+            }
+          }
+          if (aux.entitiesInfo !== undefined && aux.entitiesInfo.length > 0) {
+            aux.tradenames = aux.tradenames.concat(aux.entitiesInfo[0].Nom_Cliente);
+          }
+          return aux;
+        });
+        setUsers(formatted);
+      }
+    };
 
-  useEffect(() => {
     fetchUsers();
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const deleteUser = async (rowData) => {

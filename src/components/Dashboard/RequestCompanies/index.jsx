@@ -19,26 +19,30 @@ const RequestCompanies = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [showMessages, renderMessages] = useMessages();
 
-  const fetchCompanies = async () => {
-    const { _id } = jwt.verify(
-      sessionStorage.getItem('userJWT'),
-      config.jwtSecret,
-    );
-    const { data } = await api.User.GetCompanies(_id.email);
-    const formatted = [];
-    if (data[0].companies !== undefined) {
-      for (let i = 0; i < data[0].companies.length; i += 1) {
-        const r = data[0].companies[i];
-        const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
-        aux[0].isEnabled = r.isEnabled;
-        formatted.push(aux[0]);
-      }
-      setCompanies(formatted);
-    }
-  };
-
   useEffect(() => {
+    const controller = new AbortController();
+    const fetchCompanies = async () => {
+      const { _id } = jwt.verify(
+        sessionStorage.getItem('userJWT'),
+        config.jwtSecret,
+      );
+      const { data } = await api.User.GetCompanies(_id.email, controller.signal);
+      if (data[0].companies !== undefined && !controller.signal.aborted) {
+        const formatted = [];
+        for (let i = 0; i < data[0].companies.length; i += 1) {
+          const r = data[0].companies[i];
+          const aux = data[0].companiesInfo.filter((d) => d.RUC === r.number);
+          aux[0].isEnabled = r.isEnabled;
+          formatted.push(aux[0]);
+        }
+        setCompanies(formatted);
+      }
+    };
+
     fetchCompanies();
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const validate = (values) => {

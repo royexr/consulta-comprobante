@@ -28,19 +28,25 @@ const api = {
     Delete(id) {
       return callApi(`/companies/${id}`, { method: 'DELETE' });
     },
-    ReadAll() {
-      return callApi('/companies', { method: 'GET' });
+    ReadAll(signal) {
+      const opts = {
+        method: 'GET',
+      };
+      if (signal !== undefined) {
+        opts.signal = signal;
+      }
+      return callApi('/companies', opts);
     },
-    ReadById(id) {
-      return callApi(`/companies/${id}`, { method: 'GET' });
+    ReadById(id, signal) {
+      return callApi(`/companies/${id}`, { method: 'GET', signal });
     },
     Update(object) {
       return callApi('/companies', { method: 'PUT', body: JSON.stringify(object) });
     },
   },
   Voucher: {
-    GetEntities(companyCode, bookCode) {
-      return callApi(`/vouchers/getEntities/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET' });
+    GetEntities(companyCode, bookCode, signal) {
+      return callApi(`/vouchers/getEntities/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET', signal });
     },
     GetDetailedReport(query) {
       return callApi(`/vouchers/getDetailedReport?${query}`, { method: 'GET' });
@@ -51,11 +57,11 @@ const api = {
     GetSeriesNumbers(companyCode, bookCode) {
       return callApi(`/vouchers/getSeriesNumbers/?companyCode=${companyCode}&bookCode=${bookCode}`, { method: 'GET' });
     },
-    ReadMany(query) {
-      return callApi(`/vouchers/?${query}`, { method: 'GET' });
+    ReadMany(query, signal) {
+      return callApi(`/vouchers/?${query}`, { method: 'GET', signal });
     },
-    ReadReport(id) {
-      return callApi(`/vouchers/getReport/${id}`, { method: 'GET' });
+    ReadReport(id, signal) {
+      return callApi(`/vouchers/getReport/${id}`, { method: 'GET', signal });
     },
     VerifyFinalUser(clientCode) {
       return callApi(`/vouchers/verifyFinalUser/${clientCode}`, { method: 'GET' });
@@ -65,8 +71,8 @@ const api = {
     },
   },
   VoucherTypes: {
-    GetAll() {
-      return callApi('/voucherTypes', { method: 'GET' });
+    GetAll(signal) {
+      return callApi('/voucherTypes', { method: 'GET', signal });
     },
   },
   User: {
@@ -85,14 +91,20 @@ const api = {
     GetAll() {
       return callApi('/users', { method: 'GET' });
     },
-    GetAllWithCompanies() {
-      return callApi('/users/allWithCompanies', { method: 'GET' });
+    GetAllWithCompanies(signal) {
+      return callApi('/users/allWithCompanies', { method: 'GET', signal });
     },
-    GetById(userId) {
-      return callApi(`/users/${userId}`, { method: 'GET' });
+    GetById(userId, signal) {
+      return callApi(`/users/${userId}`, { method: 'GET', signal });
     },
-    GetCompanies(userId) {
-      return callApi(`/users/getCompanies?userId=${userId}`, { method: 'GET' });
+    GetCompanies(userId, signal) {
+      const opts = {
+        method: 'GET',
+      };
+      if (opts !== undefined) {
+        opts.signal = signal;
+      }
+      return callApi(`/users/getCompanies?userId=${userId}`, opts);
     },
     RequestReset(object) {
       return callApi('/users/requestResetPassword', { method: 'POST', body: JSON.stringify(object) });

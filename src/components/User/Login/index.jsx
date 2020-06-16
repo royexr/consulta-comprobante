@@ -2,7 +2,6 @@
 import React, { useContext } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
-import PropTypes from 'prop-types';
 import CryptoJS from 'crypto-js';
 
 // Resources
@@ -30,22 +29,25 @@ const Login = () => {
     } else {
       switch (loginR.resCode) {
         case '01':
+          actions.setSubmitting(false);
           signIn(loginR.data);
           history.push('/dashboard');
           break;
         case '02':
+          actions.setSubmitting(false);
           showMessages('error', 'Error!', 'Contraseña incorrecta');
           break;
         case '03':
+          actions.setSubmitting(false);
           showMessages('error', 'Error!', 'El usuario no existe');
           break;
         case '04':
+          actions.setSubmitting(false);
           showMessages('error', 'Error!', 'El usuario no ah terminado su registro, revise su correo');
           break;
         default:
           break;
       }
-      actions.setSubmitting(false);
     }
   };
 

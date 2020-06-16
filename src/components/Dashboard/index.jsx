@@ -12,29 +12,35 @@ const Dashboard = ({ currentCompany }) => {
   const [salesT, setSalesT] = useState([]);
   const [purchasesT, setPurchasesT] = useState([]);
 
-  const fetchData = async (cc) => {
-    if (cc !== undefined && cc.length > 0) {
-      const report = (await api.Voucher.ReadReport(cc)).data;
-      const sales = []; const purchases = []; const rLabels = [];
-      for (let i = 0; i < 12; i += 1) {
-        const aux = report.filter((ri) => new Date(ri.date).getUTCMonth() === i);
-        if (aux.length === 1) {
-          sales.push(aux[0].sales);
-          purchases.push(aux[0].purchases);
-        } else {
-          sales.push(0);
-          purchases.push(0);
-        }
-        rLabels.push(`${months[i]} - ${new Date(Date.now()).getFullYear()}`);
-      }
-      setLabels(rLabels);
-      setSalesT(sales);
-      setPurchasesT(purchases);
-    }
-  };
-
   useEffect(() => {
+    const controller = new AbortController();
+    const fetchData = async (cc) => {
+      if (cc !== undefined && cc.length > 0) {
+        const res = await api.Voucher.ReadReport(cc, controller.signal);
+        if (!(res instanceof TypeError) && !controller.signal.aborted) {
+          const sales = []; const purchases = []; const rLabels = [];
+          for (let i = 0; i < 12; i += 1) {
+            const aux = res.data.filter((ri) => new Date(ri.date).getUTCMonth() === i);
+            if (aux.length === 1) {
+              sales.push(aux[0].sales);
+              purchases.push(aux[0].purchases);
+            } else {
+              sales.push(0);
+              purchases.push(0);
+            }
+            rLabels.push(`${months[i]} - ${new Date(Date.now()).getFullYear()}`);
+          }
+          setLabels(rLabels);
+          setSalesT(sales);
+          setPurchasesT(purchases);
+        }
+      }
+    };
+
     fetchData(currentCompany);
+    return () => {
+      controller.abort();
+    };
   }, [currentCompany]);
 
   const lineStylesData = {
